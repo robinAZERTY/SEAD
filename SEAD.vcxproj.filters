@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Fichiers sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Fichiers de ressources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{a113cf58-f279-4afb-9892-a5f86ea628ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\libBase">
+      <UniqueIdentifier>{8da5ff57-3f83-45a7-8dff-625aa03d7bf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\simulation">
+      <UniqueIdentifier>{c6b2fc49-9eda-4ac1-aff1-305e2e6d5a03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\simulation\system evolution description">
+      <UniqueIdentifier>{e37b1bff-1308-41a7-80bf-b6175164249a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\state">
+      <UniqueIdentifier>{4a2844e6-11a5-4e69-8367-96d7dc5f5c6a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SEAD.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="libBase.cpp">
+      <Filter>lib\libBase</Filter>
+    </ClCompile>
+    <ClCompile Include="includes.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticMotionBase.cpp">
+      <Filter>lib\simulation\system evolution description</Filter>
+    </ClCompile>
+    <ClCompile Include="State.cpp">
+      <Filter>lib\state</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="libBase.h">
+      <Filter>lib\libBase</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticMotionBase.h">
+      <Filter>lib\simulation\system evolution description</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
