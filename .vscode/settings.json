@@ -1,6 +1,28 @@
 {
     "files.associations": {
         "ostream": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "array": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "vector": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp",
+        "string": "cpp",
+        "bitset": "cpp",
+        "deque": "cpp",
+        "execution": "cpp",
+        "filesystem": "cpp",
+        "forward_list": "cpp",
+        "iosfwd": "cpp",
+        "iterator": "cpp",
+        "list": "cpp",
+        "regex": "cpp",
+        "system_error": "cpp",
+        "typeindex": "cpp",
+        "xlocale": "cpp",
+        "xtree": "cpp",
+        "complex": "cpp",
+        "cmath": "cpp"
     }
 }
