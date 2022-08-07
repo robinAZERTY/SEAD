@@ -1,32 +1,41 @@
-#ifndef STATE_CPP
-#define STATE_CPP
+#include "State.h"
 
-struct state
+State::State()
 {
-public:
-	float X_position = 0;
-	float Y_position = 0;
-	float Z_position = 0;
+	position = Matrix(3,1);
+	velocity = Matrix(3,1);
+	acceleration = Matrix(3,1);
+	orientation = Quaternion();
+	angular_velocity = Matrix(3,1);
+	angular_acceleration = Matrix(3,1);
 
-	float X_velocity = 0;
-	float Y_velocity = 0;
-	float Z_velocity = 0;
+	position.set_description("Position");
+	velocity.set_description("Velocity");
+	acceleration.set_description("Acceleration");
+	orientation.set_description("Orientation");
+	angular_velocity.set_description("Angular Velocity");
+	angular_acceleration.set_description("Angular Acceleration");
+	description = "State";
+}
 
-	float X_acceleration = 0;
-	float Y_acceleration = 0;
-	float Z_acceleration = 0;
-		
-	float X_angular_position = 0;
-	float Y_angular_position = 0;
-	float Z_angular_position = 0;
+State::~State()
+{
+}
 
-	float X_angular_velocity = 0;
-	float Y_angular_velocity = 0;
-	float Z_angular_velocity = 0;
+void State::set_description(string description)
+{
+	this->description=description;
+}
 
-	float X_angular_acceleration = 0;
-	float Y_angular_acceleration = 0;
-	float Z_angular_acceleration = 0;
-};
-
-#endif // !STATE_CPP
+string State::to_str()
+{
+	string str;
+	str+="description:"+description+'\n';
+	str+= '\t' + position.to_str()+'\n';
+	str+= '\t' + velocity.to_str()+'\n';
+	str+= '\t' + acceleration.to_str()+'\n';
+	str+= '\t' + orientation.to_str()+'\n';
+	str+= '\t' + angular_velocity.to_str()+'\n';
+	str+= '\t' + angular_acceleration.to_str()+'\n';
+	return str;
+}
