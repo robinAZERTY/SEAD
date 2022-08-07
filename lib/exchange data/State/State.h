@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "../../math\matrix\matrix.cpp"
-#include "../../math\quaternion\quaternion.cpp"
+#include "matrix.cpp"
+#include "quaternion.cpp"
 
 #include <string>
 using namespace std;
