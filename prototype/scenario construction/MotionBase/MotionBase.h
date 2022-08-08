@@ -3,21 +3,19 @@
 
 
 
-class StaticMotionBase
+class MotionBase
 {
 public:
-	StaticMotionBase(){};
-	~StaticMotionBase(){};
+	MotionBase(){};
+	~MotionBase(){};
 
-	void set_parameters(const Matrix &position, const Quaternion &orientation);
+	void set_parameters();
 	State get_state(const double &t);
 
 private:
 
 	struct INPUT
 	{
-		Matrix position = Matrix(3, 1);
-		Quaternion orientation = Quaternion();
 	};
 
 	struct INPUT parameters; // input
