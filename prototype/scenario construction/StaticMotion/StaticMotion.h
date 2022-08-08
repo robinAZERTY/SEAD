@@ -10,7 +10,7 @@ class StaticMotion : public MotionBase
     
     private :
         
-        struct INPUT
+        static struct INPUT
         {
             Matrix position;
             Quaternion orientation;

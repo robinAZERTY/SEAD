@@ -14,7 +14,7 @@ public:
 
 protected:
 
-	struct INPUT
+	static struct INPUT
 	{
 	};
 
