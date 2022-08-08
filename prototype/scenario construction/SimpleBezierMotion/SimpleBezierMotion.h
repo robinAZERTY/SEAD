@@ -2,7 +2,7 @@
 
 #include "MotionBase.cpp"
 
-class BezierMotion : public MotionBase
+class SimpleBezierMotion : public MotionBase
 {
     public :
 
@@ -17,6 +17,4 @@ class BezierMotion : public MotionBase
     struct INPUT parameters; // input
 
     void update_state(const double &t);
-    void init();
-
 };
