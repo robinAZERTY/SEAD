@@ -12,7 +12,7 @@ public:
 	void set_parameters();
 	State get_state(const double &t);
 
-private:
+protected:
 
 	struct INPUT
 	{
