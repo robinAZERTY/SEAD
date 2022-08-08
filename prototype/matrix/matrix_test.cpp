@@ -77,6 +77,10 @@ void test_operator()
     m3.set_description("1.5*m1+m2");
     cout<<m3.to_str()<<endl;
 
+    m3 = 2*m1;
+    m3.set_description("2*m1");
+    cout<<m3.to_str()<<endl;
+
     m1.resize(3,2);
     m2.resize(2,3);
     m3.resize(1,1);

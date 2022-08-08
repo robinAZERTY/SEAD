@@ -73,3 +73,5 @@ class Matrix
         
         
 };
+
+Matrix operator*(const double& d, Matrix const& m){return m*d;};//
