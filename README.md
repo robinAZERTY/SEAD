@@ -10,7 +10,7 @@ evaluation
 This project will help you to create your AHRS fusion algo.
 
 How ? 
-- By simulating of your system.
+- By simulating your system.
     You choos what sensors used and what movments the objects will describe. 
     Then, this app simulate the datas of sensors.
     You put them in your AHRS fusion algo and compare its outputs with the scenario of the simulation.
