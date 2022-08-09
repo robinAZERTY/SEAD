@@ -1,7 +1,5 @@
 #include "matrix.h"
 
-
-
 Matrix::Matrix()
 {
     rows = 0;
@@ -9,32 +7,29 @@ Matrix::Matrix()
     Data = 0;
 }
 
-Matrix::Matrix(const unsigned int& nb_rows, const unsigned int& nb_cols)
+Matrix::Matrix(const unsigned int &nb_rows, const unsigned int &nb_cols)
 {
     rows = nb_rows;
     cols = nb_cols;
-    Data = new double*[rows];
+    Data = new double *[rows];
     for (int i = 0; i < rows; i++)
     {
         Data[i] = new double[cols];
     }
+    this->fill(0);
 }
-
-
 
 void Matrix::set_description(const string description)
 {
     this->description = description;
 }
 
-
-
 string Matrix::to_str() const
 {
     string ret = "";
     ret += description + " :\n";
     for (int i = 0; i < rows; i++)
-    {   
+    {
         string str_line = "";
         for (int j = 0; j < cols; j++)
         {
@@ -45,8 +40,8 @@ string Matrix::to_str() const
     return ret;
 }
 
-Matrix::Matrix(const Matrix& other)
-{   
+Matrix::Matrix(const Matrix &other)
+{
     *this = other;
 }
 
@@ -59,17 +54,15 @@ Matrix::~Matrix()
     delete[] Data;
 }
 
-
-
-void Matrix::resize(const int& nb_new_rows, const int& nb_new_cols)
+void Matrix::resize(const int &nb_new_rows, const int &nb_new_cols)
 {
-    //on crée une Matrice retoraire
+    // on crée une Matrice retoraire
     Matrix ret(nb_new_rows, nb_new_cols);
 
     int nb_row_inter = nb_new_rows < rows ? nb_new_rows : rows;
     int nb_col_inter = nb_new_cols < cols ? nb_new_cols : cols;
 
-    //on copie les données de la matrice dans la matrice retoraire
+    // on copie les données de la matrice dans la matrice retoraire
     for (int i = 0; i < nb_row_inter; i++)
     {
         for (int j = 0; j < nb_col_inter; j++)
@@ -77,9 +70,8 @@ void Matrix::resize(const int& nb_new_rows, const int& nb_new_cols)
             ret.Data[i][j] = Data[i][j];
         }
     }
-    *this=ret;
+    *this = ret;
 }
-
 
 int Matrix::get_nb_rows() const
 {
@@ -95,9 +87,6 @@ double **Matrix::data() const
 {
     return Data;
 }
-
-
-
 
 Matrix Matrix::transpose() const
 {
@@ -124,7 +113,7 @@ double Matrix::trace() const
 
 double Matrix::determinant() const
 {
-   
+
     if (rows != cols)
     {
         return 0;
@@ -206,13 +195,12 @@ Matrix Matrix::inverse() const
     return ret.transpose() * (1 / determinant());
 }
 
-
-void Matrix::set(const unsigned int& row, const unsigned int& col, const double &data)
+void Matrix::set(const unsigned int &row, const unsigned int &col, const double &data)
 {
-    Data[row][col]=data;
+    Data[row][col] = data;
 }
 
-void Matrix::fill(const double& data)
+void Matrix::fill(const double &data)
 {
     for (int i = 0; i < rows; i++)
     {
@@ -222,13 +210,13 @@ void Matrix::fill(const double& data)
         }
     }
 }
-//operator =
-Matrix& Matrix::operator=(const Matrix& other)
+// operator =
+Matrix &Matrix::operator=(const Matrix &other)
 {
     description = other.description;
     rows = other.rows;
     cols = other.cols;
-    Data = new double*[rows];
+    Data = new double *[rows];
     for (int i = 0; i < rows; i++)
     {
         Data[i] = new double[cols];
@@ -243,10 +231,10 @@ Matrix& Matrix::operator=(const Matrix& other)
     return *this;
 }
 
-Matrix Matrix::operator+(const Matrix& other) const
-{  
+Matrix Matrix::operator+(const Matrix &other) const
+{
     if (rows != other.rows || cols != other.cols)
-    {   
+    {
         Matrix ret;
         return ret;
     }
@@ -261,7 +249,7 @@ Matrix Matrix::operator+(const Matrix& other) const
     return ret;
 }
 
-Matrix Matrix::operator*(const Matrix& other) const
+Matrix Matrix::operator*(const Matrix &other) const
 {
     if (cols != other.rows)
     {
@@ -284,7 +272,7 @@ Matrix Matrix::operator*(const Matrix& other) const
     return ret;
 }
 
-Matrix Matrix::operator*(const double& other) const
+Matrix Matrix::operator*(const double &other) const
 {
     Matrix ret(rows, cols);
     for (int i = 0; i < rows; i++)
@@ -297,51 +285,49 @@ Matrix Matrix::operator*(const double& other) const
     return ret;
 }
 
-
-
-Matrix Matrix::operator-(const Matrix& other) const
+Matrix Matrix::operator-(const Matrix &other) const
 {
-    Matrix ret = *this + other*(-1);
+    Matrix ret = *this + other * (-1);
     return ret;
 }
 
-Matrix Matrix::operator/(const double& other) const
+Matrix Matrix::operator/(const double &other) const
 {
     Matrix ret = *this * (1 / other);
     return ret;
 }
 
-Matrix Matrix::operator+=(const Matrix& other)
+Matrix Matrix::operator+=(const Matrix &other)
 {
     *this = *this + other;
     return *this;
 }
 
-Matrix Matrix::operator*=(const Matrix& other)
+Matrix Matrix::operator*=(const Matrix &other)
 {
     *this = *this * other;
     return *this;
 }
 
-Matrix Matrix::operator*=(const double& other)
+Matrix Matrix::operator*=(const double &other)
 {
     *this = *this * other;
     return *this;
 }
 
-Matrix Matrix::operator-=(const Matrix& other)
+Matrix Matrix::operator-=(const Matrix &other)
 {
     *this = *this - other;
     return *this;
 }
 
-Matrix Matrix::operator/=(const double& other)
+Matrix Matrix::operator/=(const double &other)
 {
     *this = *this / other;
     return *this;
 }
 
-bool Matrix::operator==(const Matrix& other) const
+bool Matrix::operator==(const Matrix &other) const
 {
     if (rows != other.rows || cols != other.cols)
     {
@@ -360,8 +346,19 @@ bool Matrix::operator==(const Matrix& other) const
     return true;
 }
 
-bool Matrix::operator!=(const Matrix& other) const
+bool Matrix::operator!=(const Matrix &other) const
 {
     return !(*this == other);
 }
 
+//fonction non membre de la classe Matrix
+
+Matrix IdentityMatrix(const unsigned int &size)
+{
+    Matrix ret(size, size);
+    for (int i = 0; i < size; i++)
+    {
+        ret.set(i,i,1);
+    }
+    return ret;
+}

@@ -114,7 +114,12 @@ void test_function()
 
     double trace = m1.trace();
     cout << "m1.trace()=" << trace << endl;
+
+    Matrix m4 = m1*IdentityMatrix(m1.get_nb_cols());
+    m4.set_description("m1*IdentityMatridx(m1.get_nb_cols())");
+    cout << m4.to_str() << endl;
 }
+
 int main()
 {
     test_CTOR_DTOR();

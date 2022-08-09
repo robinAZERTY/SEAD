@@ -16,6 +16,7 @@ Matrix::Matrix(const unsigned int &nb_rows, const unsigned int &nb_cols)
     {
         Data[i] = new double[cols];
     }
+    this->fill(0);
 }
 
 void Matrix::set_description(const string description)
@@ -348,4 +349,16 @@ bool Matrix::operator==(const Matrix &other) const
 bool Matrix::operator!=(const Matrix &other) const
 {
     return !(*this == other);
+}
+
+//fonction non membre de la classe Matrix
+
+Matrix IdentityMatrix(const unsigned int &size)
+{
+    Matrix ret(size, size);
+    for (int i = 0; i < size; i++)
+    {
+        ret.set(i,i,1);
+    }
+    return ret;
 }
