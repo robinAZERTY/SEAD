@@ -1,8 +1,6 @@
 #pragma once
 #include "State.h"
 
-
-
 class MotionBase
 {
 public:
@@ -13,7 +11,6 @@ public:
 	State get_state(const double &t);
 
 protected:
-
 	static struct INPUT
 	{
 	};
@@ -22,7 +19,7 @@ protected:
 
 	void update_state(const double &t);
 	void init();
-	
+
 	State state; // output
 
 	bool inited = false;

@@ -4,12 +4,10 @@
 
 class SimpleBezierMotion : public MotionBase
 {
-    public :
+public:
+    void set_parameters(const Matrix points[4]);
 
-        void set_parameters(const Matrix points[4]);
-
-    private :
-
+private:
     static struct INPUT
     {
         Matrix points[4];

@@ -14,4 +14,5 @@ private:
 
     MotionBase *motions;
     double *t_separations;//help to chose wich motion may be computed
+    unsigned int nb_motions;
 };
