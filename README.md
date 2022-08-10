@@ -3,9 +3,9 @@ State Estimate Algorythm Developpment
 (State : position, orientation and speeds of the system in the global reference)
 
 Main parts of the project : 
-Simulation
-fusion algo dev
-evaluation
+-Simulation
+-fusion algo dev
+-evaluation
 
 This project will help you to create your AHRS fusion algo.
 
