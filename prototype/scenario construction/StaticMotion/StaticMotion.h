@@ -5,12 +5,11 @@
 class StaticMotion : public MotionBase
 {
 public:
-    virtual void set_parameters(const Matrix &position, const Quaternion &orientation);
+    StaticMotion(const Matrix Position);
+    virtual void set_parameters(const Matrix &position);
 
 private:
 
     Matrix position;
-    Quaternion orientation;
-
     virtual void init();
 };

@@ -1,6 +1,11 @@
 #include "StaticMotion.h"
 
-void StaticMotion::set_parameters(const Matrix &position, const Quaternion &orientation)
+StaticMotion::StaticMotion(const Matrix Position)
+{
+    set_parameters(Position);
+}
+
+void StaticMotion::set_parameters(const Matrix &position)
 {   
     //verification de la validité des paramètres
     if(position.get_nb_rows() != 3 || position.get_nb_cols() != 1)
@@ -9,7 +14,7 @@ void StaticMotion::set_parameters(const Matrix &position, const Quaternion &orie
     }
 
     this->position = position;
-    this->orientation = orientation;
+    inited = false;
 }
 
 void StaticMotion::init()
@@ -24,7 +29,7 @@ void StaticMotion::init()
     state.position = this->position;
     state.velocity.fill(0);
     state.acceleration.fill(0);
-    state.orientation = this->orientation;
+    state.orientation = Quaternion();
     state.angular_velocity.fill(0);
     state.angular_acceleration.fill(0);
     initialState = state;
