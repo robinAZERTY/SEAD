@@ -2,17 +2,17 @@
 
 #include <MotionBase.cpp>
 
-class Scenario
+class MotionConstruction
 {
 public:
-    Scenario();
-    ~Scenario();
+    MotionConstruction();
+    ~MotionConstruction();
 
     State get_state(const double &t);
 
 private:
 
     MotionBase *motions;
-    double *t_separations;//help to chose wich motion may be computed
+    double *t_separations;//help to chose wich motion we compute
     unsigned int nb_motions;
 };

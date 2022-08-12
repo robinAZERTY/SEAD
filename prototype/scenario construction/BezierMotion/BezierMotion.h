@@ -1,22 +1,17 @@
 #pragma once
 
 #include "MotionBase.cpp"
+#include "BezierMotionBase.cpp"
 
 class BezierMotion : public MotionBase
 {
     public :
-
-        void set_parameters(const Matrix points[4]);
+        BezierMotion(const Matrix points[4], const double &duration);
+        virtual void set_parameters(const Matrix points[4], const double &duration);
 
     private :
 
-    static struct INPUT
-    {
-        Matrix points[4];
-    };
-    struct INPUT parameters; // input
-
-    void update_state(const double &t);
-    void init();
-
+        Matrix A=Matrix(3,1),B=A,C=A,D=A;
+        virtual void update_state(const double &t);
+        virtual void init();
 };

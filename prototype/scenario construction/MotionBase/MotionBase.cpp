@@ -5,6 +5,11 @@ void MotionBase::set_parameters()
 	inited = false;
 }
 
+void MotionBase::set_duration(const double &duration)
+{
+	this->duration = duration;
+}
+
 void MotionBase::init()
 {
 	state.position = Matrix(3, 1);
@@ -19,6 +24,8 @@ void MotionBase::init()
 	state.acceleration.fill(0);
 	state.angular_velocity.fill(0);
 	state.angular_acceleration.fill(0);
+	initialState = state;
+	finalState = state;
 	inited = true;
 }
 
@@ -34,4 +41,14 @@ State MotionBase::get_state(const double &t)
 	}
 	update_state(t);
 	return this->state;
+}
+
+State MotionBase::get_initial_state()
+{
+	return this->initialState;
+}
+
+State MotionBase::get_final_state()
+{
+	return this->finalState;
 }

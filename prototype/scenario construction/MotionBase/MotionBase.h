@@ -6,21 +6,23 @@ class MotionBase
 public:
 	MotionBase(){};
 	~MotionBase(){};
-
-	void set_parameters();
+	virtual void set_parameters();
+	
+	void set_duration(const double &duration);
 	State get_state(const double &t);
+	State get_initial_state();
+	State get_final_state();
+
 
 protected:
-	static struct INPUT
-	{
-	};
 
-	struct INPUT parameters; // input
 
-	void update_state(const double &t);
-	void init();
+	double duration = 0;
 
-	State state; // output
+	virtual void update_state(const double &t);
+	virtual void init();
+
+	State initialState,state,finalState; // output
 
 	bool inited = false;
 };

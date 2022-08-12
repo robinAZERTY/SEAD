@@ -1,33 +1,54 @@
 #include "BezierMotion.h"
 
-void BezierMotion::set_parameters(const Matrix points[4])
+BezierMotion::BezierMotion(const Matrix points[4], const double &duration)
 {
-    parameters.points[0] = points[0];
-    parameters.points[1] = points[1];
-    parameters.points[2] = points[2];
-    parameters.points[3] = points[3];
+    set_parameters(points, duration);
+}
+
+void BezierMotion::set_parameters(const Matrix points[4], const double &duration)
+{
+    //verification de la validité des paramètres
+    for (int i = 0; i < 4; i++)
+    {
+        if (points[i].get_nb_rows() != 3 || points[i].get_nb_cols() != 1)
+        {
+            throw "points must be a 3x1 matrix";
+        }
+    }
+    
+    A = points[0];
+    B = points[1];
+    C = points[2];
+    D = points[3];
+    this->duration = duration;
+    inited = false;
 }
 
 void BezierMotion::update_state(const double &t)
-{
-    if(t<0 || t>1)
+{   
+    //verification de la validité des paramètres
+    if(t<0 || t>duration)
     {
-        return;
+        throw "t must be between 0 and duration";
     }
-    else
-    {   
-        Matrix &A = parameters.points[0];
-        Matrix &B = parameters.points[1];
-        Matrix &C = parameters.points[2];
-        Matrix &D = parameters.points[3];
-        /*
-        state.position = parameters.points[0]*(1-t)*(1-t)*(1-t) + parameters.points[1]*3*t*(1-t)*(1-t) + parameters.points[2]*3*t*t*(1-t) + parameters.points[3]*t*t*t;
-        state.velocity = parameters.points[0]*3*(1-t)*(1-t) + parameters.points[1]*3*2*t*(1-t) + parameters.points[2]*3*t*t + parameters.points[3]*3*t*t;
-        state.acceleration = parameters.points[0]*6*(1-t) + parameters.points[1]*6*2*t + parameters.points[2]*6*t + parameters.points[3]*6*t;   
-        */
-       state.position = A*(1-t)*(1-t)*(1-t) + B*3*t*(1-t)*(1-t) + C*3*t*t*(1-t) + D*t*t*t;
 
-       //derivate of position :dP/dt = 3(A-3B+3C-D)*(1-t)*(1-t) + 3(B-2C+D)*2t*(1-t) + 3(C-D)*t*t + 3(D)*t*t
-       state.velocity= 3*(A-3*B+3*C-D)*(1-t)*(1-t) + 3*(B-2*C+D)*2*t*(1-t) + 3*(C-D)*t*t + 3*D*t*t;
-    }
+    double alpha = 1 / duration;
+    double t_ = t * alpha;
+
+    state.position= A*(1-t_)*(1-t_)*(1-t_) + B*3*t_*(1-t_)*(1-t_) + C*3*t_*t_*(1-t_) + D*t_*t_*t_;
+    state.velocity= alpha*(3*(A-3*B+3*C-D)*(1-t_)*(1-t_) + 3*(B-2*C+D)*2*t_*(1-t_) + 3*(C-D)*t_*t_ + 3*D*t_*t_);
+    state.acceleration= alpha*(6*(A-2*B+C)*(1-t_) + 6*(B-C)*2*t_ + 6*C*t_ + 6*D*t_);
+}
+
+void BezierMotion::init()
+{
+    update_state(duration);
+    finalState = state;
+
+    update_state(0);
+    initialState = state;
+
+    state=initialState;
+
+    inited = true;
 }
