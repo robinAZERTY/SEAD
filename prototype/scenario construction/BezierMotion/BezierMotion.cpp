@@ -5,6 +5,27 @@ BezierMotion::BezierMotion(const Matrix points[4], const double &duration)
     set_parameters(points, duration);
 }
 
+BezierMotion::BezierMotion(const Matrix initialPosition, const Matrix initialVelocity, const Matrix new_points[2], const double &duration)
+{   
+    //verification de la validité des paramètres
+    if(initialPosition.get_nb_rows()!=3 || initialPosition.get_nb_cols()!=1)
+    {
+        throw "initialPosition must be a 3x1 matrix";
+    }
+    if(initialVelocity.get_nb_rows()!=3 || initialVelocity.get_nb_cols()!=1)
+    {
+        throw "initialVelocity must be a 3x1 matrix";
+    }
+
+    Matrix new_4points[4];
+    new_4points[0]=initialPosition;
+    new_4points[1]=initialVelocity*duration/3.0+new_4points[0];
+    new_4points[2]=new_points[0];
+    new_4points[3]=new_points[1];
+
+    set_parameters(new_4points, duration);
+}
+
 void BezierMotion::set_parameters(const Matrix points[4], const double &duration)
 {
     // verification de la validité des paramètres
