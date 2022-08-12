@@ -16,7 +16,6 @@ public:
 
 protected:
 
-
 	double duration = 0;
 
 	virtual void update_state(const double &t);

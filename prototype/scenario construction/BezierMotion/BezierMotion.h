@@ -1,7 +1,6 @@
 #pragma once
 
 #include "MotionBase.cpp"
-#include "BezierMotionBase.cpp"
 
 class BezierMotion : public MotionBase
 {
