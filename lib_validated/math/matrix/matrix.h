@@ -65,7 +65,7 @@ public:
     void set_description(const string description); // affecte la description de la matrice
     string to_str() const;
 
-private:
+protected:
     string description = "Matrice";
     unsigned int rows;
     unsigned int cols;
