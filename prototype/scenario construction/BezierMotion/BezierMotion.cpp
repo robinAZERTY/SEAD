@@ -7,15 +7,6 @@ BezierMotion::BezierMotion(const Matrix points[4], const double &duration)
 
 BezierMotion::BezierMotion(const Matrix initialPosition, const Matrix initialVelocity, const Matrix new_points[2], const double &duration)
 {   
-    //verification de la validité des paramètres
-    if(initialPosition.get_nb_rows()!=3 || initialPosition.get_nb_cols()!=1)
-    {
-        throw "initialPosition must be a 3x1 matrix";
-    }
-    if(initialVelocity.get_nb_rows()!=3 || initialVelocity.get_nb_cols()!=1)
-    {
-        throw "initialVelocity must be a 3x1 matrix";
-    }
 
     Matrix new_4points[4];
     new_4points[0]=initialPosition;
@@ -28,12 +19,15 @@ BezierMotion::BezierMotion(const Matrix initialPosition, const Matrix initialVel
 
 void BezierMotion::set_parameters(const Matrix points[4], const double &duration)
 {
-    // verification de la validité des paramètres
-    for (int i = 0; i < 4; i++)
+    // les 4 Matrices de points doivent avoir les mêmes dimensions
+    const unsigned int nb_rows = points[0].get_nb_rows();
+    const unsigned int nb_cols = points[0].get_nb_cols();
+
+    for(unsigned int i=1; i<4; i++)
     {
-        if (points[i].get_nb_rows() != 3 || points[i].get_nb_cols() != 1)
+        if(points[i].get_nb_rows() != nb_rows || points[i].get_nb_cols() != nb_cols)
         {
-            throw "points must be a 3x1 matrix";
+            throw "points must have the same dimensions";
         }
     }
 

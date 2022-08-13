@@ -11,7 +11,7 @@ class BezierMotion : public MotionBase
 
     private :
 
-        Matrix A=Matrix(3,1),B=A,C=A,D=A;
+        Matrix A,B,C,D;
         virtual void update_state(const double &t);
         virtual void init();
 };

@@ -19,19 +19,16 @@ void StaticMotion::set_parameters(const Matrix &position)
 
 void StaticMotion::init()
 {
-    state.position = Matrix(3, 1);
-    state.velocity = Matrix(3, 1);
-    state.acceleration = Matrix(3, 1);
+    state.position = Matrix();
+    state.velocity = Matrix();
+    state.acceleration = Matrix();
     state.orientation = Quaternion();
-    state.angular_velocity = Matrix(3, 1);
-    state.angular_acceleration = Matrix(3, 1);
+    state.angular_velocity = Matrix();
+    state.angular_acceleration = Matrix();
 
     state.position = this->position;
-    state.velocity.fill(0);
-    state.acceleration.fill(0);
     state.orientation = Quaternion();
-    state.angular_velocity.fill(0);
-    state.angular_acceleration.fill(0);
+    
     initialState = state;
     finalState = state;
     inited = true;

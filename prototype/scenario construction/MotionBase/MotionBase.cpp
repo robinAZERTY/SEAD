@@ -12,18 +12,13 @@ void MotionBase::set_duration(const double &duration)
 
 void MotionBase::init()
 {
-	state.position = Matrix(3, 1);
-	state.velocity = Matrix(3, 1);
-	state.acceleration = Matrix(3, 1);
+	state.position = Matrix();
+	state.velocity = Matrix();
+	state.acceleration = Matrix();
 	state.orientation = Quaternion();
-	state.angular_velocity = Matrix(3, 1);
-	state.angular_acceleration = Matrix(3, 1);
+	state.angular_velocity = Matrix();
+	state.angular_acceleration = Matrix();
 
-	state.position.fill(0);
-	state.velocity.fill(0);
-	state.acceleration.fill(0);
-	state.angular_velocity.fill(0);
-	state.angular_acceleration.fill(0);
 	initialState = state;
 	finalState = state;
 	inited = true;
