@@ -58,27 +58,27 @@ void test_operator()
 
     Matrix m3(3, 3);
     m3 = m1 + m2;
-    m3.set_description("m1+m2");
+    m3.set_description("m3 = m1+m2");
     cout << m3.to_str() << endl;
 
     m3 = m1 - m2;
-    m3.set_description("m1-m2");
+    m3.set_description("m3 = m1-m2");
     cout << m3.to_str() << endl;
 
     m3 = m1 * m2;
-    m3.set_description("m1*m2");
+    m3.set_description("m3 = m1*m2");
     cout << m3.to_str() << endl;
 
     m3 = m1 * 2;
-    m3.set_description("m1*2");
+    m3.set_description("m3 = m1*2");
     cout << m3.to_str() << endl;
 
     m3 = m1 * 1.5 + m2;
-    m3.set_description("1.5*m1+m2");
+    m3.set_description("m3 = 1.5*m1+m2");
     cout << m3.to_str() << endl;
 
     m3 = 2 * m1;
-    m3.set_description("2*m1");
+    m3.set_description("m3 = 2*m1");
     cout << m3.to_str() << endl;
 
     m1.resize(3, 2);
@@ -86,8 +86,13 @@ void test_operator()
     m3.resize(1, 1);
     m3 = m1 * m2;
 
-    m3.set_description("m1*m2");
+    m3.set_description("m3 = m1*m2");
     cout << m3.to_str() << endl;
+
+    //access operator
+    cout << "m3(0,0) = ";
+    cout << m3(0,0) << endl <<endl;
+
 }
 
 void test_function()
@@ -109,14 +114,14 @@ void test_function()
     cout << "m1.determinant()=" << det << endl;
 
     Matrix m3 = m1.inverse();
-    m3.set_description("m1.inverse()");
+    m3.set_description("m3 = m1.inverse()");
     cout << m3.to_str() << endl;
 
     double trace = m1.trace();
     cout << "m1.trace()=" << trace << endl;
 
     Matrix m4 = m1*IdentityMatrix(m1.get_nb_cols());
-    m4.set_description("m1*IdentityMatridx(m1.get_nb_cols())");
+    m4.set_description("m4 = m1*IdentityMatridx(m1.get_nb_cols())");
     cout << m4.to_str() << endl;
 }
 
