@@ -9,9 +9,9 @@ public:
 	virtual void set_parameters();
 	
 	void set_duration(const double &duration);
-	State get_state(const double &t);
-	State get_initial_state();
-	State get_final_state();
+	Matrix get_state(const double &t);
+	Matrix get_initial_state();
+	Matrix get_final_state();
 
 
 protected:
@@ -21,7 +21,7 @@ protected:
 	virtual void update_state(const double &t);
 	virtual void init();
 
-	State initialState,state,finalState; // output
+	Matrix initialState,state,finalState; // output
 
 	bool inited = false;
 };

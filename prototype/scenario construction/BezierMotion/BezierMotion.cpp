@@ -35,6 +35,7 @@ void BezierMotion::set_parameters(const Matrix points[4], const double &duration
     B = points[1];
     C = points[2];
     D = points[3];
+    state.resize(A.get_nb_rows(),3*A.get_nb_cols());//because it will return its prime and seconde derivate
     this->duration = duration;
     inited = false;
 }
@@ -49,10 +50,21 @@ void BezierMotion::update_state(const double &t)
 
     double alpha = 1 / duration;
     double t_ = t * alpha;
+    Matrix position,velocity,acceleration;
 
-    state.position = A * (1 - t_) * (1 - t_) * (1 - t_) + B * 3 * t_ * (1 - t_) * (1 - t_) + C * 3 * t_ * t_ * (1 - t_) + D * t_ * t_ * t_;
-    state.velocity = alpha * (-3 * (A * (1 - t_) * (1 - t_) + t_ * (-2 * C + 3 * C * t_ - D * t_) + B * (-1 + 4 * t_ - 3 * t_ * t_)));
-    state.acceleration = alpha * (-6 * (B * (2 - 3 * t_) - C - A * (1 - t_) + 3 * C * t_ - D * t_));
+    position = A * (1 - t_) * (1 - t_) * (1 - t_) + B * 3 * t_ * (1 - t_) * (1 - t_) + C * 3 * t_ * t_ * (1 - t_) + D * t_ * t_ * t_;
+    velocity = alpha * (-3 * (A * (1 - t_) * (1 - t_) + t_ * (-2 * C + 3 * C * t_ - D * t_) + B * (-1 + 4 * t_ - 3 * t_ * t_)));
+    acceleration = alpha * (-6 * (B * (2 - 3 * t_) - C - A * (1 - t_) + 3 * C * t_ - D * t_));
+    
+    for(unsigned int i=0; i<A.get_nb_rows();i++)
+    {
+        for( unsigned int j=0;j<A.get_nb_cols();j++)
+        {
+            state.set(i,j,position(i,j));
+            state.set(i,j+A.get_nb_cols(),velocity(i,j));
+            state.set(i,j+2*A.get_nb_cols(),acceleration(i,j));
+        }
+    }
 }
 
 void BezierMotion::init()

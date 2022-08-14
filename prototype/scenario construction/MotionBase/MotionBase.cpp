@@ -11,14 +11,8 @@ void MotionBase::set_duration(const double &duration)
 }
 
 void MotionBase::init()
-{
-	state.position = Matrix();
-	state.velocity = Matrix();
-	state.acceleration = Matrix();
-	state.orientation = Quaternion();
-	state.angular_velocity = Matrix();
-	state.angular_acceleration = Matrix();
-
+{	
+	state=Matrix();
 	initialState = state;
 	finalState = state;
 	inited = true;
@@ -28,7 +22,7 @@ void MotionBase::update_state(const double &dt)
 {
 }
 
-State MotionBase::get_state(const double &t)
+Matrix MotionBase::get_state(const double &t)
 {
 	if (!inited)
 	{
@@ -38,12 +32,12 @@ State MotionBase::get_state(const double &t)
 	return this->state;
 }
 
-State MotionBase::get_initial_state()
+Matrix MotionBase::get_initial_state()
 {
 	return this->initialState;
 }
 
-State MotionBase::get_final_state()
+Matrix MotionBase::get_final_state()
 {
 	return this->finalState;
 }

@@ -17,7 +17,6 @@ void test_CTOR_DTOR()
     m1.set(0, 1);
     m3 = m1;
     cout << m3.to_str() << endl;
-
     Vector m4(2);
     cout << m4.to_str() << endl;
 }
