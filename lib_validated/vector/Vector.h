@@ -1,6 +1,7 @@
 #pragma once
 
-#include "matrix.cpp"
+#include "../../lib_validated\math\matrix\matrix.cpp"
+//#include "matrix.cpp"
 
 class Vector : public Matrix
 {
@@ -10,11 +11,12 @@ public:
 
     const Vector normalize() const;
     const float norm() const;
-    void set(const unsigned int &index, const double &value);
-
+    virtual void set(const unsigned int &index, const double &value);
+    virtual void resize(const unsigned int &dim);
     //operateur ()
     const double &operator()(const unsigned int &index)const;
 
     //operateur = liste de double
     Vector &operator=(const double* data);
+
 };
