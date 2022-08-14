@@ -10,6 +10,11 @@ Vector::Vector(const unsigned int &dim) : Matrix(dim, 1)
     this->description="Vector";
 }
 
+void Vector::resize(const unsigned int &dim)
+{
+    this->Matrix::resize(dim, 1);
+}
+
 //operateur ()
 const double &Vector::operator()(const unsigned int &index) const
 {

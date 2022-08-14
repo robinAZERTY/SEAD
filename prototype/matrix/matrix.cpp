@@ -232,6 +232,7 @@ Matrix &Matrix::operator=(const Matrix &other)
     return *this;
 }
 
+
 Matrix Matrix::operator+(const Matrix &other) const
 {
     if (rows != other.rows || cols != other.cols)

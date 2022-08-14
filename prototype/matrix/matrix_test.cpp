@@ -51,7 +51,8 @@ void test_operator()
     m1.set_description("m1");
     cout << m1.to_str() << endl;
     Matrix m2(3, 3);
-    m2.fill(2);
+    
+    // m2.fill(2);
     m2.set(1, 1, 3);
     m2.set_description("m2");
     cout << m2.to_str() << endl;
@@ -89,10 +90,10 @@ void test_operator()
     m3.set_description("m3 = m1*m2");
     cout << m3.to_str() << endl;
 
-    //access operator
+    // access operator
     cout << "m3(0,0) = ";
-    cout << m3(0,0) << endl <<endl;
-
+    cout << m3(0, 0) << endl
+         << endl;
 }
 
 void test_function()
@@ -120,7 +121,7 @@ void test_function()
     double trace = m1.trace();
     cout << "m1.trace()=" << trace << endl;
 
-    Matrix m4 = m1*IdentityMatrix(m1.get_nb_cols());
+    Matrix m4 = m1 * IdentityMatrix(m1.get_nb_cols());
     m4.set_description("m4 = m1*IdentityMatridx(m1.get_nb_cols())");
     cout << m4.to_str() << endl;
 }

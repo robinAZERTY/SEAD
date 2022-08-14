@@ -11,8 +11,8 @@ public:
 
     const Vector normalize() const;
     const float norm() const;
-    void set(const unsigned int &index, const double &value);
-
+    virtual void set(const unsigned int &index, const double &value);
+    virtual void resize(const unsigned int &dim);
     //operateur ()
     const double &operator()(const unsigned int &index)const;
 

@@ -17,5 +17,4 @@ public:
 
     //operateur = liste de double
     Vector &operator=(const double* data);
-
 };
