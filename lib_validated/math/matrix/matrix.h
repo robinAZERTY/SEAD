@@ -8,7 +8,7 @@ l'inverse, multiplication par un scalaire, addition, soustraction, multiplicatio
 
 /*
 créé par : robinAZERTY
-version du : 18/08/2022 -> code à revoir
+version du : 18/08/2022
 */
 
 #pragma once

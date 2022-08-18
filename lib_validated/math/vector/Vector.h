@@ -1,13 +1,14 @@
 #pragma once
 
-#include "../../lib_validated\math\matrix\matrix.cpp"
-//#include "matrix.cpp"
+#include "..\..\..\lib_validated/math/matrix/matrix.cpp" // when this header is a prototype
+//#include "matrix.cpp" // when this header is not a prototype
 
 class Vector : public Matrix
 {
 public:
     Vector();
     Vector(const unsigned int &dim);
+    Vector(const Matrix &m);
 
     const Vector normalize() const;
     const float norm() const;
@@ -18,5 +19,4 @@ public:
 
     //operateur = liste de double
     Vector &operator=(const double* data);
-
 };
