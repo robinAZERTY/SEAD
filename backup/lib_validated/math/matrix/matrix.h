@@ -1,10 +1,17 @@
-#pragma once
-
 /*
 créer une class matrice
 utilisation de memoire dynamique
 possibilité de redimensionner la matrice
+opération standard comme la transposition, la trace, le determinant, 
+l'inverse, multiplication par un scalaire, addition, soustraction, multiplication par une matrice ...
 */
+
+/*
+créé par : robinAZERTY
+version du : 18/08/2022 -> code à revoir
+*/
+
+#pragma once
 
 #include <string>
 #include <math.h>

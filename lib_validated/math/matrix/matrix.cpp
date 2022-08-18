@@ -1,3 +1,8 @@
+/*
+créé par : robinAZERTY
+version du : 18/08/2022 à revoir
+*/
+
 #include "matrix.h"
 
 Matrix::Matrix()
@@ -231,6 +236,7 @@ Matrix &Matrix::operator=(const Matrix &other)
     }
     return *this;
 }
+
 
 Matrix Matrix::operator+(const Matrix &other) const
 {

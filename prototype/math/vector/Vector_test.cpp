@@ -23,7 +23,6 @@ void test_CTOR_DTOR()
 
 void test_resize()
 {
-
     cout << "test_resize" << endl;
     Vector m1(2);
     m1.set(1, 1);
@@ -53,12 +52,17 @@ void test_operator()
     v1.set_description("v1");
     m1.set(1, 1, 1);
     m1.set(0, 0, 2);
-    m1.set_description("m1");
     cout << "Matrix(2*2) * Vector(2) " << endl;
     cout << (m1 * v1).to_str() << endl;
 
-    cout << "Vector(2) * Matrix(2*2) " << endl;
-    cout << (v1 * m1).to_str() << endl;
+    Vector v2;
+    v2 = m1*v1;
+    //v2.set_description("m1*v1");
+    cout << v2.to_str() << endl;
+
+    Matrix m3;
+    m3=v2*v2.transpose();
+    cout <<m3.to_str()<<endl;
 }
 
 void test_function()
