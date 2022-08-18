@@ -3,9 +3,9 @@
 
 using namespace std;
 
-void test_CTOR_DTOR()
+void visualisation_CTOR_DTOR()
 {
-    cout << "test_CTOR_DTOR" << endl;
+    cout << "visualisation_CTOR_DTOR" << endl;
     Matrix m;
     cout << m.to_str() << endl;
     Matrix m1(2, 2);
@@ -22,9 +22,9 @@ void test_CTOR_DTOR()
     cout << m4.to_str() << endl;
 }
 
-void test_resize()
+void visualisation_resize()
 {
-    cout << "test_resize" << endl;
+    cout << "visualisation_resize" << endl;
     Matrix m1(2, 2);
     m1.set(1, 1, 1);
     m1.set_description("m1");
@@ -42,16 +42,16 @@ void test_resize()
     cout << m2.to_str() << endl;
 }
 
-// operators test
-void test_operator()
+// operators visualisation
+void visualisation_operator()
 {
-    cout << "test_operator" << endl;
+    cout << "visualisation_operator" << endl;
     Matrix m1(3, 3);
     m1.fill(1);
     m1.set_description("m1");
     cout << m1.to_str() << endl;
     Matrix m2(3, 3);
-    
+
     // m2.fill(2);
     m2.set(1, 1, 3);
     m2.set_description("m2");
@@ -96,9 +96,9 @@ void test_operator()
          << endl;
 }
 
-void test_function()
+void visualisation_function()
 {
-    cout << "test_function" << endl;
+    cout << "visualisation_function" << endl;
     Matrix m1(3, 3);
     m1.fill(1);
     m1.set(0, 1, 3);
@@ -126,11 +126,41 @@ void test_function()
     cout << m4.to_str() << endl;
 }
 
+bool show(string name, const bool res)
+{
+    
+    if (!res)
+    {
+        cout << name << " : ";
+        cout << "wrong";
+        cout << endl;
+    }
+    
+    return res;
+}
+
+bool unitary_test_CTOR_DTOR()
+{
+    bool ret=true;
+
+    if(!show("default Matrix equal Matrix 0 by 0" ,Matrix()==Matrix(0,0))) ret=false;
+    if(!show("default Matrix not different to Matrix 0 by 0" ,!(Matrix()!=Matrix(0,0)))) ret=false;
+
+
+    return ret;
+}
+
 int main()
 {
-    test_CTOR_DTOR();
-    test_resize();
-    test_operator();
-    test_function();
+    // visualisation
+    /*
+    visualisation_CTOR_DTOR();
+    visualisation_resize();
+    visualisation_operator();
+    visualisation_function();
+    */
+
+    if(unitary_test_CTOR_DTOR()) cout<<"all test_CTOR_DTOR passed"<<endl;
+
     return 0;
 }
