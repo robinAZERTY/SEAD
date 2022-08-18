@@ -2,12 +2,27 @@
 
 Vector::Vector():Matrix()
 {
-this->description="Vector";
+this->description="default Vector";
 }
 
 Vector::Vector(const unsigned int &dim) : Matrix(dim, 1)
 {
-    this->description="Vector";
+    this->description="default Vector with dim";
+}
+
+Vector::Vector(const Matrix &m)
+{
+    //verifier que la matrice soit de dimention n*1
+    if(m.get_nb_cols()!=1)
+    {
+        throw "matrix must be a column";
+    }
+    this->resize(m.get_nb_rows());
+    for(unsigned int i=0; i<this->rows; i++)
+    {
+        this->Data[i][0] = m(i,0);
+    }
+    this->description="Vector from a column Matrix";
 }
 
 void Vector::resize(const unsigned int &dim)
@@ -44,6 +59,8 @@ Vector &Vector::operator=(const double* data)
     }
     return *this;
 }
+
+
 
 //norm 
 const float Vector::norm() const

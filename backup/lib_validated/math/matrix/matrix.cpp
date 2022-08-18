@@ -10,6 +10,7 @@ Matrix::Matrix()
     rows = 0;
     cols = 0;
     Data = 0;
+    description="default Matrix";
 }
 
 Matrix::Matrix(const unsigned int &nb_rows, const unsigned int &nb_cols)
@@ -22,6 +23,7 @@ Matrix::Matrix(const unsigned int &nb_rows, const unsigned int &nb_cols)
         Data[i] = new double[cols];
     }
     this->fill(0);
+    description="default Matrix with dim";
 }
 
 void Matrix::set_description(const string description)
@@ -48,6 +50,7 @@ string Matrix::to_str() const
 Matrix::Matrix(const Matrix &other)
 {
     *this = other;
+    description="Matrix by another";
 }
 
 Matrix::~Matrix()
