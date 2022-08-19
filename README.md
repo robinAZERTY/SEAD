@@ -1,5 +1,6 @@
 State Estimate Algorythm Developpment
 
+
 (State : position, orientation and speeds of the system in the global reference)
 
 Main parts of the project : 
@@ -15,3 +16,5 @@ How ?
     Then, this app simulate the datas of sensors.
     You put them in your AHRS fusion algo and compare its outputs with the scenario of the simulation.
     The more the both are close, better you AHRS is.
+
+progression of the project : no beta version yet (simulation part in progress)) 
