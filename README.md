@@ -1,5 +1,5 @@
 State Estimate Algorythm Developpment
-State* : position, orientation and speeds of the system in the global reference
+State* : (position, orientation and its derivates) of the system in the global reference, it describes how the objet is moving
 
 progression of the project : no beta version yet (simulation part in progress)) 
 
