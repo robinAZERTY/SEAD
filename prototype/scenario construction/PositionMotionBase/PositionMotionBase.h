@@ -7,14 +7,16 @@ version du : 19/08/2022
 
 //#include "State.h"//when this header is valid
 #include "..\..\../lib_validated/exchange data/state/State.cpp" //when this header is a prototype
+#include <string>
 
 class PositionMotionBase
 {
 public:
     PositionMotionBase(){};
     ~PositionMotionBase(){};
-    
+
     virtual void set_parameters();
+    virtual string to_str();
 
     void set_duration(const double &duration);
 
@@ -29,4 +31,5 @@ protected:
     double duration = 0;
     PositionState initialState, state, finalState; // output
     bool inited = false;
+    string description = "default PositionMotionBase";
 };
