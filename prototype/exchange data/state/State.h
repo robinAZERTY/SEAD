@@ -6,7 +6,8 @@ version du : 18/08/2022
 #pragma once
 
 #include <string>
-#include "Vector.cpp"
+//#include "Vector.cpp" // when this header is valid
+#include "..\..\..\lib_validated\math\vector\Vector.cpp" // when this header is a prototype
 
 class PositionState
 {
