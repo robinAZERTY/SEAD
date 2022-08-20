@@ -18,6 +18,21 @@ void visualisation()
 
     StaticPositionMotion staticMotion(state);
     cout << staticMotion.to_str();
+
+    //heritage
+
+    PositionMotionBase *motions;
+    motions = new PositionMotionBase[3];
+    motions[0]=staticMotion;
+    motions[1]=PositionMotionBase();
+    motions[2]=StaticPositionMotion();
+
+    for(int i=0;i<3;i++)
+    {
+        cout << motions[i].to_str();
+    }
+
+    delete [] motions;
 }
 
 int main()

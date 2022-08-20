@@ -4,6 +4,10 @@ version du : 20/08/2022
 */
 
 #include "StaticPositionMotion.h"
+StaticPositionMotion::StaticPositionMotion() : PositionMotionBase()
+{
+    this->description = "default StaticPositionMotion";
+}
 
 StaticPositionMotion::StaticPositionMotion(const PositionState &positionState):PositionMotionBase()
 {   
@@ -13,4 +17,5 @@ StaticPositionMotion::StaticPositionMotion(const PositionState &positionState):P
     this->state = positionState;
     this->initialState = state;
     this->finalState = state;
+    this->description = "StaticPositionMotion with position input";
 }
