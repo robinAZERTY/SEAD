@@ -8,13 +8,32 @@ version du : 20/08/2022 - 0
 using namespace std;
 
 void visualisation()
-{
+{   
+    cout << "BezierPositionMotion Visualisation" << endl;
+
     Vector points_3D[4] = {Vector(3),Vector(3),Vector(3),Vector(3)};
     points_3D[0].fill(0);
     points_3D[1].fill(1);
     points_3D[2].fill(2);
     points_3D[3].fill(3);
     BezierPositionMotion bezierPositionMotion(points_3D,1);
-    bezierPositionMotion.get_final_state(0.5);
+    
+    cout << bezierPositionMotion.to_str(); // it is like a constant speed motion lol
 
+    PositionState initialState;
+    initialState.position.fill(1);
+    initialState.velocity.set(0,1);
+
+    PositionState finalState;
+    finalState.position.fill(2);
+
+    BezierPositionMotion bezierPositionMotion2(initialState,finalState,10);
+    cout << bezierPositionMotion2.get_state(0.51).to_str();
+
+}
+
+int main()
+{
+    visualisation();
+    return 0;
 }

@@ -51,8 +51,8 @@ string PositionMotionBase::to_str()
     string ret;
     ret += description + " :\n";
     ret += "duration : " + to_string(duration) + "\n";
-    ret += "initial state : " + initialState.to_str() + "\n";
-    ret += "final state : " + finalState.to_str() + "\n";
+    ret += "initial state : " + get_initial_state().to_str() + "\n";
+    ret += "final state : " + get_final_state().to_str() + "\n";
     ret += "state : " + state.to_str() + "\n";
     return ret;
 }
