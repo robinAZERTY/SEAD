@@ -26,32 +26,6 @@ BezierPositionMotion::BezierPositionMotion(const Vector points_3D[4], const doub
     this->alpha = 1 / duration;
 }
 
-void BezierPositionMotion::update_state(const double &t)
-{
-    // verification de la validité des paramètres
-    if (t < 0 || t > duration)
-        throw "t must be between 0 and duration";
-
-    const double t_ = t * alpha;
-
-    state.position = A * (1 - t_) * (1 - t_) * (1 - t_) + B * 3 * t_ * (1 - t_) * (1 - t_) + C * 3 * t_ * t_ * (1 - t_) + D * t_ * t_ * t_;
-    state.velocity = alpha * (-3 * (A * (1 - t_) * (1 - t_) + t_ * (-2 * C + 3 * C * t_ - D * t_) + B * (-1 + 4 * t_ - 3 * t_ * t_)));
-    state.acceleration = alpha * (-6 * (B * (2 - 3 * t_) - C - A * (1 - t_) + 3 * C * t_ - D * t_));
-}
-
-void BezierPositionMotion::init()
-{
-    update_state(duration);
-    finalState = state;
-
-    update_state(0);
-    initialState = state;
-
-    state = initialState;
-
-    inited = true;
-}
-
 BezierPositionMotion::BezierPositionMotion(const PositionState &initialState, const Vector points_3D[2], const double &duration)
 {
     // verifier si les vecteurs sont bien de dim 3
@@ -76,4 +50,30 @@ BezierPositionMotion::BezierPositionMotion(const PositionState &initialState, co
     this->D = finalState.position;
     this->B = A + initialState.velocity * duration / 3.0;
     this->C = D - finalState.velocity * duration / 3.0;
+}
+
+void BezierPositionMotion::update_state(const double &t)
+{
+    // verification de la validité des paramètres
+    if (t < 0 || t > duration)
+        throw "t must be between 0 and duration";
+
+    const double t_ = t * alpha;
+
+    state.position = A * (1 - t_) * (1 - t_) * (1 - t_) + B * 3 * t_ * (1 - t_) * (1 - t_) + C * 3 * t_ * t_ * (1 - t_) + D * t_ * t_ * t_;
+    state.velocity = alpha * (-3 * (A * (1 - t_) * (1 - t_) + t_ * (-2 * C + 3 * C * t_ - D * t_) + B * (-1 + 4 * t_ - 3 * t_ * t_)));
+    state.acceleration = alpha * (-6 * (B * (2 - 3 * t_) - C - A * (1 - t_) + 3 * C * t_ - D * t_));
+}
+
+void BezierPositionMotion::init()
+{
+    update_state(duration);
+    finalState = state;
+
+    update_state(0);
+    initialState = state;
+
+    state = initialState;
+
+    inited = true;
 }
