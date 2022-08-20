@@ -11,5 +11,6 @@ version du : 20/08/2022
 class StaticPositionMotion : public PositionMotionBase
 {
 public:
+    StaticPositionMotion();
     StaticPositionMotion(const PositionState &positionState);
 };
