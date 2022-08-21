@@ -1,3 +1,8 @@
+/*
+créé par : robinAZERTY
+version du : 21/08/2022-1
+*/
+
 #include "State.h"
 
 PositionState::PositionState(PositionState &another)
