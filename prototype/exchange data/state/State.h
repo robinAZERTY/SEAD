@@ -38,9 +38,13 @@ public:
     void set_description(const string &description);
     string to_str() const;
 
-    Vector orientation = Vector(4);
-    Vector velocity = Vector(4);
-    Vector acceleration = Vector(4);
+    Vector E_x =Vector(3);
+    Vector E_y = Vector(3);
+    Vector E_z = Vector(3);
+
+    Vector dE_x = Vector(3);
+    Vector dE_y = Vector(3);
+    Vector dE_z = Vector(3);
 };
 
 class State

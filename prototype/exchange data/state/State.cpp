@@ -20,9 +20,14 @@ string PositionState::to_str() const
 
 OrientationState::OrientationState(OrientationState &another)
 {
-    this->orientation = another.orientation;
-    this->velocity = another.velocity;
-    this->acceleration = another.acceleration;
+    this->E_x = another.E_x;
+    this->E_y = another.E_y;
+    this->E_z = another.E_z;
+
+    this->dE_x = another.dE_x;
+    this->dE_y = another.dE_y;
+    this->dE_z = another.dE_z;
+
     this->description = "OrientationState by another";
 }
 
@@ -33,7 +38,7 @@ void OrientationState::set_description(const string &description)
 
 string OrientationState::to_str() const
 {
-    return this->description + " : " + "\n" + "orientation : " + this->orientation.to_str() + "\n" + "velocity : " + this->velocity.to_str() + "\n" + "acceleration : " + this->acceleration.to_str();
+    return this->description + " : " + "\n" + "E_x : " + this->E_x.to_str() + "\n" + "E_y : " + this->E_y.to_str() + "\n" + "E_z : " + this->E_z.to_str() + "\n" + "dE_x : " + this->dE_x.to_str() + "\n" + "dE_y : " + this->dE_y.to_str() + "\n" + "dE_z : " + this->dE_z.to_str();
 }
 
 State::State(State &another)
