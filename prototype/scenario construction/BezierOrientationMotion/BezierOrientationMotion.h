@@ -31,5 +31,5 @@ public:
     Quaternion q1, q2;
     double theta, sn;
     const Quaternion SLERP(const double &t) const;
-    const Quaternion PRIME(const double &t) const;
+    const Quaternion PRIME(const Quaternion &q1_prime, const Quaternion &q2_prime, const double &t) const;
 };
