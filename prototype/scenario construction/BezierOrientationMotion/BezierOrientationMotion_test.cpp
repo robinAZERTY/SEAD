@@ -5,7 +5,7 @@ using namespace std;
 
 #define PI 3.14159265359
 
-void visualization()
+void visualization_Slerp()
 {
     Quaternion q1 = Quaternion(0, 0, 0);
     Quaternion q2 = Quaternion(0, PI / 2, PI / 2);
@@ -19,7 +19,7 @@ void visualization()
     q_dif.set_description("q_dif");
     q_err.set_description("q_err");
 
-    const double ds = 1.0e-3;//1ms
+    const double ds = 1.0e-3; // 1ms
     for (unsigned int i = 0; i <= 1 / ds; i++)
     {
         const double s = i * ds;
@@ -27,19 +27,51 @@ void visualization()
         q = motion.SLERP();
         q_dif = (q - q_prev) / ds;
         q_prev = q;
-        q_der = motion.PRIME2();
+        q_der = motion.PRIME();
         q_err = q_der - q_dif;
         cout << q.to_str() << '\t';
         cout << q_der.to_str() << '\t';
         cout << q_dif.to_str() << '\t';
         cout << "error : " << q_err.norm() << endl;
+    }
+}
 
-        motion.PRIME2();
+void visualization_BezierOrientationMotion()
+{
+    Quaternion q4[4];
+    q4[0] = Quaternion(0, 0, 0);
+    q4[1] = Quaternion(0, 0, 0);
+    q4[2] = Quaternion(0, 0, PI / 2);
+    q4[3] = Quaternion(0, 0, PI / 2);
+
+    BezierOrientationMotion motion(q4, 1);
+    Quaternion q = motion.q, q_prev = q, q_dif, q_der, q_err;
+    q.set_description("q");
+    q_der.set_description("q_der");
+    q_dif.set_description("q_dif");
+    q_err.set_description("q_err");
+
+    const double ds = 1.0e-3; // 1ms
+    for (unsigned int i = 0; i <= 1 / ds; i++)
+    {
+        const double s = i * ds;
+        motion.get_state(s);
+        q = motion.q;
+        q_dif = (q - q_prev) / ds;
+        q_prev = q;
+        q_der = motion.q_der;
+        q_err = q_der - q_dif;
+        cout << q.to_str() << '\t';
+        cout << q_der.to_str() << '\t';
+        if(i>0)cout << q_dif.to_str() << '\t';
+        if(i>0)cout << "error : " << q_err.norm() <<'\t';
+        cout << "t : " << s << endl;
     }
 }
 
 int main()
 {
-    visualization();
+    // visualization_Slerp();
+    visualization_BezierOrientationMotion();
     return 0;
 }

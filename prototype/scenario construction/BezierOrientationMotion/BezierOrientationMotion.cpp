@@ -5,15 +5,6 @@ version du : 27/08/2022 - 0
 
 #include "BezierOrientationMotion.h"
 
-BezierOrientationMotion::BezierOrientationMotion(const Quaternion q[4], const double &duration)
-{
-    qA = q[0];
-    qB = q[1];
-    qC = q[2];
-    qD = q[3];
-    this->duration = duration;
-}
-
 const double quat_dot(const Quaternion &q1, const Quaternion &q2)
 {
     return q1.b * q2.b + q1.c * q2.c + q1.d * q2.d + q1.a * q2.a;
@@ -46,29 +37,35 @@ void Slerp::update_q(const Quaternion &q1, const Quaternion &q2)
     this->dp = quat_dot(q1, q2);
     this->ohm = acos(dp);
     this->s0 = sin(ohm);
-    this->c0 = dp; // cos(ohm)
+    this->c0 = dp;                    // cos(ohm)
+    ohm_lim = (1 - abs(dp) < 1.0e-7); // ohm ->0
 }
 
 void Slerp::update_q_primes(const Quaternion &q1_prime, const Quaternion &q2_prime)
 {
     this->q1_prime = q1_prime;
     this->q2_prime = q2_prime;
+    q_not_moving = (q1_prime.norm() == 0 && q1_prime.norm() == 0);
 }
 
 const Quaternion Slerp::SLERP() const
 {
-    Quaternion r;
-    r = q1 * (s2 / s0) + q2 * (s1 / s0);
-    r = r.normalize();
-    return r;
-}
+    Quaternion ret;
+    if (ohm_lim)
+    {
+        ret = q1 * (1 - s) + q2 * s;
+    }
+    else
+    {
+        ret = q1 * (s2 / s0) + q2 * (s1 / s0);
+    }
 
+    ret = ret.normalize();
+    return ret;
+}
 
 const Quaternion Slerp::PRIME() const
 {
-    const bool q_not_moving = (q1_prime.norm() == 0 && q1_prime.norm() == 0);
-    const bool ohm_lim = (1 - abs(dp) < 0.0001); // ohm ->0
-
     if (ohm_lim)
     {
         if (q_not_moving)
@@ -105,4 +102,71 @@ const Quaternion Slerp::PRIME() const
 
     Quaternion ret = (cst1 + cst2 + cst3 + cst4) / s0;
     return ret;
+}
+
+BezierOrientationMotion::BezierOrientationMotion() : OrientationMotionBase()
+{
+    this->description = "default BezierOrientationMotion";
+}
+
+BezierOrientationMotion::BezierOrientationMotion(const Quaternion q[4], const double &duration)
+{
+    qA = q[0];
+    qB = q[1];
+    qC = q[2];
+    qD = q[3];
+    this->duration = duration;
+    this->alpha = 1 / duration;
+}
+
+void BezierOrientationMotion::update_Slerps(const double &s)
+{
+    Slerp_1.update_q(qA, qB);
+    Slerp_2.update_q(qB, qC);
+    Slerp_3.update_q(qC, qD);
+
+    Slerp_1.update_s(s);
+    Slerp_2.update_s(s);
+    Slerp_3.update_s(s);
+
+    Slerp_4.update_q(Slerp_1.SLERP(), Slerp_2.SLERP());
+    Slerp_5.update_q(Slerp_2.SLERP(), Slerp_3.SLERP());
+
+    Slerp_4.update_q_primes(Slerp_1.PRIME(), Slerp_2.PRIME());//revoir les formule
+    Slerp_5.update_q_primes(Slerp_2.PRIME(), Slerp_3.PRIME());
+
+    Slerp_4.update_s(s);
+    Slerp_5.update_s(s);
+
+    Slerp_6.update_q(Slerp_4.SLERP(), Slerp_5.SLERP());
+
+    Slerp_6.update_q_primes(Slerp_4.PRIME(), Slerp_5.PRIME());
+
+    Slerp_6.update_s(s);
+}
+
+void BezierOrientationMotion::update_state(const double &t)
+{
+    // verification de la validité des paramètres
+    if (t < 0 || t > duration)
+        throw "t must be between 0 and duration";
+
+    const double s = t * alpha;
+
+    update_Slerps(s);
+    q = Slerp_4.SLERP();
+    q_der = Slerp_4.PRIME() * alpha;
+}
+
+void BezierOrientationMotion::init()
+{
+    update_state(duration);
+    finalState = state;
+
+    update_state(0);
+    initialState = state;
+
+    state = initialState;
+
+    inited = true;
 }
