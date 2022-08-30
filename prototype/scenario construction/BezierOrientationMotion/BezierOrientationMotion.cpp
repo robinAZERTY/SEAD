@@ -63,17 +63,8 @@ const Quaternion Slerp::SLERP() const
     return r;
 }
 
+
 const Quaternion Slerp::PRIME() const
-{
-    const Quaternion cst1 = (q2 * c1 - q1 * c2) * 2 * ohm;
-    const Quaternion cst2 = q1_prime * s2 + q2_prime * s1;
-    const Quaternion cst3 = (q1 * ((1 - s) * c2 * s0 - s2 * c0) + q2 * (s * c1 * s0 - s1 * c0)) / s0;
-    const double cst4 = -1 / sqrt(1 - dp * dp) * (quat_dot(q1_prime, q2) + quat_dot(q2_prime, q1));
-
-    return (cst1 + cst2 + cst3 * cst4) / s0;
-}
-
-const Quaternion Slerp::PRIME2() const
 {
     const bool q_not_moving = (q1_prime.norm() == 0 && q1_prime.norm() == 0);
     const bool ohm_lim = (1 - abs(dp) < 0.0001); // ohm ->0

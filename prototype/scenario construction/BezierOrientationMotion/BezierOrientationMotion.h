@@ -23,7 +23,6 @@ public:
 
     const Quaternion SLERP() const;
     const Quaternion PRIME() const;
-    const Quaternion PRIME2() const;
 };
 
 class BezierOrientationMotion : public OrientationMotionBase
@@ -32,7 +31,7 @@ public:
     BezierOrientationMotion();
     BezierOrientationMotion(const Quaternion q[4], const double &duration);
 
-//private:
+private:
     Quaternion qA, qB, qC, qD;
     Slerp Slerp_1, Slerp_2, Slerp_3;
     Slerp Slerp_4, Slerp_5;
