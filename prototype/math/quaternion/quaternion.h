@@ -1,3 +1,8 @@
+/*
+créé par : robinAZERTY
+version du : 29/08/2022 - 0 
+*/
+
 #pragma once
 
 #include <string>
