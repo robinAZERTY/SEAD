@@ -1,6 +1,6 @@
 /*
 créé par : robinAZERTY
-version du : 31/08/2022 - 0 
+version du : 31/08/2022 - 1
 */
 
 #pragma once
@@ -8,7 +8,7 @@ version du : 31/08/2022 - 0
 #include <string>
 #include <math.h>
 
-//#include "..\../math/vector/Vector.cpp" // when this header is valid
+//#include "../vector/Vector.cpp" // when this header is valid
 #include "..\..\../lib_validated\math\vector\Vector.cpp" // when this header is a prototype
 
 using namespace std;
@@ -46,6 +46,7 @@ class Quaternion
 
         const double theta()const;
         const Vector v()const;
+        const Quaternion operator^(const double &d)const;
         
 
         const double* yaw_pitch_roll() const;//return Body 3-2-1 angles (RZ,RY,RX) https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
