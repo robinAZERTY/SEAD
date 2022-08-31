@@ -70,7 +70,7 @@ const Quaternion Slerp::PRIME() const
     {
         if (q_not_moving)
         {
-            Quaternion ret = q2_prime - q1_prime;
+            Quaternion ret = q2_prime - q1_prime; //étide de limite à faire
             return ret;
         }
 
@@ -82,7 +82,7 @@ const Quaternion Slerp::PRIME() const
         const Quaternion cst3 = q1_prime * (1 - s);
         const Quaternion cst4 = q2_prime * s;
         Quaternion ret = cst1 + cst2 + cst3 + cst4;
-        return ret;
+        return ret;//étide de limite à faire
     }
 
     const Quaternion cst1 = (q2 * c1 - q1 * c2) * ohm;
@@ -90,7 +90,7 @@ const Quaternion Slerp::PRIME() const
     if (q_not_moving)
     {
         Quaternion ret = cst1 / s0;
-        return ret;
+        return ret.normalize();
     }
 
     const Quaternion csta = q1 * (c2 * (1 - s) - c0 * s2 / s0);
@@ -154,8 +154,8 @@ void BezierOrientationMotion::update_state(const double &t)
     const double s = t * alpha;
 
     update_Slerps(s);
-    q = Slerp_4.SLERP();
-    q_der = Slerp_4.PRIME() * alpha;
+    q = Slerp_6.SLERP();
+    q_der = Slerp_6.PRIME() * alpha;
 }
 
 void BezierOrientationMotion::init()

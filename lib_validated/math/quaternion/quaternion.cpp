@@ -1,5 +1,9 @@
-#include "quaternion.h"
+/*
+créé par : robinAZERTY
+version du : 31/08/2022 - 0 
+*/
 
+#include "quaternion.h"
 
 Quaternion::Quaternion()
 {
@@ -189,6 +193,27 @@ const Quaternion Quaternion::rotate(const Quaternion& q) const
     Quaternion q_rot;
     q_rot= (*this * q * this->conjugate());
     return q_rot;
+}
+
+const double q_dot(const Quaternion &q1, const Quaternion &q2)
+{
+    return q1.b * q2.b + q1.c * q2.c + q1.d * q2.d + q1.a * q2.a;
+}
+
+const double Quaternion::theta()const
+{
+    return acos(this->a)*2.00;
+}
+
+const Vector Quaternion::v()const
+{
+    const double theta=this->theta();
+    const double cst = sin(theta/2);
+    Vector ret(3);
+    ret.set(0,this->b/cst);
+    ret.set(1,this->c/cst);
+    ret.set(2,this->d/cst);
+    return ret;
 }
 
 const double* Quaternion::yaw_pitch_roll() const

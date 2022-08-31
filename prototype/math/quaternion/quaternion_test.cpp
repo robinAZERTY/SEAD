@@ -82,6 +82,14 @@ void test_function()
     const double *ypr;
     ypr=q0.yaw_pitch_roll();
     cout << "q0.yaw_pitch_roll():" <<ypr[0]<<" "<<ypr[1]<<" "<<ypr[2]<<endl;
+
+    q0=Quaternion(1,1,1,1);
+
+    
+    //cout<<Vector(3).to_str();
+    cout<<q0.v().to_str()<<endl;
+    cout<<q0.theta()<<endl;
+
 }
 
 int main()
