@@ -90,7 +90,7 @@ const Quaternion Slerp::PRIME() const
     if (q_not_moving)
     {
         Quaternion ret = cst1 / s0;
-        return ret.normalize();
+        return ret;
     }
 
     const Quaternion csta = q1 * (c2 * (1 - s) - c0 * s2 / s0);

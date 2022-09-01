@@ -8,7 +8,7 @@ version du : 31/08/2022 - 1
 #include <string>
 #include <math.h>
 
-#include "../vector/Vector.cpp" // when this header is valid
+//#include "../vector/Vector.cpp" // when this header is valid
 //#include "..\..\../lib_validated\math\vector\Vector.cpp" // when this header is a prototype
 
 using namespace std;

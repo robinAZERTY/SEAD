@@ -227,6 +227,43 @@ const Quaternion Quaternion::operator^(const double &d) const
     return ret;
 }
 
+const Quaternion q_exp(const Quaternion &q)
+{
+    Quaternion ret;
+    const Vector V = q.v();
+    const double V_norm = V.norm();
+    Vector new_V;
+    if(V_norm<1.0e-6)
+    {
+        new_V = exp(q.a) * V;
+    }
+    else new_V =  exp(q.a) * V * sin(V_norm) / V_norm;
+
+    ret.a = exp(q.a) * cos(V_norm);
+    ret.b=new_V(0);
+    ret.c=new_V(1);
+    ret.d=new_V(2);
+
+    return ret;
+}
+
+const Quaternion q_log(const Quaternion &q)
+{
+    Quaternion ret;
+    const Vector V = q.v();
+    const double V_norm = V.norm();
+    Vector new_V;
+
+    new_V = V.normalize() * acos(q.a/q.norm());
+
+    ret.a = log(q.norm());
+    ret.b=new_V(0);
+    ret.c=new_V(1);
+    ret.d=new_V(2);
+
+    return ret;
+}
+
 const double *Quaternion::yaw_pitch_roll() const
 {
     const double yaw = atan2(2 * (a * d + b * c), 1 - 2 * (c * c + d * d));

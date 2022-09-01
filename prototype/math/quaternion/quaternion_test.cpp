@@ -87,8 +87,10 @@ void test_function()
 
     
     //cout<<Vector(3).to_str();
-    cout<<q0.v().to_str()<<endl;
+    cout<<q0.v().to_str();
     cout<<q0.theta()<<endl;
+
+    cout<<(q0^0.001).to_str()<<endl;
 
 }
 
