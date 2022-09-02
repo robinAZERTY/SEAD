@@ -33,6 +33,14 @@ void visualisation()
     }
 
     delete [] motions;
+
+    Quaternion q;
+    q.a=0.6;
+    q.b=0.8;
+    q=q.normalize();
+
+    staticMotion=StaticOrientationMotion(q);
+    cout << staticMotion.to_str();
 }
 
 int main()
