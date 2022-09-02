@@ -7,8 +7,7 @@ source : http://roboop.sourceforge.net/htmldoc/robotse9.html
 #include "..\..\../lib_validated/scenario construction/OrientationMotionBase/OrientationMotionBase.cpp" //when this header is a prototype
 //#include "../OrientationMotionBase/OrientationMotionBase.cpp" //when this header is a valid
 
-#include "..\..\../lib_validated/math/quaternion/quaternion.cpp" //when this header is a prototype
-//#include "..\../math/quaternion/quaternion.cpp" //when this header is a valid
+
 
 
 //#include "..\..\../lib_validated/math/derivation/derivation.h"////when this header is a prototype
@@ -29,11 +28,11 @@ class BezierOrientationMotion : public OrientationMotionBase
 public:
     BezierOrientationMotion();
     BezierOrientationMotion(const Quaternion q[4], const double &duration);
-    Quaternion q,q_der;
 
-//private:
+private:
     const Quaternion SQUAD(const double &s);
     const Quaternion PRIME(const double &s);
+    const Quaternion SECOND_PRIME(const double &s);
     virtual void update_state(const double &t);
     virtual void init();
     Quaternion qA, qB, qC, qD;

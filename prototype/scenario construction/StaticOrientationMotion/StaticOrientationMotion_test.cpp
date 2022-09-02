@@ -10,9 +10,7 @@ using namespace std;
 void visualisation()
 {
     OrientationState state;
-    state.E_x.set(0, 0.5);
-    state.E_x.set(1, -0.56);
-    state.E_x.set(2, -1);
+    state.q=Quaternion(1,2,3,4);
 
     //state.dE_x.set(0,1);// throw "velocity and acceleration vectors must be null";
 

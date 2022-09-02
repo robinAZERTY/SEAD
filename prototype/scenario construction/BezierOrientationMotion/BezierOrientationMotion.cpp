@@ -62,6 +62,11 @@ const Quaternion BezierOrientationMotion::PRIME(const double &s)
     return (SQUAD(s + ds / 2) - SQUAD(s - ds / 2)) / ds;
 }
 
+const Quaternion BezierOrientationMotion::SECOND_PRIME(const double &s)
+{
+    return (PRIME(s + ds / 2) - PRIME(s - ds / 2)) / ds;
+}
+
 void BezierOrientationMotion::update_state(const double &t)
 {
     // verification de la validité des paramètres
@@ -70,8 +75,9 @@ void BezierOrientationMotion::update_state(const double &t)
 
     const double s = t * alpha;
 
-    q = SQUAD(s);
-    q_der = PRIME(s) * alpha;
+    state.q = SQUAD(s);
+    state.q_velocity = PRIME(s) * alpha;
+    state.q_acceleration = SECOND_PRIME(s)*alpha;
 }
 
 void BezierOrientationMotion::init()

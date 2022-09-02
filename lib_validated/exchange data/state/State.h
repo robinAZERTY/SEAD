@@ -1,13 +1,16 @@
 /*
 créé par : robinAZERTY
-version du : 21/08/2022-1
+version du : 02/09/2022-1
 */
 
 #pragma once
 
 #include <string>
 #include "..\..\math/vector/Vector.cpp" // when this header is valid
-//#include "..\..\..\lib_validated\math\vector\Vector.cpp" // when this header is a prototype
+//#include "..\..\../lib_validated/math/vector/Vector.cpp" // when this header is a prototype
+
+//#include "..\..\../lib_validated/math/quaternion/quaternion.cpp"// when this header is a prototype
+#include "..\../math/quaternion/quaternion.cpp"// when this header is valid
 
 class PositionState
 {
@@ -32,19 +35,13 @@ private:
     string description = "default OrientationState";
 
 public:
-    OrientationState(){};
+    OrientationState();
     OrientationState(OrientationState &another);
 
     void set_description(const string &description);
     string to_str() const;
 
-    Vector E_x =Vector(3);
-    Vector E_y = Vector(3);
-    Vector E_z = Vector(3);
-
-    Vector dE_x = Vector(3);
-    Vector dE_y = Vector(3);
-    Vector dE_z = Vector(3);
+    Quaternion q,q_velocity,q_acceleration;
 };
 
 class State

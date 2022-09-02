@@ -1,6 +1,6 @@
 /*
 créé par : robinAZERTY
-version du : 21/08/2022-1
+version du : 02/09/2022-0
 */
 
 #include "State.h"
@@ -23,16 +23,24 @@ string PositionState::to_str() const
     return this->description + " : " + "\n" + "position : " + this->position.to_str() + "\n" + "velocity : " + this->velocity.to_str() + "\n" + "acceleration : " + this->acceleration.to_str();
 }
 
+OrientationState::OrientationState()
+{
+    q_velocity*=0;
+    q_acceleration=q_velocity;
+    q.set_description("q");
+    q_velocity.set_description("q_velocity");
+    q_acceleration.set_description("q_acceleration");
+    this->description = "default OrientationState";
+}
+
 OrientationState::OrientationState(OrientationState &another)
 {
-    this->E_x = another.E_x;
-    this->E_y = another.E_y;
-    this->E_z = another.E_z;
-
-    this->dE_x = another.dE_x;
-    this->dE_y = another.dE_y;
-    this->dE_z = another.dE_z;
-
+    this->q=another.q;
+    this->q_velocity=another.q_velocity;
+    this->q_acceleration=another.q_acceleration;
+    q.set_description("q");
+    q_velocity.set_description("q_velocity");
+    q_acceleration.set_description("q_acceleration");
     this->description = "OrientationState by another";
 }
 
@@ -43,7 +51,7 @@ void OrientationState::set_description(const string &description)
 
 string OrientationState::to_str() const
 {
-    return this->description + " : " + "\n" + "E_x : " + this->E_x.to_str() + "\n" + "E_y : " + this->E_y.to_str() + "\n" + "E_z : " + this->E_z.to_str() + "\n" + "dE_x : " + this->dE_x.to_str() + "\n" + "dE_y : " + this->dE_y.to_str() + "\n" + "dE_z : " + this->dE_z.to_str();
+    return this->description + " : " + "\t" + this->q.to_str() + "\t" + this->q_velocity.to_str()+ "\t" + this->q_acceleration.to_str();
 }
 
 State::State(State &another)

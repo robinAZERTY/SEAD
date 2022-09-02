@@ -38,19 +38,16 @@ void visualization_BezierOrientationMotion()
     q4[2] = Quaternion(0, 0, PI / 2);
     q4[3] = Quaternion(0, 0, PI / 2);
 
-    const double duration = 2.5;
+    const double duration = 120;
 
     BezierOrientationMotion motion(q4, duration);
 
-    const double dt = 1.0e-2; // 1ms
+    const double dt = 1.0/30;0;
 
     for (unsigned int i = 0; i <= duration / dt; i++)
     {
         const double t = i * dt;
-        motion.update_state(t);
-        Quaternion a = (motion.q_der*motion.q.conjugate())*2*180/PI;
-        a.a=0;
-        cout<<"t:"<<to_string(t)<<'\t'<<motion.q.to_str()<<'\t'<<motion.q_der.to_str()<<'\t'<<a.to_str()<<endl;
+        cout<<"t:"<<to_string(t)<<'\t'<<motion.get_state(t).to_str()<<endl;
     }
 }
 int main()
