@@ -5,7 +5,7 @@ version du : 20/08/2022 -1
 
 #pragma once
 
-#include "State.h"//when this header is valid
+
 //#include "..\..\../lib_validated/exchange data/state/State.cpp" //when this header is a prototype
 #include "..\../exchange data/state/State.cpp" //when this header is valid
 #include <string>

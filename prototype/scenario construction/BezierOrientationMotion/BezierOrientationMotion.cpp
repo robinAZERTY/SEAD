@@ -5,6 +5,8 @@ version du : 27/08/2022 - 0
 
 #include "BezierOrientationMotion.h"
 
+static const double ds = 1.0e-5;
+
 const double quat_dot(const Quaternion &q1, const Quaternion &q2)
 {
     return q1.b * q2.b + q1.c * q2.c + q1.d * q2.d + q1.a * q2.a;
@@ -42,6 +44,19 @@ BezierOrientationMotion::BezierOrientationMotion(const Quaternion q[4], const do
     this->alpha = 1 / duration;
 }
 
+
+BezierOrientationMotion::BezierOrientationMotion(const OrientationState initialState, const OrientationState finalState, const double &duration)
+{
+    this->duration = duration;
+    this->alpha = 1 / duration;
+
+    qA=initialState.q;
+    qD=finalState.q;
+
+    qB = (((qA+initialState.q_velocity*ds).normalize()*qA.inverse())^(1/(alpha*3.0*ds)))*qA;
+    qC = (((qD-finalState.q_velocity*ds).normalize()*qD.inverse())^(1/(alpha*3.0*ds)))*qD;
+}
+
 const Quaternion BezierOrientationMotion::SQUAD(const double &s)
 {
     Slerp_1.update(qA, qB, s);
@@ -55,7 +70,7 @@ const Quaternion BezierOrientationMotion::SQUAD(const double &s)
     return Slerp_6.SLERP();
 }
 
-static const double ds = 1.0e-6;
+
 
 const Quaternion BezierOrientationMotion::PRIME(const double &s)
 {

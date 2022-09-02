@@ -28,8 +28,9 @@ class BezierOrientationMotion : public OrientationMotionBase
 public:
     BezierOrientationMotion();
     BezierOrientationMotion(const Quaternion q[4], const double &duration);
+    BezierOrientationMotion(const OrientationState initialState, const OrientationState finalState, const double &duration);
 
-private:
+
     const Quaternion SQUAD(const double &s);
     const Quaternion PRIME(const double &s);
     const Quaternion SECOND_PRIME(const double &s);
