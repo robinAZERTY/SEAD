@@ -11,28 +11,22 @@ void visualization_Slerp()
     Quaternion q2 = Quaternion(0, PI / 2, PI / 2);
 
     Slerp motion;
-    motion.update_q(q1, q2);
+    motion.update(q1, q2,0);
 
-    Quaternion q = motion.SLERP(), q_prev = q, q_dif, q_der, q_err;
+    Quaternion q = motion.SLERP();
     q.set_description("q");
-    q_der.set_description("q_der");
-    q_dif.set_description("q_dif");
-    q_err.set_description("q_err");
 
     const double ds = 1.0e-3; // 1ms
     for (unsigned int i = 0; i <= 1 / ds; i++)
     {
         const double s = i * ds;
-        motion.update_s(s);
-        q = motion.SLERP();
-        q_dif = (q - q_prev) / ds;
-        q_prev = q;
-        q_der = motion.PRIME();
-        q_err = q_der - q_dif;
-        cout << q.to_str() << '\t';
-        cout << q_der.to_str() << '\t';
-        cout << q_dif.to_str() << '\t';
-        cout << "error : " << q_err.norm() << endl;
+        motion.update(q1,q2,s);
+        //q = motion.SLERP();
+        q=motion.SLERP();
+        const double *ypr= q.yaw_pitch_roll();
+        cout <<"s:"<<s;
+        //cout<<"\tyaw:"<<ypr[0]<<"\tpitch:"<<ypr[1]<<"\troll:"<<ypr[2]<<endl;
+        cout<<q.to_str()<<endl;
     }
 }
 
@@ -44,56 +38,24 @@ void visualization_BezierOrientationMotion()
     q4[2] = Quaternion(0, 0, PI / 2);
     q4[3] = Quaternion(0, 0, PI / 2);
 
-    BezierOrientationMotion motion(q4, 1);
-    Quaternion q = motion.q, q_prev = q, q_dif, q_der;//q_err;
-    double q_err;
-    q.set_description("q");
-    q_der.set_description("q_der");
-    q_dif.set_description("q_dif");
-    //q_err.set_description("q_err");
+    const double duration = 2.5;
 
-    const double ds = 1.0e-3; // 1ms
-    for (unsigned int i = 0; i <= 1 / ds; i++)
+    BezierOrientationMotion motion(q4, duration);
+
+    const double dt = 1.0e-2; // 1ms
+
+    for (unsigned int i = 0; i <= duration / dt; i++)
     {
-        const double s = i * ds;
-
-        Quaternion q_m, q_p;
-        if (s > 0 && s < 1)
-            motion.get_state(s - ds / 2);
-        if (s > 0 && s < 1)
-            q_m = motion.q;
-        if (s > 0 && s < 1)
-            motion.get_state(s + ds / 2);
-        if (s > 0 && s < 1)
-            q_p = motion.q;
-        if (s > 0 && s < 1)
-            q_dif = (q_p - q_m) / ds;
-            q_dif=q_dif;
-
-        motion.get_state(s);
-
-        q = motion.q;
-        q_der = motion.q_der;
-        q_err = q_dif.norm() / q_der.norm();
-        cout << q.to_str() << '\t';
-        // cout <<(q*(q_dif^(3*ds))).to_str()<<'\t';
-        // cout << ((q_dif*q.conjugate())*2).to_str() << '\t'; // omega
-
-        cout << q_der.to_str() << '\t';
-        if (s > 0 && s < 1)
-            cout << q_dif.to_str() << '\t';
-
-        if (s > 0 && s < 1)
-            cout << "error : " << q_err << '\t';
-
-        cout << "t : " << s;
-        cout << endl;
+        const double t = i * dt;
+        motion.update_state(t);
+        Quaternion a = (motion.q_der*motion.q.conjugate())*2*180/PI;
+        a.a=0;
+        cout<<"t:"<<to_string(t)<<'\t'<<motion.q.to_str()<<'\t'<<motion.q_der.to_str()<<'\t'<<a.to_str()<<endl;
     }
 }
-
 int main()
 {
-    // visualization_Slerp();
+    //visualization_Slerp();
     visualization_BezierOrientationMotion();
     return 0;
 }

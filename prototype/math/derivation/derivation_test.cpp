@@ -32,16 +32,6 @@ const double real_sin_der(const double &x, const unsigned short &n)
 void test(double x, short n_max)
 {
     
-    std::cout<<"order | best_dx | best_error"<<std::endl;
-
-    for (int i = 0; i < n_max; i++)
-    {   
-        double *ret;
-        ret=new double[2];
-        const double dx_max=2*pow((i+1)/10.0,2);
-        ret=search_best_dx(my_f,real_sin_der,x,i+1,0,dx_max,dx_max/1000000);
-        std::cout << (i + 1) << '\t' << ret[0] << '\t' << ret[1] <<'\t'<<dx_max<< std::endl;
-    }
 }
 int main()
 {

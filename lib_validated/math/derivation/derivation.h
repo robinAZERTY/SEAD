@@ -5,8 +5,8 @@ le 01/09/2022
 
 #pragma once
 
-//#include "../quaternion/quaternion.cpp"//valid
-#include "..\..\../lib_validated/math/quaternion/quaternion.cpp"//proto
+#include "../quaternion/quaternion.cpp"//valid
+//#include "..\..\../lib_validated/math/quaternion/quaternion.cpp"//proto
 
 // je pose ça là
 
@@ -29,17 +29,17 @@ const double f_der_bis(const double f(const double &x), const double &x, const u
 }
 
 
-const Quaternion q_der(const Quaternion q(const double &x), const double &x, const unsigned short &n, const double &dx)
+const Quaternion q_der(const Quaternion &q(const double &s), const double &s, const unsigned short &n, const double &ds)
 {
     if (n == 0)
-        return q(x);
+        return q(s);
     else
-        return (q_der(q, x + dx / 2, n - 1, dx) - q_der(q, x - dx / 2, n - 1, dx)) / dx;
+        return (q_der(q, s + ds / 2, n - 1, ds) - q_der(q, s - ds / 2, n - 1, ds)) / ds;
 }
 
-const Quaternion q_der_bis(const Quaternion q(const double &x), const double &x, const unsigned short &n, const double &Dx)
+const Quaternion q_der_bis(const Quaternion &q(const double &s), const double &s, const unsigned short &n, const double &Ds)
 {
-    return q_der(q, x, n, Dx / n);
+    return q_der(q, s, n, Ds / n);
 }
 
 /*

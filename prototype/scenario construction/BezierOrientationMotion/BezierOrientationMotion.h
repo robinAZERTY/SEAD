@@ -1,6 +1,6 @@
 /*
 créé par : robinAZERTY
-version du : 27/08/2022 - 0 obsolete par rapport à documents\Motions.pdf
+version du : 02/09/2022 - 0 obsolete par rapport à documents\Motions.pdf
 source : http://roboop.sourceforge.net/htmldoc/robotse9.html
 */
 
@@ -10,20 +10,18 @@ source : http://roboop.sourceforge.net/htmldoc/robotse9.html
 #include "..\..\../lib_validated/math/quaternion/quaternion.cpp" //when this header is a prototype
 //#include "..\../math/quaternion/quaternion.cpp" //when this header is a valid
 
+
+//#include "..\..\../lib_validated/math/derivation/derivation.h"////when this header is a prototype
+
 class Slerp
 {
 public:
     Slerp();
-    Slerp(const Quaternion &q1, const Quaternion &q2);
-    Quaternion q1, q2, q1_prime, q2_prime;
-    double s, dp, ohm, s0, s1, s2, c0, c1, c2;
-    bool ohm_lim,q_not_moving;
-    void update_s(const double &s);
-    void update_q(const Quaternion &q1, const Quaternion &q2);
-    void update_q_primes(const Quaternion &q1_prime, const Quaternion &q2_prime);
-
-    const Quaternion SLERP() const;
-    const Quaternion PRIME() const;
+    Quaternion q1, q2;
+    double s;
+    
+    void update(const Quaternion &q1, const Quaternion &q2, const double &s);
+    const Quaternion SLERP();
 };
 
 class BezierOrientationMotion : public OrientationMotionBase
@@ -34,7 +32,8 @@ public:
     Quaternion q,q_der;
 
 //private:
-    void update_Slerps(const double &s);
+    const Quaternion SQUAD(const double &s);
+    const Quaternion PRIME(const double &s);
     virtual void update_state(const double &t);
     virtual void init();
     Quaternion qA, qB, qC, qD;
