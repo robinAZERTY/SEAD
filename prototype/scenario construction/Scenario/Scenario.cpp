@@ -95,22 +95,36 @@ const bool Scenario::add_BezierPositionMotion(PositionState finalState, const do
 const bool Scenario::add_OrientationMotion(BezierOrientationMotion &new_OrientationMotion)
 {
     // verification de la continuité
-    if (n_orientation_motions > 0 && orientation_is_continuous(this->OrientationMotion[n_orientation_motions], new_OrientationMotion))
-        return false;
+    if (n_orientation_motions > 0 && !orientation_is_continuous(this->OrientationMotion[n_orientation_motions - 1], new_OrientationMotion))
+        throw"bad transition";
 
-    BezierOrientationMotion *copy = this->OrientationMotion;
-    delete[] this->OrientationMotion;
-    n_orientation_motions++;
-    this->OrientationMotion = new BezierOrientationMotion[n_orientation_motions];
-
-    for (int i = 0; i < n_orientation_motions - 1; i++)
+    if (n_orientation_motions == 0)
     {
-        this->OrientationMotion[i] = copy[i];
+        OrientationMotion = new BezierOrientationMotion[1];
+        OrientationMotion[0] = new_OrientationMotion;
+    }
+    else
+    {
+        BezierOrientationMotion *copy = new BezierOrientationMotion[n_orientation_motions];
+        for (int i = 0; i < n_orientation_motions; i++)
+        {
+            copy[i] = OrientationMotion[i];
+        }
+        delete[] OrientationMotion;
+
+        OrientationMotion = new BezierOrientationMotion[n_orientation_motions + 1];
+        for (int i = 0; i < n_orientation_motions; i++)
+        {
+            OrientationMotion[i] = copy[i];
+        }
+        OrientationMotion[n_orientation_motions] = new_OrientationMotion;
     }
 
-    this->OrientationMotion[n_orientation_motions] = new_OrientationMotion;
+    n_orientation_motions++;
     orientation_scenario_duration += new_OrientationMotion.get_duration();
     total_duration = max(position_scenario_duration, orientation_scenario_duration);
+    init();
+
     return true;
 }
 
@@ -133,11 +147,16 @@ void Scenario::init()
     final_state.positionState = state.positionState;
     update_position_state(0);
     initial_state.positionState = state.positionState;
+    update_orientation_state(orientation_scenario_duration);
+    final_state.orientationState = state.orientationState;
+    update_orientation_state(0);
+    initial_state.orientationState = state.orientationState;
     inited = true;
 }
 
 void Scenario::update_position_state(const double &t)
-{
+{   
+    if(n_position_motions==0)return;
     short index_positionMotion = -1;
     double cumulate_duration = 0;
     while (t > cumulate_duration)
@@ -155,8 +174,9 @@ void Scenario::update_position_state(const double &t)
     if (index_positionMotion < 0)
         state.positionState = initial_state.positionState;
     else if (index_positionMotion >= n_position_motions)
-    {
-        cout << n_position_motions << endl;
+    {   
+        final_state.positionState.velocity.fill(0);
+        final_state.positionState.acceleration.fill(0);
         state.positionState = final_state.positionState;
     }
     else
@@ -166,11 +186,40 @@ void Scenario::update_position_state(const double &t)
 }
 
 void Scenario::update_orientation_state(const double &t)
-{
+{   
+    if(n_orientation_motions==0)return;
+    short index_orientationMotion = -1;
+    double cumulate_duration = 0;
+    while (t > cumulate_duration)
+    {
+        index_orientationMotion++;
+        if (index_orientationMotion >= n_orientation_motions)
+        {
+            break;
+        }
+        if (index_orientationMotion >= 0)
+            cumulate_duration += OrientationMotion[index_orientationMotion].get_duration();
+    }
+    cumulate_duration -= OrientationMotion[index_orientationMotion].get_duration();
+    const double t_ = t - cumulate_duration;
+    if (index_orientationMotion < 0)
+        state.orientationState = initial_state.orientationState;
+    else if (index_orientationMotion >= n_orientation_motions)
+    {   
+        final_state.orientationState.q_velocity*=0;
+        final_state.orientationState.q_acceleration*=0;
+        state.orientationState = final_state.orientationState;
+    }
+    else
+    {
+        state.orientationState = OrientationMotion[index_orientationMotion].get_state(t_);
+    }
 }
 
 void Scenario::update_state(const double &t)
 {
+    if(t<0 || t>total_duration)
+        throw"t must be between 0 and total_duration";
     update_position_state(t);
     update_orientation_state(t);
 }
