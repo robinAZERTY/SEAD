@@ -2,7 +2,7 @@
 créé par : robinAZERTY
 version du : 20/08/2022 - 0
 */
-
+#pragma once
 #include "BezierPositionMotion.h"
 
 BezierPositionMotion::BezierPositionMotion() : PositionMotionBase()

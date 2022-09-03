@@ -2,7 +2,7 @@
 créé par : robinAZERTY
 version du : 20/08/2022
 */
-
+#pragma once
 #include "StaticPositionMotion.h"
 StaticPositionMotion::StaticPositionMotion() : PositionMotionBase()
 {

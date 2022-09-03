@@ -2,7 +2,7 @@
 créé par : robinAZERTY
 version du : 27/08/2022 - 0
 */
-
+#pragma once
 #include "StaticOrientationMotion.h"
 StaticOrientationMotion::StaticOrientationMotion() : OrientationMotionBase()
 {

@@ -20,6 +20,7 @@ public:
     virtual string to_str();
 
     void set_duration(const double &duration);
+    const double get_duration(){return duration;}
 
     OrientationState get_state(const double &t);
     OrientationState get_initial_state();

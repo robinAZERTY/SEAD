@@ -2,6 +2,7 @@
 créé par : robinAZERTY
 version du : 02/09/2022-0
 */
+#pragma once
 
 #include "State.h"
 

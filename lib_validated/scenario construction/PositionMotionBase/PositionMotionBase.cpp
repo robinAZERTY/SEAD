@@ -2,7 +2,7 @@
 créé par : robinAZERTY
 version du : 19/08/2022 - 2
 */
-
+#pragma once
 #include "PositionMotionBase.h"
 
 void PositionMotionBase::set_parameters()

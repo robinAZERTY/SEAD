@@ -2,7 +2,7 @@
 créé par : robinAZERTY
 version du : 20/08/2022 - 1
 */
-
+#pragma once
 #include "OrientationMotionBase.h"
 
 void OrientationMotionBase::set_parameters()
