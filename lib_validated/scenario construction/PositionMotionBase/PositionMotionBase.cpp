@@ -29,6 +29,7 @@ PositionState PositionMotionBase::get_state(const double &t)
         init();
 
     update_state(t);
+    cout<<"PositionMotionBase flag"<<endl;
     return this->state;
 }
 PositionState PositionMotionBase::get_initial_state()

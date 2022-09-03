@@ -7,14 +7,13 @@ source : http://roboop.sourceforge.net/htmldoc/robotse9.html
 //#include "..\..\../lib_validated/scenario construction/OrientationMotionBase/OrientationMotionBase.cpp" //when this header is a prototype
 #include "../OrientationMotionBase/OrientationMotionBase.cpp" //when this header is a valid
 
-
 class Slerp
 {
 public:
     Slerp();
     Quaternion q1, q2;
     double s;
-    
+
     void update(const Quaternion &q1, const Quaternion &q2, const double &s);
     const Quaternion SLERP();
 };
@@ -26,10 +25,15 @@ public:
     BezierOrientationMotion(const Quaternion q[4], const double &duration);
     BezierOrientationMotion(const OrientationState initialState, const OrientationState finalState, const double &duration);
 
+    virtual OrientationState get_state(const double &t);
+    virtual OrientationState get_initial_state();
+    virtual OrientationState get_final_state();
 
     const Quaternion SQUAD(const double &s);
     const Quaternion PRIME(const double &s);
     const Quaternion SECOND_PRIME(const double &s);
+
+private:
     virtual void update_state(const double &t);
     virtual void init();
     Quaternion qA, qB, qC, qD;
@@ -38,4 +42,3 @@ public:
     Slerp Slerp_6;
     double alpha;
 };
-

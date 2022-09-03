@@ -2,7 +2,7 @@
 créé par : robinAZERTY
 version du : 27/08/2022 - 0
 */
-
+#pragma once
 #include "BezierOrientationMotion.h"
 
 static const double ds = 1.0e-5;
@@ -93,6 +93,24 @@ void BezierOrientationMotion::update_state(const double &t)
     state.q = SQUAD(s);
     state.q_velocity = PRIME(s) * alpha;
     state.q_acceleration = SECOND_PRIME(s)*alpha;
+}
+
+OrientationState BezierOrientationMotion::get_state(const double &t)
+{
+    if (!inited)
+    {
+        init();
+    }
+    update_state(t);
+    return this->state;
+}
+OrientationState BezierOrientationMotion::get_initial_state()
+{
+    return this->initialState;
+}
+OrientationState BezierOrientationMotion::get_final_state()
+{
+    return this->finalState;
 }
 
 void BezierOrientationMotion::init()

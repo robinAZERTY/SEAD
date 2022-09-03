@@ -34,69 +34,74 @@ Scenario::Scenario(const PositionState initial_state)
     this->final_state.positionState = initial_state;
 }
 
-
-const bool position_is_continuous(PositionMotionBase &m1, PositionMotionBase &m2)
-{
-    const bool same_position = m1.get_final_state().position == m2.get_initial_state().position;
-    const bool same_velocity = m1.get_final_state().velocity == m2.get_initial_state().velocity;
+const bool position_is_continuous(BezierPositionMotion &m1, BezierPositionMotion &m2)
+{   
+    Vector a=m1.get_final_state().position - m2.get_initial_state().position;
+    Vector b=m1.get_final_state().velocity - m2.get_initial_state().velocity;
+    const bool same_position = a.norm()<1.0e-5;
+    const bool same_velocity = b.norm()<1.0e-5;
     return same_position && same_velocity;
 }
 
-const bool orientation_is_continuous(OrientationMotionBase &m1, OrientationMotionBase &m2)
+const bool orientation_is_continuous(BezierOrientationMotion &m1, BezierOrientationMotion &m2)
 {
-    const bool same_position = m1.get_final_state().q == m2.get_initial_state().q;
-    const bool same_velocity = m1.get_final_state().q_velocity == m2.get_initial_state().q_velocity;
+    const bool same_position = (m1.get_final_state().q - m2.get_initial_state().q).norm()<1.0e-5;
+    const bool same_velocity = (m1.get_final_state().q_velocity - m2.get_initial_state().q_velocity).norm()<1.0e-5;
     return same_position && same_velocity;
 }
 
-const bool Scenario::add_PositionMotion(PositionMotionBase new_PositionMotion)
+const bool Scenario::add_PositionMotion(BezierPositionMotion &new_PositionMotion)
 {
     // verification de la continuité
-
     if (n_position_motions > 0 && !position_is_continuous(this->PositionMotion[n_position_motions - 1], new_PositionMotion))
-        return false;
+        throw"bad transition";
 
-    PositionMotionBase *copy = new PositionMotionBase[n_position_motions];
-    for (int i = 0; i < n_position_motions; i++)
+    if (n_position_motions == 0)
     {
-        copy[i] = this->PositionMotion[i];
+        PositionMotion = new BezierPositionMotion[1];
+        PositionMotion[0] = new_PositionMotion;
     }
+    else
+    {
+        BezierPositionMotion *copy = new BezierPositionMotion[n_position_motions];
+        for (int i = 0; i < n_position_motions; i++)
+        {
+            copy[i] = PositionMotion[i];
+        }
+        delete[] PositionMotion;
 
-    if (n_position_motions > 0)
-        delete[] this->PositionMotion;
+        PositionMotion = new BezierPositionMotion[n_position_motions + 1];
+        for (int i = 0; i < n_position_motions; i++)
+        {
+            PositionMotion[i] = copy[i];
+        }
+        PositionMotion[n_position_motions] = new_PositionMotion;
+    }
 
     n_position_motions++;
-
-    this->PositionMotion = new PositionMotionBase[n_position_motions];
-
-    for (int i = 0; i < n_position_motions - 1; i++)
-    {
-        this->PositionMotion[i] = copy[i];
-    }
-
-    this->PositionMotion[n_position_motions - 1] = new_PositionMotion;
     position_scenario_duration += new_PositionMotion.get_duration();
     total_duration = max(position_scenario_duration, orientation_scenario_duration);
+    init();
 
     return true;
 }
 
 const bool Scenario::add_BezierPositionMotion(PositionState finalState, const double &duration)
 {
-    BezierPositionMotion new_motion = BezierPositionMotion(this->final_state.positionState, finalState, duration);
+    BezierPositionMotion new_motion(this->final_state.positionState, finalState, duration);
     return this->add_PositionMotion(new_motion);
 }
 
-const bool Scenario::add_OrientationMotion(OrientationMotionBase new_OrientationMotion)
+const bool Scenario::add_OrientationMotion(BezierOrientationMotion &new_OrientationMotion)
 {
     // verification de la continuité
     if (n_orientation_motions > 0 && orientation_is_continuous(this->OrientationMotion[n_orientation_motions], new_OrientationMotion))
         return false;
 
-    OrientationMotionBase *copy = this->OrientationMotion;
+    BezierOrientationMotion *copy = this->OrientationMotion;
     delete[] this->OrientationMotion;
     n_orientation_motions++;
-    this->OrientationMotion = new OrientationMotionBase[n_orientation_motions];
+    this->OrientationMotion = new BezierOrientationMotion[n_orientation_motions];
 
     for (int i = 0; i < n_orientation_motions - 1; i++)
     {
@@ -117,33 +122,21 @@ const bool Scenario::add_BezierOrientationMotion(OrientationState finalState, co
 
 const State Scenario::get_state(const double &t)
 {
-
+    if (!inited)
+        init();
     update_state(t);
     return state;
 }
 void Scenario::init()
 {
-    double cumulate_duration_1 = 0;
-    for (int i = 0; i < n_position_motions; i++)
-    {
-        cumulate_duration_1 += PositionMotion[i].get_duration();
-    }
-
-    double cumulate_duration_2 = 0;
-    for (int i = 0; i < n_orientation_motions; i++)
-    {
-        cumulate_duration_2 += OrientationMotion[i].get_duration();
-    }
-
-    double cumulate_duration = max(cumulate_duration_1, cumulate_duration);
-    get_state(cumulate_duration);
-    final_state = state;
-    get_state(0);
-    initial_state = state;
+    update_position_state(position_scenario_duration);
+    final_state.positionState = state.positionState;
+    update_position_state(0);
+    initial_state.positionState = state.positionState;
     inited = true;
 }
 
-void Scenario::update_state(const double &t)
+void Scenario::update_position_state(const double &t)
 {
     short index_positionMotion = -1;
     double cumulate_duration = 0;
@@ -162,7 +155,22 @@ void Scenario::update_state(const double &t)
     if (index_positionMotion < 0)
         state.positionState = initial_state.positionState;
     else if (index_positionMotion >= n_position_motions)
+    {
+        cout << n_position_motions << endl;
         state.positionState = final_state.positionState;
+    }
     else
+    {
         state.positionState = PositionMotion[index_positionMotion].get_state(t_pos);
+    }
+}
+
+void Scenario::update_orientation_state(const double &t)
+{
+}
+
+void Scenario::update_state(const double &t)
+{
+    update_position_state(t);
+    update_orientation_state(t);
 }

@@ -94,6 +94,24 @@ void BezierOrientationMotion::update_state(const double &t)
     state.q_velocity = PRIME(s) * alpha;
     state.q_acceleration = SECOND_PRIME(s)*alpha;
 }
+//BezierOrientationMotion
+OrientationState BezierOrientationMotion::get_state(const double &t)
+{
+    if (!inited)
+    {
+        init();
+    }
+    update_state(t);
+    return this->state;
+}
+OrientationState BezierOrientationMotion::get_initial_state()
+{
+    return this->initialState;
+}
+OrientationState BezierOrientationMotion::get_final_state()
+{
+    return this->finalState;
+}
 
 void BezierOrientationMotion::init()
 {

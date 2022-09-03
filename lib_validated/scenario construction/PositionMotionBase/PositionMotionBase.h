@@ -21,9 +21,9 @@ public:
     void set_duration(const double &duration);
     const double get_duration(){return duration;}
 
-    PositionState get_state(const double &t);
-    PositionState get_initial_state();
-    PositionState get_final_state();
+    virtual PositionState get_state(const double &t);
+    virtual PositionState get_initial_state();
+    virtual PositionState get_final_state();
 
 protected:
 

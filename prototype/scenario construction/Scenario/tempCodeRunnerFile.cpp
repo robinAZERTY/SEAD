@@ -1,2 +1,2 @@
 
-}
+        PositionState current_state;

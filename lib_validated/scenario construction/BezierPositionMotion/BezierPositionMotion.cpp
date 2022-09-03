@@ -24,6 +24,7 @@ BezierPositionMotion::BezierPositionMotion(const Vector points_3D[4], const doub
     this->D = points_3D[3];
     this->duration = duration;
     this->alpha = 1 / duration;
+    this->description = "BezierPositionMotion with 4 Points input";
 }
 
 BezierPositionMotion::BezierPositionMotion(const PositionState &initialState, const Vector points_3D[2], const double &duration)
@@ -40,6 +41,7 @@ BezierPositionMotion::BezierPositionMotion(const PositionState &initialState, co
     this->B = A + initialState.velocity * duration / 3.0;
     this->C = points_3D[0];
     this->D = points_3D[1];
+    this->description = "BezierPositionMotion with initialState and 2 Points input";
 }
 
 BezierPositionMotion::BezierPositionMotion(const PositionState &initialState, const PositionState &finalState, const double &duration)
@@ -50,6 +52,7 @@ BezierPositionMotion::BezierPositionMotion(const PositionState &initialState, co
     this->D = finalState.position;
     this->B = A + initialState.velocity * duration / 3.0;
     this->C = D - finalState.velocity * duration / 3.0;
+    this->description = "BezierPositionMotion with initialState and finalState";
 }
 
 void BezierPositionMotion::update_state(const double &t)
@@ -63,6 +66,30 @@ void BezierPositionMotion::update_state(const double &t)
     state.position = A * (1 - t_) * (1 - t_) * (1 - t_) + B * 3 * t_ * (1 - t_) * (1 - t_) + C * 3 * t_ * t_ * (1 - t_) + D * t_ * t_ * t_;
     state.velocity = alpha * (-3 * (A * (1 - t_) * (1 - t_) + t_ * (-2 * C + 3 * C * t_ - D * t_) + B * (-1 + 4 * t_ - 3 * t_ * t_)));
     state.acceleration = alpha * (-6 * (B * (2 - 3 * t_) - C - A * (1 - t_) + 3 * C * t_ - D * t_));
+}
+
+PositionState BezierPositionMotion::get_state(const double &t)
+{
+    if (!inited)
+        init();
+
+    update_state(t);
+    return this->state;
+}
+
+PositionState BezierPositionMotion::get_initial_state()
+{
+    if (!inited)
+        init();
+
+    return this->initialState;
+}
+PositionState BezierPositionMotion::get_final_state()
+{
+    if (!inited)
+        init();
+
+    return this->finalState;
 }
 
 void BezierPositionMotion::init()
