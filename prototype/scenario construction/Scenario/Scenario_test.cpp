@@ -21,7 +21,7 @@ void visualization(){
     OrientationState o0,o1,o2;
     o0.q=Quaternion(0,0,0);
     o1.q=Quaternion(0,0,PI/2);
-    o1.q_velocity=Quaternion(0,0,o1.q.yaw_pitch_roll()[2])-Quaternion(0,0,o1.q.yaw_pitch_roll()[2]+0.1);
+    //o1.q_velocity=Quaternion(0,0,o1.q.yaw_pitch_roll()[2])-Quaternion(0,0,o1.q.yaw_pitch_roll()[2]+0.1);
 
     State s0;
     s0.positionState=p0;
@@ -32,7 +32,8 @@ void visualization(){
     s.add_BezierPositionMotion(p1,1);
     s.add_BezierPositionMotion(p2,2);
 
-    s.add_BezierOrientationMotion(o1,10);
+    s.add_BezierOrientationMotion(o1,5);
+    s.add_BezierOrientationMotion(o2,1);
 
     const double simulation_duration=s.get_total_duration();
 
