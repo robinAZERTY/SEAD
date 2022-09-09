@@ -16,20 +16,34 @@ class sensor
 {
 public:
     sensor(){};
-    const double get_sample(const double &physical_quantities_value(const double &time),const double &time);
+    sensor(Vector position, Quaternion orientation);
+
+    void set_nonOrthogonality(const Matrix &nonOrthogonality) { this->nonOrthogonality = nonOrthogonality; }
+    void set_offsets(const Vector &offsets) { this->offsets = offsets; }
+    void set_std_noise(const double std_noise[3])
+    {
+        this->std_noise[0] = std_noise[0];
+        this->std_noise[1] = std_noise[1];
+        this->std_noise[2] = std_noise[2];
+    }
+    void set_resolution(const double resolution[3])
+    {
+        this->resolution[0] = resolution[0];
+        this->resolution[1] = resolution[1];
+        this->resolution[2] = resolution[2];
+    }
+    
+    const Vector get_samples(const Vector &physical_quantities_3Dvalue);
 
 private:
-    PositionState internal_posisiton;      // position in the robot reference
-    OrientationState internal_orientation; // orientation in the robot reference
-    
-    //features of the sensor
-    string physical_quantities_observed;//acceleration,magnetisme,angular_velocity... in 1 direction !
-    double linearity(const double physical_quantities_value);//depend also of temperature range and operating_range
-    double std_noise;
-    double resolution;
-    double lag_delay;
-    double update_freq;
-    double passband_freq[2]={0,9.9e100};
-    double operating_range[2]={-9.9e-100,9.9e100};
-    double temperature_operating_range[2]={-9.9e-100,9.9e100};
+    Vector internal_posisiton;       // position in the robot reference
+    Quaternion internal_orientation; // orientation in the robot reference
+
+    // features of the sensor
+
+    Matrix nonOrthogonality = IdentityMatrix(3);
+    Vector offsets = Vector(3);
+
+    double std_noise[3] = {0, 0, 0};
+    double resolution[3] = {0, 0, 0};
 };
