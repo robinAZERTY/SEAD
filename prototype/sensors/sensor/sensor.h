@@ -35,7 +35,7 @@ public:
     
     const Vector get_samples(const Vector &physical_quantities_3Dvalue);
 
-private:
+protected:
     Vector internal_posisiton;       // position in the robot reference
     Quaternion internal_orientation; // orientation in the robot reference
 

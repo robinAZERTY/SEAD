@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../sensor/sensor.h"
+#include "../sensor/sensor.cpp"
 
-class accelerometer : sensor
+class accelerometer : public sensor
 {
     public:
-        accelerometer();
+        accelerometer(){};
         accelerometer(Vector position, Quaternion orientation);
         const Vector measure(const State &robot_state);
 };

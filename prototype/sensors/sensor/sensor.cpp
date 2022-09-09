@@ -8,7 +8,7 @@ sensor::sensor(Vector position, Quaternion orientation)
 }
 
 const double gaussien_noise(const double &tau)
-{
+{   
     if (tau == 0)
         return 0;
     int rand1 = rand() % 1001;
@@ -54,6 +54,6 @@ const Vector sensor::get_samples(const Vector &physical_quantities_3Dvalue)
     // passband and lag delay application
     Vector ret = nonOrthogonality * physical_quantities_3Dvalue + offsets;
     ret += noise_v(std_noise);
-    ret = (step_function_v(ret, resolution));
+    ret = step_function_v(ret, resolution);
     return ret;
 }
