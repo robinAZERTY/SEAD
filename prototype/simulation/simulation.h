@@ -49,6 +49,7 @@ private:
     sensor **sensors;
     unsigned int sensor_number = 0;
 
+
     Vector *sensor_data;
     string write_path;
     string separator="\t";
