@@ -33,11 +33,11 @@ void simulation::add_sensor(sensor &new_sensor)
 
     if (t == typeid(accelerometer))
     {
-        data_type += separator + "accX" + separator + "accY" + separator + "accZ";
+        data_type += separator + new_sensor.description + "X" + separator + new_sensor.description + "Y" + separator + new_sensor.description + "Z";
     }
     else if (t == typeid(gyroscope))
     {
-        data_type += separator + "gyrX" + separator + "gyrY" + separator + "gyrZ";
+        data_type += separator + new_sensor.description + "X" + separator + new_sensor.description + "Y" + separator + new_sensor.description + "Z";
     }
 
     sensor_number++;
@@ -127,13 +127,14 @@ void simulation::set_current_frame_data()
 
     ostringstream oss;
     // we need a addaptable precision digits number
-    unsigned int expo=0;
-    double tmp=time_step;
-    while(tmp!=int(tmp)){
-        tmp*=10;
+    unsigned int expo = 0;
+    double tmp = time_step;
+    while (tmp != int(tmp))
+    {
+        tmp *= 10;
         expo++;
     }
-    const unsigned short precision = floor(log10(time))+expo;
+    const unsigned short precision = floor(log10(time)) + expo;
     oss.precision(precision);
     oss << scientific << time;
     string data = oss.str();

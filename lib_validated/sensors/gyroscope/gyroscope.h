@@ -5,7 +5,7 @@ version du 11/09/2022
 
 #pragma once
 
-#define IS_VALIDATED false
+#define IS_VALIDATED true
 
 #if !IS_VALIDATED
 #include "../sensor/sensor.cpp"

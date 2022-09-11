@@ -30,6 +30,7 @@ public:
     void set_std_noise(const double std_noise[3]);
     void set_resolution(const double resolution[3]);
     void set_description(const string &description) { this->description = description;}
+    string description = "sensor";
 
 protected:
     
@@ -45,6 +46,4 @@ protected:
 
     double std_noise[3] = {0, 0, 0};
     double resolution[3] = {0, 0, 0};
-
-    string description = "sensor";
 };

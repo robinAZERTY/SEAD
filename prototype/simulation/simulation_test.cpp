@@ -12,7 +12,6 @@ Scenario buid_scenar()
     p1.velocity.set(2,0.2);
     p2.position.set(0,-2);
     
-    
 
     OrientationState o0,o1,o2;
     o0.q=Quaternion(0,0,0);
