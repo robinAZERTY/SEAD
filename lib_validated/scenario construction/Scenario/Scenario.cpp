@@ -47,8 +47,7 @@ const bool orientation_is_continuous(BezierOrientationMotion &m1, BezierOrientat
 {
     Quaternion a = m1.get_final_state().q - m2.get_initial_state().q;
     Quaternion b = m1.get_final_state().q_velocity - m2.get_initial_state().q_velocity;
-    cout << a.norm() << endl;
-    cout << b.norm() << endl;
+
     const bool same_position = a.norm() < 1.0e-5;
     const bool same_velocity = b.norm() < 1.0e-5;
     return same_position && same_velocity;
@@ -59,7 +58,6 @@ const bool Scenario::add_PositionMotion(BezierPositionMotion &new_PositionMotion
     // verification de la continuité
     if (n_position_motions > 0 && !position_is_continuous(this->PositionMotion[n_position_motions - 1], new_PositionMotion))
     {
-        cout << "bad transition" << endl;
         throw "bad transition";
     }
 
@@ -104,7 +102,6 @@ const bool Scenario::add_OrientationMotion(BezierOrientationMotion &new_Orientat
     // verification de la continuité
     if (n_orientation_motions > 0 && !orientation_is_continuous(this->OrientationMotion[n_orientation_motions - 1], new_OrientationMotion))
     {
-        cout << "bad transition" << endl;
         throw "bad transition";
     }
 
@@ -144,11 +141,8 @@ const bool Scenario::add_BezierOrientationMotion(OrientationState finalState, co
     return this->add_OrientationMotion(new_motion);
 }
 
-const State Scenario::get_state(const double &t)
+const State Scenario::get_state()
 {
-    if (!inited)
-        init();
-    update_state(t);
     return state;
 }
 void Scenario::init()
@@ -231,8 +225,12 @@ void Scenario::update_orientation_state(const double &t)
 
 void Scenario::update_state(const double &t)
 {
+    if (!inited)
+        init();
+
     if (t < 0 || t > total_duration)
         throw "t must be between 0 and total_duration";
+
     update_position_state(t);
     update_orientation_state(t);
 }

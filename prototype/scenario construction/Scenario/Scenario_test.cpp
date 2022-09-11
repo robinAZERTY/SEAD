@@ -1,10 +1,6 @@
 
-
-
-
 #include <iostream>
 using namespace std;
-#define PI 3.14
 
 #include "Scenario.cpp"
 void visualization(){

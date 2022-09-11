@@ -2,6 +2,7 @@
 créé par : robinAZERTY
 version du : 18/08/2022 à revoir
 */
+#define PI 3.14159265359
 
 #include "matrix.h"
 

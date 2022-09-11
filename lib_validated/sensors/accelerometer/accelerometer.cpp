@@ -1,14 +1,15 @@
+#pragma once
+
 #include "accelerometer.h"
 // gravity in Lille (France) at 50° 38' 0.0000" N, 3° 3' 0.0000" E
 #define GRAVITY 9.80665
-
+#include <iostream>
 accelerometer::accelerometer(Vector position, Quaternion orientation) : sensor(position, orientation)
 {
 }
 
-
 const Vector accelerometer::measure(const State &robot_state)
-{   
+{
     // get the linear acceleration in the sensor reference
     // so we need to rotate the linear acceleration in the robot reference
     // R0 : inertial world reference
@@ -34,6 +35,6 @@ const Vector accelerometer::measure(const State &robot_state)
     Vector A_1 = quaternion_to_vector(robot_state.orientationState.q.conjugate() * vector_to_quaternion(A_0) * robot_state.orientationState.q);
     // get the linear acceleration in R2
     Vector A_2 = quaternion_to_vector(internal_orientation.conjugate() * vector_to_quaternion(A_1) * internal_orientation);
-    
+
     return get_samples(A_2);
-    }
+}

@@ -1,6 +1,6 @@
 /*
 créé par : robinAZERTY
-version du : 03/09/2022 - 0
+version du : 11/09/2022 - 0
 */
 
 #pragma once
@@ -34,7 +34,8 @@ public:
     const bool add_BezierPositionMotion(PositionState finalState, const double &duration);
     const bool add_BezierOrientationMotion(OrientationState finalState, const double &duration);
 
-    const State get_state(const double &t);
+    void update_state(const double &t);
+    const State get_state();
 
     const double get_total_duration() { return total_duration; }
     const double get_position_scenario_duration() { return position_scenario_duration; }
@@ -45,7 +46,6 @@ private:
     const bool add_OrientationMotion(BezierOrientationMotion &PositionMotion);
     State initial_state, state, final_state;
     double position_scenario_duration = 0, orientation_scenario_duration = 0, total_duration = 0;
-    void update_state(const double &t);
     void update_position_state(const double &t);
     void update_orientation_state(const double &t);
 

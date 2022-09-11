@@ -2,7 +2,6 @@
 
 #define IS_VALIDATED false
 
-
 #if !IS_VALIDATED
 #include "../sensor/sensor.cpp"
 
@@ -10,11 +9,10 @@
 #include "../sensor/sensor.cpp"
 #endif
 
-class accelerometer : public sensor
+class gyroscope : public sensor
 {
     public:
-        accelerometer(){};
-        accelerometer(Vector position, Quaternion orientation);
-        virtual ~accelerometer(){};
+        gyroscope(){};
+        gyroscope(Vector position, Quaternion orientation);
         const Vector measure(const State &robot_state);
 };
