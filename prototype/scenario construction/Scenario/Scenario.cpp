@@ -149,8 +149,7 @@ void Scenario::init()
 {
     update_position_state(position_scenario_duration);
     final_state.positionState = state.positionState;
-    update_position_state(0);
-    initial_state.positionState = state.positionState;
+    initial_state.positionState = PositionMotion[0].get_state(0);
 
     update_orientation_state(orientation_scenario_duration);
     final_state.orientationState = state.orientationState;

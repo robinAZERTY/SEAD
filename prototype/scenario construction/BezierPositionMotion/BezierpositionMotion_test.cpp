@@ -18,17 +18,18 @@ void visualisation()
     points_3D[3].fill(3);
     BezierPositionMotion bezierPositionMotion(points_3D,1);
     
-    cout << bezierPositionMotion.to_str(); // it is like a constant speed motion lol
+    //cout << bezierPositionMotion.to_str(); // it is like a constant speed motion lol
 
     PositionState initialState;
     initialState.position.fill(1);
-    initialState.velocity.set(0,1);
+    initialState.velocity.set(0,0);
 
     PositionState finalState;
     finalState.position.fill(2);
 
-    BezierPositionMotion bezierPositionMotion2(initialState,finalState,10);
-    cout << bezierPositionMotion2.get_state(0.51).to_str();
+    BezierPositionMotion bezierPositionMotion2(initialState,finalState,1);
+    cout << bezierPositionMotion2.get_state(0).acceleration(0)<<endl;
+    cout << bezierPositionMotion2.get_state(0.01).acceleration(0)<<endl;
 
 }
 

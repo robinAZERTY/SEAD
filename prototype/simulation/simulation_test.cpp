@@ -27,8 +27,8 @@ Scenario buid_scenar()
     s.add_BezierPositionMotion(p1,1);
     s.add_BezierPositionMotion(p2,2);
 
-    //s.add_BezierOrientationMotion(o1,5);
-    //s.add_BezierOrientationMotion(o2,100);
+    s.add_BezierOrientationMotion(o1,5);
+    s.add_BezierOrientationMotion(o2,10);
     return s;
 }
 
@@ -43,9 +43,8 @@ void visu()
     simu.set_time_step(0.01);
     simu.run();
     simu.write_simulation();
-    
-
 }
+
 int main()
 {   
     visu();

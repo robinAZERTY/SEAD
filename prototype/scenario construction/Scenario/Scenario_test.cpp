@@ -33,13 +33,14 @@ void visualization(){
 
     const double simulation_duration=s.get_total_duration();
 
-    const double dt = 1.0/100;
+    const double dt = 1.0/1000;
 
-    for (unsigned int i = 0; i <= simulation_duration / dt; i++)
+    for (unsigned int i = 0; i <= simulation_duration / dt/100; i++)
     {
         const double t = i * dt;
         State current_state;
-        current_state=s.get_state(t);
+        s.update_state(t);
+        current_state=s.get_state();
         
 
         cout<<"t ="<<to_string(t);
