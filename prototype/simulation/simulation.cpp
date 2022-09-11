@@ -26,6 +26,7 @@ void simulation::set_scenario(Scenario *scenario)
     this->scenario = scenario;
 }
 
+#include <typeinfo>
 void simulation::add_sensor(sensor &new_sensor)
 {
     const type_info &t = typeid(new_sensor);

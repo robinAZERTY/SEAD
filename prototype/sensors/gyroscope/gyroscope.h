@@ -1,3 +1,8 @@
+/*
+cree par : RobinAZERTY
+version du 11/09/2022
+*/
+
 #pragma once
 
 #define IS_VALIDATED false
@@ -12,7 +17,7 @@
 class gyroscope : public sensor
 {
     public:
-        gyroscope(){};
+        gyroscope(){description="gyro";};
         gyroscope(Vector position, Quaternion orientation);
         const Vector measure(const State &robot_state);
 };

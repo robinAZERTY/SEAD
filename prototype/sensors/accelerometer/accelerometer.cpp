@@ -1,9 +1,15 @@
+/*
+cree par : RobinAZERTY
+version du 11/09/2022
+*/
+
 #include "accelerometer.h"
 // gravity in Lille (France) at 50° 38' 0.0000" N, 3° 3' 0.0000" E
 #define GRAVITY 9.80665
 
 accelerometer::accelerometer(Vector position, Quaternion orientation) : sensor(position, orientation)
 {
+    description="accel";
 }
 
 

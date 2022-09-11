@@ -2,6 +2,7 @@
 
 gyroscope::gyroscope(Vector position, Quaternion orientation) : sensor(position, orientation)
 {
+    description="gyro";
 }
 
 const Vector gyroscope::measure(const State &robot_state)

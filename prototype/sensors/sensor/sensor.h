@@ -1,3 +1,7 @@
+/*
+cree par : RobinAZERTY
+version du 11/09/2022
+*/
 
 #pragma once
 
@@ -25,6 +29,7 @@ public:
     void set_orientation(const Quaternion &orientation) { this->internal_orientation = orientation; }
     void set_std_noise(const double std_noise[3]);
     void set_resolution(const double resolution[3]);
+    void set_description(const string &description) { this->description = description;}
 
 protected:
     
@@ -40,4 +45,6 @@ protected:
 
     double std_noise[3] = {0, 0, 0};
     double resolution[3] = {0, 0, 0};
+
+    string description = "sensor";
 };

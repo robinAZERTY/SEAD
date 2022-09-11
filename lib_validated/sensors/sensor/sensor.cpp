@@ -1,3 +1,8 @@
+/*
+cree par : RobinAZERTY
+version du 11/09/2022
+*/
+
 #pragma once
 #include "sensor.h"
 
@@ -13,7 +18,7 @@ const double gaussien_noise(const double &tau)
         return 0;
     int rand1 = rand() % 1001;
     int rand2 = rand() % 1001;
-    double noise = tau * sqrt(-2 * log(rand1 / 1000.0)) * cos(2 * M_PI * rand2 / 1000.0);
+    double noise = tau * sqrt(-2 * log(rand1 / 1000.0)) * cos(2 * PI * rand2 / 1000.0);
     if (isnan(noise) || isinf(noise))
     {
         return gaussien_noise(tau);

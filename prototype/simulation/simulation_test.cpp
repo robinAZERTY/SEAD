@@ -41,7 +41,7 @@ void visu()
     simu.set_scenario(&s);
     accelerometer acc;
     simu.add_sensor(acc);
-    simu.set_time_step(0.03);
+    simu.set_time_step(0.01);
     simu.run();
     simu.write_simulation();
     

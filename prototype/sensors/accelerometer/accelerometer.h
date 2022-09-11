@@ -1,7 +1,11 @@
+/*
+cree par : RobinAZERTY
+version du 11/09/2022
+*/
+
 #pragma once
 
 #define IS_VALIDATED false
-
 
 #if !IS_VALIDATED
 #include "../sensor/sensor.cpp"
@@ -13,7 +17,7 @@
 class accelerometer : public sensor
 {
     public:
-        accelerometer(){};
+        accelerometer(){description="accel";};
         accelerometer(Vector position, Quaternion orientation);
         virtual ~accelerometer(){};
         const Vector measure(const State &robot_state);
