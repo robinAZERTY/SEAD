@@ -2,13 +2,19 @@
 cree par : RobinAZERTY
 version du 11/09/2022
 */
-
+#pragma once
 #include "simulation.h"
 #include <iostream>
 
 simulation::simulation()
 {
     scenario = new Scenario();
+    //state data_type
+    string state_data_type[]={"posX","posY","posZ","velX","velY","velZ","accX","accY","accZ","q0","q1","q2","q3","q_vel0","q_vel1","q_vel2","q_vel3","q_acc0","q_acc1","q_acc2","q_acc3"};
+    for (int i = 0; i < 19; i++)
+    {
+        data_type += separator + state_data_type[i];
+    }
 }
 
 simulation::~simulation()
@@ -138,6 +144,39 @@ void simulation::set_current_frame_data()
     oss.precision(precision);
     oss << scientific << time;
     string data = oss.str();
+
+    //add state data into a double reference list
+    double state_data[21];
+    state_data[0] = scenario->get_state().positionState.position(0);
+    state_data[1] = scenario->get_state().positionState.position(1);
+    state_data[2] = scenario->get_state().positionState.position(2);
+    state_data[3] = scenario->get_state().positionState.velocity(0);
+    state_data[4] = scenario->get_state().positionState.velocity(1);
+    state_data[5] = scenario->get_state().positionState.velocity(2);
+    state_data[6] = scenario->get_state().positionState.acceleration(0);
+    state_data[7] = scenario->get_state().positionState.acceleration(1);
+    state_data[8] = scenario->get_state().positionState.acceleration(2);
+    state_data[9] = scenario->get_state().orientationState.q.a;
+    state_data[10] = scenario->get_state().orientationState.q.b;
+    state_data[11] = scenario->get_state().orientationState.q.c;
+    state_data[12] = scenario->get_state().orientationState.q.d;
+    state_data[13] = scenario->get_state().orientationState.q_velocity.a;
+    state_data[14] = scenario->get_state().orientationState.q_velocity.b;
+    state_data[15] = scenario->get_state().orientationState.q_velocity.c;
+    state_data[16] = scenario->get_state().orientationState.q_velocity.d;
+    state_data[17] = scenario->get_state().orientationState.q_acceleration.a;
+    state_data[18] = scenario->get_state().orientationState.q_acceleration.b;
+    state_data[19] = scenario->get_state().orientationState.q_acceleration.c;
+    state_data[20] = scenario->get_state().orientationState.q_acceleration.d;
+
+    oss.precision(6);
+    for(unsigned int i = 0; i < 21; i++)
+    {
+        oss.str("");
+        oss << scientific << state_data[i];
+        data += separator + oss.str();
+    }
+
     for (unsigned int i = 0; i < sensor_number; i++)
     {
         for (unsigned int j = 0; j < sensor_data[i].get_nb_rows(); j++)
@@ -186,6 +225,7 @@ void simulation::write_simulation()
     else
     {
         file.open(write_path, ios::out | ios::app);
+        file.clear();
     }
 
     file << get_data_type();

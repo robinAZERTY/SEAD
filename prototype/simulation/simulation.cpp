@@ -2,7 +2,7 @@
 cree par : RobinAZERTY
 version du 11/09/2022
 */
-
+#pragma once
 #include "simulation.h"
 #include <iostream>
 
@@ -225,6 +225,7 @@ void simulation::write_simulation()
     else
     {
         file.open(write_path, ios::out | ios::app);
+        file.clear();
     }
 
     file << get_data_type();
