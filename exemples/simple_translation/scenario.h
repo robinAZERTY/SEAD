@@ -5,11 +5,8 @@ Scenario my_scenario;
 void construct_my_scenario()
 {
     //juste a simple translation
-    cout<<"constructing scenario"<<endl;
     State default_state;
-    //my_scenario=Scenario(default_state);//initial state
-    cout<<"scenario constructed"<<endl;
-    
+    //my_scenario=Scenario(default_state);//initial state    
     PositionState next_state;
     Vector next_position(3);
     next_position.set(0,1);

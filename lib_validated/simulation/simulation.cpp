@@ -131,22 +131,13 @@ void simulation::set_current_frame_data()
         }
     }
 
-    ostringstream oss;
-    // we need a addaptable precision digits number
-    unsigned int expo = 0;
-    double tmp = time_step;
-    while (tmp != int(tmp))
-    {
-        tmp *= 10;
-        expo++;
-    }
-    const unsigned short precision = floor(log10(time)) + expo;
-    oss.precision(precision);
-    oss << scientific << time;
+
+    stringstream oss;
+    oss<<time;
     string data = oss.str();
 
     //add state data into a double reference list
-    double state_data[21];
+    double *state_data=new double[21];
     state_data[0] = scenario->get_state().positionState.position(0);
     state_data[1] = scenario->get_state().positionState.position(1);
     state_data[2] = scenario->get_state().positionState.position(2);
@@ -171,19 +162,20 @@ void simulation::set_current_frame_data()
 
     oss.precision(6);
     for(unsigned int i = 0; i < 21; i++)
-    {
-        oss.str("");
-        oss << scientific << state_data[i];
-        data += separator + oss.str();
+    {   
+        ostringstream ss;
+        ss<< state_data[i];
+        data += separator + ss.str();
     }
+
+    delete[] state_data;
 
     for (unsigned int i = 0; i < sensor_number; i++)
     {
         for (unsigned int j = 0; j < sensor_data[i].get_nb_rows(); j++)
         {
             ostringstream ss;
-            // convert sensor_data[i](j) to scientific notation, in string
-            ss << scientific << sensor_data[i](j);
+            ss<<sensor_data[i](j);
             data += separator + ss.str();
             ;
         }
@@ -221,10 +213,11 @@ void simulation::write_simulation()
         // if already exist, we erase the file
         file.open("simulation.csv", ios::out | ios::trunc);
         file.clear();
+
     }
     else
     {
-        file.open(write_path, ios::out | ios::app);
+        file.open(write_path, ios::out | ios::trunc);
         file.clear();
     }
 

@@ -6,7 +6,7 @@ gyroscope my_gyro;
 #define acc_noise 0.1
 #define gyro_noise 0.01
 
-#define acc_resolution 0.01
+#define acc_resolution 0.012529
 #define gyro_resolution 0.006
 
 
