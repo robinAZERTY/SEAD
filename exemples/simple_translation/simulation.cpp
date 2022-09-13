@@ -16,6 +16,6 @@ int main()
     my_simu.set_write_path("D://documents//github//SEAD//exemples//simple_translation//data.csv");
     my_simu.run();
     my_simu.write_simulation();
-    cout << "simulation done" << endl;
+    std::cout << "simulation done" << std::endl;
     return 0;
 }

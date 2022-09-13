@@ -29,8 +29,6 @@ void simulation::set_scenario(Scenario &scenario)
 }
 
 #include <typeinfo>
-#include <iostream>
-using namespace std;
 
 void simulation::add_sensor(sensor &new_sensor)
 {
