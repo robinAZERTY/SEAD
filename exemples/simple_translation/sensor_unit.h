@@ -25,7 +25,7 @@ void init_sensor_unit()
 
     my_acc.set_offsets(acc_bias);
 
-    Matrix acc_nonOrtho(3,3);//3 unit vectors with litlle non orthogonality but keeping norm 1
+    Matrix acc_nonOrtho(3,3);//3 vectors with litlle non orthogonality
     Vector acc_nonOrtho1(3);
     acc_nonOrtho1.set(0,1);
     acc_nonOrtho1.set(1,0.01);
@@ -41,6 +41,18 @@ void init_sensor_unit()
     acc_nonOrtho3.set(1,-0.01);
     acc_nonOrtho3.set(2,1);
     acc_nonOrtho3=acc_nonOrtho3.normalize();//the new direction of z axis
+
+    Vector gain(3);
+    gain.set(0,1.05);
+    gain.set(1,0.94);
+    gain.set(2,1.01);
+
+    //the average of the 3 gains must be 1
+    gain/=(gain(0)+gain(1)+gain(2))/3;
+    acc_nonOrtho1*=gain(0);
+    acc_nonOrtho2*=gain(1);
+    acc_nonOrtho3*=gain(2);
+
     acc_nonOrtho.set(0,0,acc_nonOrtho1(0));
     acc_nonOrtho.set(0,1,acc_nonOrtho1(1));
     acc_nonOrtho.set(0,2,acc_nonOrtho1(2));
@@ -68,7 +80,7 @@ void init_sensor_unit()
 
     my_gyro.set_offsets(gyro_bias);
 
-    Matrix gyro_nonOrtho(3,3);//3 unit vectors with litlle non orthogonality but keeping norm 1
+    Matrix gyro_nonOrtho(3,3);//3 vectors with litlle non orthogonality
     Vector gyro_nonOrtho1(3);
     gyro_nonOrtho1.set(0,1);
     gyro_nonOrtho1.set(1,0.001);
