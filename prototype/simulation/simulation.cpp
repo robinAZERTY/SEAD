@@ -10,7 +10,7 @@ simulation::simulation()
     scenario = new Scenario();
     // state data_type
     string state_data_type[] = {"posX", "posY", "posZ", "velX", "velY", "velZ", "accX", "accY", "accZ", "q0", "q1", "q2", "q3", "q_vel0", "q_vel1", "q_vel2", "q_vel3", "q_acc0", "q_acc1", "q_acc2", "q_acc3"};
-    for (int i = 0; i < 19; i++)
+    for (int i = 0; i < 21; i++)
     {
         data_type += separator + state_data_type[i];
     }

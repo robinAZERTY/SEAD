@@ -1,4 +1,4 @@
-time	posX	posY	posZ	velX	velY	velZ	accX	accY	accZ	q0	q1	q2	q3	q_vel0	q_vel1	q_vel2	q_vel3	q_acc0	q_acc1	acc1X	acc1Y	acc1Z	acc1X	acc1Y	acc1Z	gyro1X	gyro1Y	gyro1Z
+time	posX	posY	posZ	velX	velY	velZ	accX	accY	accZ	q0	q1	q2	q3	q_vel0	q_vel1	q_vel2	q_vel3	q_acc0	q_acc1	q_acc2	q_acc3	acc1X	acc1Y	acc1Z	acc1X	acc1Y	acc1Z	gyro1X	gyro1Y	gyro1Z
 0	0	0	0	-0	-0	-0	6	-0	-0	1	0	0	0	0	0	0	0	0	0	0	0	5.77587	-0.25058	-10.0357	5.95127	-0.137819	-9.92297	0.006	0	0
 0.01	0.000298	0	0	0.0594	-0	-0	5.88	-0	-0	1	0	0	0	0	0	0	0	0	0	0	0	5.83851	-0.225522	-9.96055	5.7884	-0.150348	-9.92297	0	-0.006	0
 0.02	0.001184	0	0	0.1176	-0	-0	5.76	-0	-0	1	0	0	0	0	0	0	0	0	0	0	0	5.76334	0.112761	-9.96055	5.72575	-0.150348	-10.0357	0.012	-0.006	-0.006
