@@ -25,7 +25,7 @@ public:
     simulation();
     ~simulation();
 
-    void set_scenario(Scenario *scenario);
+    void set_scenario(Scenario &scenario);
     void add_sensor(sensor &new_sensor);
 
     void set_time_step(const double &time_step);

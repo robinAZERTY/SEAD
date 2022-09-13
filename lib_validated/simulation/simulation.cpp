@@ -4,13 +4,12 @@ version du 11/09/2022
 */
 #pragma once
 #include "simulation.h"
-#include <iostream>
 
 simulation::simulation()
 {
     scenario = new Scenario();
-    //state data_type
-    string state_data_type[]={"posX","posY","posZ","velX","velY","velZ","accX","accY","accZ","q0","q1","q2","q3","q_vel0","q_vel1","q_vel2","q_vel3","q_acc0","q_acc1","q_acc2","q_acc3"};
+    // state data_type
+    string state_data_type[] = {"posX", "posY", "posZ", "velX", "velY", "velZ", "accX", "accY", "accZ", "q0", "q1", "q2", "q3", "q_vel0", "q_vel1", "q_vel2", "q_vel3", "q_acc0", "q_acc1", "q_acc2", "q_acc3"};
     for (int i = 0; i < 19; i++)
     {
         data_type += separator + state_data_type[i];
@@ -19,68 +18,47 @@ simulation::simulation()
 
 simulation::~simulation()
 {
-    for (unsigned int i = 0; i < sensor_number; i++)
-    {
-        delete sensors[i];
-    }
     delete[] sensors;
+    delete sensor_data;
     delete scenario;
 }
 
-void simulation::set_scenario(Scenario *scenario)
+void simulation::set_scenario(Scenario &scenario)
 {
-    this->scenario = scenario;
+    this->scenario = &scenario;
 }
 
 #include <typeinfo>
+#include <iostream>
+using namespace std;
+
 void simulation::add_sensor(sensor &new_sensor)
 {
     const type_info &t = typeid(new_sensor);
-
-    if (t == typeid(accelerometer))
+    if (t == typeid(accelerometer) | t == typeid(gyroscope))
     {
         data_type += separator + new_sensor.description + "X" + separator + new_sensor.description + "Y" + separator + new_sensor.description + "Z";
     }
-    else if (t == typeid(gyroscope))
-    {
-        data_type += separator + new_sensor.description + "X" + separator + new_sensor.description + "Y" + separator + new_sensor.description + "Z";
-    }
-
     sensor_number++;
-    Vector *sensor_data_copy = new Vector[sensor_number];
-    for (unsigned int i = 0; i < sensor_number - 1; i++)
-    {
-        sensor_data_copy[i] = sensor_data[i];
-    }
-
+    if (sensor_number > 1)
+        delete[] sensor_data;
     sensor_data = new Vector[sensor_number];
+
+    sensor **new_sensors = new sensor*[sensor_number];
     for (unsigned int i = 0; i < sensor_number - 1; i++)
     {
-        sensor_data[i] = sensor_data_copy[i];
-    }
-    sensor **new_sensors = new sensor *[sensor_number];
-    for (unsigned int i = 0; i < sensor_number - 1; i++)
-    {
-        new_sensors[i] = sensors[i];
+        new_sensors[i] = this->sensors[i];
     }
 
     new_sensors[sensor_number - 1] = &new_sensor;
-
-    for (unsigned int i = 0; i < sensor_number - 1; i++)
-    {
-        delete sensors[i];
-    }
-
-    sensors = new sensor *[sensor_number];
+    if (sensor_number > 1)
+        delete[] this->sensors;
+    this->sensors = new sensor*[sensor_number];
     for (unsigned int i = 0; i < sensor_number; i++)
     {
-        sensors[i] = new_sensors[i];
+        this->sensors[i] = new_sensors[i];
     }
-
-    for (unsigned int i = 0; i < sensor_number - 1; i++)
-    {
-        delete new_sensors[i];
-    }
+    delete[] new_sensors;
 }
 
 void simulation::set_time_step(const double &time_step)
@@ -114,30 +92,29 @@ const string simulation::get_data()
 
 void simulation::set_current_frame_data()
 {
+    scenario->update_state(time);
     for (unsigned int i = 0; i < sensor_number; i++)
-    {
-        scenario->update_state(time);
+    {   
         const type_info &t = typeid(*sensors[i]);
 
         if (t == typeid(accelerometer))
-        {
+        {   
             accelerometer &acc = dynamic_cast<accelerometer &>(*sensors[i]);
             sensor_data[i] = acc.measure(scenario->get_state());
         }
         else if (t == typeid(gyroscope))
         {
-            gyroscope *gyro = dynamic_cast<gyroscope *>(sensors[i]);
-            sensor_data[i] = gyro->measure(scenario->get_state());
+            gyroscope &gyro = dynamic_cast<gyroscope &>(*sensors[i]);
+            sensor_data[i] = gyro.measure(scenario->get_state());
         }
     }
 
-
     stringstream oss;
-    oss<<time;
+    oss << time;
     string data = oss.str();
 
-    //add state data into a double reference list
-    double *state_data=new double[21];
+    // add state data into a double reference list
+    double *state_data = new double[21];
     state_data[0] = scenario->get_state().positionState.position(0);
     state_data[1] = scenario->get_state().positionState.position(1);
     state_data[2] = scenario->get_state().positionState.position(2);
@@ -161,10 +138,10 @@ void simulation::set_current_frame_data()
     state_data[20] = scenario->get_state().orientationState.q_acceleration.d;
 
     oss.precision(6);
-    for(unsigned int i = 0; i < 21; i++)
-    {   
+    for (unsigned int i = 0; i < 21; i++)
+    {
         ostringstream ss;
-        ss<< state_data[i];
+        ss << state_data[i];
         data += separator + ss.str();
     }
 
@@ -175,7 +152,7 @@ void simulation::set_current_frame_data()
         for (unsigned int j = 0; j < sensor_data[i].get_nb_rows(); j++)
         {
             ostringstream ss;
-            ss<<sensor_data[i](j);
+            ss << sensor_data[i](j);
             data += separator + ss.str();
             ;
         }
@@ -213,7 +190,6 @@ void simulation::write_simulation()
         // if already exist, we erase the file
         file.open("simulation.csv", ios::out | ios::trunc);
         file.clear();
-
     }
     else
     {
