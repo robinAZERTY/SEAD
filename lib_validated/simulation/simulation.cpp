@@ -1,6 +1,6 @@
 /*
 cree par : RobinAZERTY
-version du 11/09/2022
+version du 15/09/2022
 */
 #pragma once
 #include "simulation.h"
@@ -63,6 +63,11 @@ void simulation::set_time_step(const double &time_step)
 {
     frame_number = floor(scenario->get_total_duration() / time_step);
     this->time_step = time_step;
+}
+
+void simulation::set_time(const double &time)
+{
+    this->time = time;
 }
 
 void simulation::set_write_path(const string &path)

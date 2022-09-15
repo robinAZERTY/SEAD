@@ -1,6 +1,6 @@
 /*
 cree par : RobinAZERTY
-version du 11/09/2022
+version du 15/09/2022
 */
 
 #pragma once
@@ -29,6 +29,7 @@ public:
     void add_sensor(sensor &new_sensor);
 
     void set_time_step(const double &time_step);
+    void set_time(const double &time);
     void set_write_path(const string &path);
     void set_string_separator(const string &separator);
 

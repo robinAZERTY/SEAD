@@ -20,6 +20,7 @@ int main()
     while(time<my_scenario.get_total_duration())
     {
         dt=0.01;
+        time+=dt;
         my_simu.set_time_step(dt);
         my_simu.next_frame();
     }

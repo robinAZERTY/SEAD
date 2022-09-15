@@ -65,6 +65,11 @@ void simulation::set_time_step(const double &time_step)
     this->time_step = time_step;
 }
 
+void simulation::set_time(const double &time)
+{
+    this->time = time;
+}
+
 void simulation::set_write_path(const string &path)
 {
     this->write_path = path;
