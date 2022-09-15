@@ -7,6 +7,6 @@ The goal is to give many options to the user to choose the best method for his a
 So he can choose between many tools and connect them as he wants.
 
 Here is the list of the tasks to do :
-    -Identify wich tools we can use to do the state estimation
-    -put those in different categories
+    -   Identify wich tools we can use to do the state estimation
+    -   put those in different categories
     -...
