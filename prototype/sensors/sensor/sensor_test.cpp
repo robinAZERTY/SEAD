@@ -30,6 +30,7 @@ void simu()
     */
 }
 
+#include <typeinfo>
 
 void dynamic_type()
 {

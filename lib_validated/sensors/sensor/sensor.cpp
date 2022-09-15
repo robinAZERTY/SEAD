@@ -1,6 +1,6 @@
 /*
 cree par : RobinAZERTY
-version du 11/09/2022
+version du 15/09/2022
 */
 
 #pragma once
@@ -77,6 +77,7 @@ const Vector sensor::get_samples(const Vector &physical_quantities_3Dvalue)
     Vector ret = nonOrthogonality * physical_quantities_3Dvalue + offsets;
     ret += noise_v(std_noise);
     ret = step_function_v(ret, resolution);
+    samples=ret;
     return ret;
 }
 

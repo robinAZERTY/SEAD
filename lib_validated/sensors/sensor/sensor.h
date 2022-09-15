@@ -1,6 +1,6 @@
 /*
 cree par : RobinAZERTY
-version du 11/09/2022
+version du 15/09/2022
 */
 
 #pragma once
@@ -21,23 +21,26 @@ class sensor
 public:
     sensor(){};
     sensor(Vector position, Quaternion orientation);
-    virtual ~sensor(){};//polymorphic destructor
-    
+    virtual ~sensor(){}; // polymorphic destructor
+
     void set_nonOrthogonality(const Matrix &nonOrthogonality) { this->nonOrthogonality = nonOrthogonality; }
     void set_offsets(const Vector &offsets) { this->offsets = offsets; }
     void set_position(const Vector &position) { this->internal_posisiton = position; }
     void set_orientation(const Quaternion &orientation) { this->internal_orientation = orientation; }
     void set_std_noise(const double std_noise[3]);
     void set_resolution(const double resolution[3]);
-    void set_description(const string &description) { this->description = description;}
+    void set_description(const string &description) { this->description = description; }
     string description = "sensor";
 
-protected:
+    const Vector get_samples() const { return samples; }
     
-    const Vector get_samples(const Vector &physical_quantities_3Dvalue);
 
-    Vector internal_posisiton=Vector(3);       // position in the robot reference
-    Quaternion internal_orientation; // orientation in the robot reference
+protected:
+    const Vector get_samples(const Vector &physical_quantities_3Dvalue);
+    Vector samples;
+
+    Vector internal_posisiton = Vector(3); // position in the robot reference
+    Quaternion internal_orientation;       // orientation in the robot reference
 
     // features of the sensor
 
