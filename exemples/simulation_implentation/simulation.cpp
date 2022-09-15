@@ -15,14 +15,18 @@ int main()
     
     //each step, we update the sensors to do some computation with.
     double time=0;
-    double dt=0.01;
+    double dt=0.001;
 
-    while(time<my_scenario.get_total_duration())
+    while(time<=my_scenario.get_total_duration())
     {
-        dt=0.01;
+        my_simu.set_time(time);
+        my_simu.set_current_frame_data();
+        //now we can use the fresh sensor data to do some computation
+        cout<<"time: "<<time<<"\t"<<"accX : "<<my_acc.get_samples()(0)<<endl;
+
+        //dt=0.01;//we can change the time step here to simulate the real time
         time+=dt;
-        my_simu.set_time_step(dt);
-        my_simu.next_frame();
     }
+    cout<<"simulation done"<<endl;
     return 0;
 }

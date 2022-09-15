@@ -14,5 +14,5 @@ void construct_my_scenario()
     next_position.set(2,0);
     next_state.position=next_position;//speed and acceleration are null
 
-    my_scenario.add_BezierPositionMotion(next_state,1);//duration of the motion is 1 second
+    my_scenario.add_BezierPositionMotion(next_state,2);//duration of the motion is 1 second
 }
