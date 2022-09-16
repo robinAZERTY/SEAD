@@ -9,4 +9,23 @@ So he can choose between many tools and connect them as he wants.
 Here is the list of the tasks to do :
     -   Identify wich tools we can use to do the state estimation
     -   put those in different categories
-    -   ...
+
+tools ideas :
+    
+    filter :
+        -   Kalman Filter
+        -   Particle Filter
+        -   Extended Kalman Filter
+        -   complementary filter
+        -   low pass filter
+        -   high pass filter
+    
+    calibration :
+        -   ellipsoid fitting (least square)
+        -   noise estimation (high pass filter)
+    
+    computation :
+        -   orientation gyro integration (quaternion)
+        -   orientation acc
+
+    
