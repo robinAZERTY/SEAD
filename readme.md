@@ -13,11 +13,15 @@ Here is the list of the tasks to do :
 
 Tools must be independent from the simulation and any library. They must be able to work from any computer, processor or microprocessor (like arduino).
 tools ideas :
-    
+
+orientation :
+
     filter :
         -   Kalman Filter
         -   Particle Filter
         -   Extended Kalman Filter
+        -   Madgwick Filter
+        -   Mahony Filter
         -   complementary filter
         -   low pass filter
         -   high pass filter
@@ -25,8 +29,11 @@ tools ideas :
     calibration :
         -   ellipsoid fitting (least square)
         -   noise estimation (high pass filter)
+        -   gravity estimation (average with low pass filter)
     
     computation :
         -   orientation gyro integration (quaternion)
         -   orientation acc
+        -   combine several acc (to reduce noise)
+
     
