@@ -29,5 +29,4 @@ tools ideas :
     computation :
         -   orientation gyro integration (quaternion)
         -   orientation acc
-
     
