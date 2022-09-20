@@ -3,10 +3,19 @@ cree par : robinAZERTY
 version du : 18/09/2022
 */
 
-#define doubleORfloat double
+#define is_VALIDATED false
 
 //https://en.wikipedia.org/wiki/Digital_filter
 #pragma once
+#define doubleORfloat double
+
+#if !is_VALIDATED
+#include "../../..\validated\tools\FIFO\FIFO.cpp"
+
+#else
+#include "../../..\tools\FIFO\FIFO.h"
+#endif
+
 
 class digital_filter
 {
@@ -28,6 +37,6 @@ protected:
     unsigned short N;
     doubleORfloat *b;
 
-    doubleORfloat *x;
-    doubleORfloat *y;
+    FIFO_double x;
+    FIFO_double y;
 };

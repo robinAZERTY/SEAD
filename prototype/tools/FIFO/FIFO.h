@@ -18,5 +18,5 @@ public:
     ~FIFO_double();
     void init(const unsigned short &size);
     void push(const double &input);
-    double operator[](const unsigned short &index);
+    double& operator[](const unsigned short &index);
 };

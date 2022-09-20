@@ -44,7 +44,7 @@ void FIFO_double::push(const double &input)
     this->hANDs = this->head + this->size;
 }
 
-double FIFO_double::operator[](const unsigned short &index)
+double& FIFO_double::operator[](const unsigned short &index)
 {
     // index = 0 => last element
     // index = 1 => last but one element
