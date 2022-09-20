@@ -6,7 +6,7 @@ version du : 18/09/2022
 #pragma once
 #include "digital_filter.h"
 
-digit_filter::digit_filter()
+digital_filter::digital_filter()
 {
     this->M = 0;
     this->a = nullptr;
@@ -16,7 +16,7 @@ digit_filter::digit_filter()
     this->y = nullptr;
 }
 
-digit_filter::digit_filter(const unsigned short &M, const doubleORfloat *a, const unsigned short &N, const doubleORfloat *b)
+digital_filter::digital_filter(const unsigned short &M, const doubleORfloat *a, const unsigned short &N, const doubleORfloat *b)
 {
     this->M = M;
     this->a = new doubleORfloat[M];
@@ -42,7 +42,7 @@ digit_filter::digit_filter(const unsigned short &M, const doubleORfloat *a, cons
     }
 }
 
-digit_filter::~digit_filter()
+digital_filter::~digital_filter()
 {
     delete[] this->a;
     delete[] this->b;
@@ -50,8 +50,22 @@ digit_filter::~digit_filter()
     delete[] this->y;
 }
 
-void digit_filter::compute(const doubleORfloat &input)
-{
+void digital_filter::compute(const doubleORfloat &input)
+{   
+    if(!inited)
+    {
+        for(unsigned short i=0;i<N;i++)
+        {
+            this->x[i]=input;
+        }
+
+        for(unsigned short i=0;i<M;i++)
+        {
+            this->y[i]=input;
+        }
+        inited=true;
+    }
+
     for (unsigned short i = 0; i < this->N - 1; i++)
     {
         this->x[i] = this->x[i + 1];
@@ -66,23 +80,23 @@ void digit_filter::compute(const doubleORfloat &input)
     {
         this->y[this->M - 1] += this->b[i] * this->x[i];
     }
-    for (unsigned short i = 0; i < this->M - 1; i++)
+    for (unsigned short i = 0; i < this->M-1; i++)
     {
         this->y[this->M - 1] -= this->a[i] * this->y[i];
     }
 }
 
-const doubleORfloat &digit_filter::get_output() const
+const doubleORfloat &digital_filter::get_output() const
 {
     return this->y[this->M - 1];
 }
 
-const doubleORfloat &digit_filter::get_y(const unsigned short &i) const
+const doubleORfloat &digital_filter::get_y(const unsigned short &i) const
 {
     return this->y[i];
 }
 
-const doubleORfloat &digit_filter::get_x(const unsigned short &i) const
+const doubleORfloat &digital_filter::get_x(const unsigned short &i) const
 {
     return this->x[i];
 }

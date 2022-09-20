@@ -8,19 +8,21 @@ version du : 18/09/2022
 //https://en.wikipedia.org/wiki/Digital_filter
 #pragma once
 
-class digit_filter
+class digital_filter
 {
 public:
-    digit_filter();
-    digit_filter(const unsigned short &M, const doubleORfloat *a, const unsigned short &N, const doubleORfloat *b);//can be a IIR or FIR filter
-    ~digit_filter();
+    digital_filter();
+    digital_filter(const unsigned short &M, const doubleORfloat *a, const unsigned short &N, const doubleORfloat *b);//can be a IIR or FIR filter
+    ~digital_filter();
 
     void compute(const doubleORfloat &input);
     const doubleORfloat &get_output() const;
     const doubleORfloat &get_y(const unsigned short &i) const;
     const doubleORfloat &get_x(const unsigned short &i) const;
     
-private:
+protected:
+    bool inited=false;
+
     unsigned short M;
     doubleORfloat *a;
     unsigned short N;
