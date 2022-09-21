@@ -19,4 +19,5 @@ public:
     void init(const unsigned short &size);
     void push(const double &input);
     double& operator[](const unsigned short &index);
+    FIFO_double& operator=(const FIFO_double &input);
 };

@@ -7,30 +7,23 @@ version du : 18/09/2022
 #include <iostream>
 using namespace std;
 
+
 void visualize()
 {
     //creat a low pass filter 
-    const unsigned short M = 2;
-    const double a[M] = {-0.9,-1};
-    const unsigned short N = 2;
-    const double b[N] = {0.1};
-    digital_filter filter(M, a, N, b);
-    //creat a pulse signal 0 to 1
-    const unsigned short Ns = 100;
-    double s[Ns];
-    s[0] = 1;
-    for (unsigned short i = 1; i < Ns; i++)
+    //https://en.wikipedia.org/wiki/Low-pass_filter
+    const unsigned short M = 1;
+    const double a[M] = {1};
+    const unsigned short N = 5;
+    const double b[N] = {1/2.0,1/4.0,1/8.0,1/16.0,1/32.0};
+    digital_filter low_pass_filter(M,a,N,b);
+    low_pass_filter.compute(1);
+    for (unsigned short i = 0; i < 10; i++)
     {
-        s[i] = 0;
+        cout<<low_pass_filter.get_output()<<endl; 
+        low_pass_filter.compute(0);
     }
-
-    //compute the filter
-    for (unsigned short i = 0; i < Ns; i++)
-    {
-        filter.compute(s[i]);
-        cout << filter.get_output() << endl;
-    }
-
+    cout<<"low pass filter visu ended"<<endl;
 }
 int main()
 {

@@ -39,12 +39,15 @@ void FIFO_double::init(const unsigned short &size)
 
 void FIFO_double::push(const double &input)
 {
-    this->head = (this->head + 1) % this->size;
-    this->buffer[this->head] = input;
+    if (size > 1)
+    {
+        this->head = (this->head + 1) % this->size;
+    }
     this->hANDs = this->head + this->size;
+    this->buffer[this->head] = input;
 }
 
-double& FIFO_double::operator[](const unsigned short &index)
+double &FIFO_double::operator[](const unsigned short &index)
 {
     // index = 0 => last element
     // index = 1 => last but one element
@@ -52,4 +55,17 @@ double& FIFO_double::operator[](const unsigned short &index)
     // ...
     // change the sign of index
     return this->buffer[(this->hANDs - index) % this->size];
+}
+
+FIFO_double &FIFO_double::operator=(const FIFO_double &input)
+{
+    this->size = input.size;
+    this->head = input.head;
+    this->hANDs = input.hANDs;
+    this->buffer = new double[this->size];
+    for (unsigned short i = 0; i < this->size; i++)
+    {
+        this->buffer[i] = input.buffer[i];
+    }
+    return *this;
 }

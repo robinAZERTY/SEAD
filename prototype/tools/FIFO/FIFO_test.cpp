@@ -34,7 +34,7 @@ void visu()
     //add a new element
     cout<<"push a new element"<<endl;
     fifo.push(11);
-    fifo[0] += 1;
+    fifo[0] /= 2;
 
     for(unsigned short i = 0; i < 10; i++)
     {
