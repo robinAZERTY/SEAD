@@ -13,7 +13,7 @@ version du : 18/09/2022
 #include "../../..\validated\tools\FIFO\FIFO.cpp"
 
 #else
-#include "../..\tools\FIFO\FIFO.h"
+#include "../..\tools\FIFO\FIFO.cpp"
 #endif
 
 
@@ -27,7 +27,7 @@ public:
     void compute(const doubleORfloat &input);
     const doubleORfloat &get_output() const;
     
-//protected:
+protected:
     bool inited=false;
 
     unsigned short M;

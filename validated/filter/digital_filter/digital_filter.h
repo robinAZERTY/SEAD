@@ -13,7 +13,7 @@ version du : 18/09/2022
 #include "../../..\validated\tools\FIFO\FIFO.cpp"
 
 #else
-#include "../..\tools\FIFO\FIFO.h"
+#include "../..\tools\FIFO\FIFO.cpp"
 #endif
 
 
