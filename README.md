@@ -1,4 +1,4 @@
-State Estimate Algorythm Developpment
+State Estimate Algorithm Developpment
 ==============================
 State* : (position, orientation and its derivates) of the system in the global reference, it describes how the objet is moving
 
