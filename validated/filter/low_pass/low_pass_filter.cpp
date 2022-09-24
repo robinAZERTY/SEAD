@@ -5,7 +5,7 @@ version du : 18/09/2022
 #pragma once
 
 #include "low_pass_filter.h"
-#include "math.h"
+
 
 // https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization
 // http://w3.cran.univ-lorraine.fr/perso/hugues.garnier/Enseignement/TdS/J-TdS_Conception_filtres_num.pdf
