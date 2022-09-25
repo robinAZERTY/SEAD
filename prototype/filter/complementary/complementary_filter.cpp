@@ -18,8 +18,8 @@ complementary_filter::complementary_filter(const doubleORfloat &cut_off_frequenc
 {
     this->cut_off_frequency=cut_off_frequency;
     this->sampling_frequency=sampling_frequency;
-    this->HPF=high_pass_filter(1, cut_off_frequency, sampling_frequency);
-    this->LPF=low_pass_filter(1, cut_off_frequency, sampling_frequency);
+    this->HPF.compute_coefficients((unsigned short)1, cut_off_frequency, sampling_frequency);
+    this->LPF.compute_coefficients((unsigned short)1, cut_off_frequency, sampling_frequency);
 }
 
 complementary_filter::~complementary_filter()
@@ -61,4 +61,9 @@ void complementary_filter::compute(const doubleORfloat &HPF_input, const doubleO
     this->HPF.compute(HPF_input);
     this->LPF.compute(LPF_input);
     this->output=this->LPF.get_output()+this->HPF.get_output();
+}
+
+doubleORfloat complementary_filter::get_output()
+{
+    return this->output;
 }
