@@ -30,11 +30,16 @@ const double acc_angle()
 }
 
 double angle = 0.0;
+double gyr_angle = 0.0;
+const double bias= 0.1;
 const double gyro_angle(const double &dt)
 {   
-    double gyro = 0.0 + gaussien_noise(0.1);
-    return angle+ gyro * dt;
+    double gyro = bias + gaussien_noise(0.1);
+    gyr_angle += gyro * dt;
+    return gyr_angle;
 }
+
+complementary_filter myF;
 
 void visualize()
 {
@@ -42,16 +47,17 @@ void visualize()
     const double fs = 100.0;
     const double dt = 1.0 / fs;
     const double fc = 0.1;
-    //complementary_filter filter(fc,fs);
+    myF.compute_coefficients(fc,fs);
 
 
     double t = 0.0;
-    while (t < 10.0)
+    while (t < 100.0)
     {
         double acc = acc_angle();
         double gyro = gyro_angle(dt);
-        complementary_filter myF(fc,fs);
-        cout << t << " " << acc << " " << gyro << " " << angle << endl;
+        myF.compute(gyr_angle, acc);
+        angle = myF.get_output();
+        cout << t << " " << acc << " " << gyr_angle << " " << angle << endl;
         t += dt;
     }
 }

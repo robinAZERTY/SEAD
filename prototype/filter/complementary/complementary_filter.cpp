@@ -10,8 +10,7 @@ complementary_filter::complementary_filter()
 {
     this->cut_off_frequency=0;
     this->sampling_frequency=0;
-    this->HPF=high_pass_filter();
-    this->LPF=low_pass_filter();
+
 }
 
 complementary_filter::complementary_filter(const doubleORfloat &cut_off_frequency, const doubleORfloat &sampling_frequency)

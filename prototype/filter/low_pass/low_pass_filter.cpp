@@ -11,7 +11,6 @@ version du : 18/09/2022
 // http://w3.cran.univ-lorraine.fr/perso/hugues.garnier/Enseignement/TdS/J-TdS_Conception_filtres_num.pdf
 low_pass_filter::low_pass_filter()
 {
-    *this = low_pass_filter();
 }
 
 low_pass_filter::low_pass_filter(const unsigned short &order, const doubleORfloat &cut_off_frequency, const doubleORfloat &sampling_frequency)
