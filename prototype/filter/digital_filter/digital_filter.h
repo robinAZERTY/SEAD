@@ -2,11 +2,12 @@
 cree par : robinAZERTY
 version du : 18/09/2022
 */
+#pragma once
 
 #define is_VALIDATED false
 
 //https://en.wikipedia.org/wiki/Digital_filter
-#pragma once
+
 #define doubleORfloat double
 
 #if !is_VALIDATED

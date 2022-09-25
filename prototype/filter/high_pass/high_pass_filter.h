@@ -23,11 +23,11 @@ class high_pass_filter : public digital_filter
         void set_cut_off_frequency(const doubleORfloat &cut_off_frequency);
         void set_order(const unsigned short &order);
         void init(const doubleORfloat &input);
+        void compute_coefficients(const unsigned short &order, const doubleORfloat &cut_off_frequency, const doubleORfloat &sampling_frequency);
 
     private :
         unsigned short order=0;
         doubleORfloat cut_off_frequency=0;
         doubleORfloat sampling_frequency=0;
 
-        void compute_coefficients(const unsigned short &order, const doubleORfloat &cut_off_frequency, const doubleORfloat &sampling_frequency);
 };
