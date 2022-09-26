@@ -4,7 +4,7 @@ version du : 25/09/2022
 */
 
 #pragma once
-#define IS_VALIDATED false
+#define IS_VALIDATED true
 
 #if IS_VALIDATED
 #include "../digital_filter/digital_filter.cpp"

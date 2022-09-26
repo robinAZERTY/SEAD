@@ -62,7 +62,6 @@ void visualize()
     }
 }
 
-
 int main()
 {   
     cout<<"time acc gyro angle"<<endl;
