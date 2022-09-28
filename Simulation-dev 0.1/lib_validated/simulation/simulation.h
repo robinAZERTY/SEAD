@@ -5,7 +5,7 @@ version du 15/09/2022
 
 #pragma once
 
-static const bool IS_VALIDATED = true;
+#define IS_VALIDATED true
 
 #if !IS_VALIDATED
 

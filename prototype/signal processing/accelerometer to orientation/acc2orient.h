@@ -5,7 +5,7 @@ version du 27/09/2022
 
 /*
 documentation :
-assuming that the system is in a static position, the accelerometer will measure the gravity vector in its referencial.
+assuming the system is in a static position, the accelerometer will measure the gravity vector in its referencial.
 the gravity vector is the vector that points towards the center of the earth.
 We want the orientation of the system.
 The orientation is the rotation of the system in the referencial of the earth. (quaternion or euler angles)
@@ -13,9 +13,9 @@ The orientation is the rotation of the system in the referencial of the earth. (
 
 #pragma once
 
-#define IS_VALIDATED 0
+#define IS_VALIDATED false
 
-#if IS_VALIDATED
+#if !IS_VALIDATED
 #include "../../..\validated\exchange data\state\State.cpp"
 #else
 #include "../..\exchange data\state\State.cpp"
@@ -27,12 +27,20 @@ public:
     acc2orient();
     ~acc2orient();
 
-    OrientationState get_state();
+    void set_prev_quat(const Quaternion &prev_orientation);
+    void set_prev_ypr(const Vector &prev_ypr);
+
+    void compute(const Vector &accData, const double &dt);
+    void compute(const Vector &prev_ypr, const Vector &accData, const double &dt);
+    void compute(const Quaternion &prev_orientation, const Vector &accData, const double &dt);
+
+    OrientationState get_OrientationState();
     Vector get_ypr();
-    void compute_state(const Vector &accData, const double &dt);
 
 private:
-    Quaternion prev_orientation;
+
+    void general_compute(const Vector &accData);
+    Quaternion prev_quat;
     OrientationState orientationState;
-    Vector ypr,prev_ypr;  
+    Vector ypr, prev_ypr;
 };

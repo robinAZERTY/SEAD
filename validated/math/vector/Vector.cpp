@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Vector.h"
 
 Vector::Vector():Matrix()

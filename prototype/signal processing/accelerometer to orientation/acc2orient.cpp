@@ -3,7 +3,6 @@ cree par : RobinAZERTY
 version du 27/09/2022
 */
 
-
 #pragma once
 
 #include "acc2orient.h"
@@ -19,7 +18,7 @@ acc2orient::~acc2orient()
 {
 }
 
-OrientationState acc2orient::get_state()
+OrientationState acc2orient::get_OrientationState()
 {
     return this->orientationState;
 }
@@ -29,16 +28,48 @@ Vector acc2orient::get_ypr()
     return ypr;
 }
 
-void acc2orient::compute_state(const Vector &accData, const double &dt)
+void acc2orient::set_prev_quat(const Quaternion &prev_quat)
+{
+    this->prev_quat = prev_quat;
+    this->prev_ypr = prev_quat.yaw_pitch_roll();
+}
+
+void acc2orient::set_prev_ypr(const Vector &prev_ypr)
+{
+    this->prev_ypr = prev_ypr;
+    this->prev_quat = Quaternion(prev_ypr(0), prev_ypr(1), prev_ypr(2));
+}
+
+void acc2orient::compute(const Vector &accData, const double &dt)
+{
+    this->compute(this->prev_quat, accData, dt);
+}
+
+void acc2orient::compute(const Vector &prev_ypr, const Vector &accData, const double &dt)
+{
+    general_compute(accData);
+    orientationState.q_velocity = (this->orientationState.q - Quaternion(prev_ypr(0), prev_ypr(1), prev_ypr(2))) / dt;
+    this->prev_quat = this->orientationState.q;
+}
+
+void acc2orient::compute(const Quaternion &prev_quat, const Vector &accData, const double &dt)
+{
+    this->general_compute(accData);
+    //compute angular velocity
+    this->orientationState.q_velocity = (this->orientationState.q - prev_quat) / dt;
+    this->prev_quat = this->orientationState.q;
+    //convert quaternion to ypr
+    this->prev_ypr = this->prev_quat.yaw_pitch_roll();
+}
+
+void acc2orient::general_compute(const Vector &accData)//juste compute angle with acc data
 {
     const double pitch = atan2(-accData(2), sqrt(accData(0) * accData(0) + accData(1) * accData(1)));
     const double roll = atan2(accData(1), accData(0));
 
-    ypr.set(0, 0);
-    ypr.set(1, pitch);
-    ypr.set(2, roll);
+    this->ypr.set(0, 0);
+    this->ypr.set(1, pitch);
+    this->ypr.set(2, roll);
 
-    orientationState.q = Quaternion(ypr(0), ypr(1), ypr(2));
-    orientationState.q_velocity = (orientationState.q-Quaternion(prev_ypr(0), prev_ypr(1), prev_ypr(2))) / dt;
-    prev_orientation=orientationState.q;
+    this->orientationState.q = Quaternion(ypr(0), ypr(1), ypr(2));//convert ypr to quaternion
 }
