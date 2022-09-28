@@ -13,10 +13,10 @@ The orientation is the rotation of the system in the referencial of the earth. (
 
 #pragma once
 
-#define IS_VALIDATED false
+static bool IS_VALIDATED = false;
 
 #if !IS_VALIDATED
-#include "../../..\validated\exchange data\state\State.cpp"
+#include "../../..\common\exchange data\state\State.cpp"
 #else
 #include "../..\exchange data\state\State.cpp"
 #endif
