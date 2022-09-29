@@ -14,9 +14,8 @@ So error will accumulate.
 
 #pragma once
 
-#define IS_VALIDATED false
 
-#if IS_VALIDATED
+#if false // true if IS_VALIDATED | false if IS_PROTOTYPE
 #include "../../..\validated\exchange data\state\State.cpp"
 
 #else

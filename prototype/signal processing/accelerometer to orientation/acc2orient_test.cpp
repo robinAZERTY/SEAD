@@ -31,7 +31,7 @@ void visualize()
 
     // create an accelerometer
     accelerometer my_acc;
-    const double acc_noise = 0.05;
+    const double acc_noise = 0.01;
     const double acc_noise_t[] = {acc_noise, acc_noise, acc_noise};
     my_acc.set_std_noise(acc_noise_t);
     my_simulation.add_sensor(my_acc);
@@ -49,10 +49,13 @@ void visualize()
         Quaternion q = my_scenario.get_state().orientationState.q;
         Quaternion q2 = acc2orient.get_OrientationState().q;
         Quaternion qd= q.inverse() * q2;
+
+        double q_vel_diff_norm = (my_scenario.get_state().orientationState.q_velocity-acc2orient.get_OrientationState().q_velocity).norm();
         const double angular_diff = acos(q_dot(q,q2)*q_dot(q,q2)*2-1) * RAD_TO_DEG;
-        cout << "angular diff = "<<angular_diff<< "\t";
-        cout << "q = " << q.to_str() << "\t";
-        cout << "q2 = " << q2.to_str();
+        cout << "angular diff = "<<angular_diff<< "  ";
+        cout << "q = " << q.to_str() << "  ";
+        cout << "q2 = " << q2.to_str()<< "  ";
+        cout << "q_vel = " << q_vel_diff_norm;
         cout<<endl;
     }
 }
