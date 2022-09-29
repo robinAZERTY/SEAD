@@ -17,10 +17,10 @@ simulation::simulation()
 }
 
 simulation::~simulation()
-{
-    delete[] sensors;
+{   
+    //delete[] sensors;
     //delete sensor_data;
-    delete scenario;
+    //delete scenario;
 }
 
 void simulation::set_scenario(Scenario &scenario)
@@ -176,6 +176,27 @@ const unsigned int simulation::get_frame_number()
 const unsigned int simulation::get_current_frame()
 {
     return current_frame;
+}
+
+const double simulation::get_time_step()
+{
+    return time_step;
+}
+
+const double simulation::get_time()
+{
+    return time;
+}
+
+const Vector simulation::get_sensor_data(const unsigned int &sensor_index)const
+{
+    return sensor_data[sensor_index];
+}
+
+const State& simulation::get_current_scenario_state()
+{   
+    const State &state = scenario->get_state();
+    return state;
 }
 
 void simulation::save_frame_data()

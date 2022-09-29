@@ -267,7 +267,7 @@ const Quaternion q_log(const Quaternion &q)
     return ret;
 }
 
-const double *Quaternion::yaw_pitch_roll() const
+double *Quaternion::yaw_pitch_roll() const
 {
     const double yaw = atan2(2 * (a * d + b * c), 1 - 2 * (c * c + d * d));
 
@@ -287,7 +287,7 @@ const double *Quaternion::yaw_pitch_roll() const
     }
 
     const double roll = atan2(2 * (a * b + c * d), 1 - 2 * (b * b + c * c));
-    const static double ret[3] = {yaw, pitch, roll};
+    static double ret[3] = {yaw, pitch, roll};
     return ret;
 }
 

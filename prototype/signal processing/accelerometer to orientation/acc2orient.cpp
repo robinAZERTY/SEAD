@@ -61,15 +61,22 @@ void acc2orient::compute(const Quaternion &prev_quat, const Vector &accData, con
     //convert quaternion to ypr
     this->prev_ypr = this->prev_quat.yaw_pitch_roll();
 }
-
 void acc2orient::general_compute(const Vector &accData)//juste compute angle with acc data
 {
-    const double pitch = atan2(-accData(2), sqrt(accData(0) * accData(0) + accData(1) * accData(1)));
-    const double roll = atan2(accData(1), accData(0));
+    const double pitch = atan2(-accData(0), sqrt(accData(2) * accData(2) + accData(1) * accData(1)));
+    const double roll = atan2(-accData(1), -accData(2));
 
     this->ypr.set(0, 0);
     this->ypr.set(1, pitch);
     this->ypr.set(2, roll);
 
     this->orientationState.q = Quaternion(ypr(0), ypr(1), ypr(2));//convert ypr to quaternion
+    
+    //change its sign if necessary (make sure the quaternion is the closest to the previous one)
+
+    const double sign = this->orientationState.q.a+this->orientationState.q.b+this->orientationState.q.c+this->orientationState.q.d;
+    if (sign< 0)
+    {   
+        this->orientationState.q = this->orientationState.q*-1;
+    }
 }

@@ -57,6 +57,20 @@ BezierOrientationMotion::BezierOrientationMotion(const OrientationState initialS
     qC = (((qD-finalState.q_velocity*ds).normalize()*qD.inverse())^(1/(alpha*3.0*ds)))*qD;
 }
 
+
+BezierOrientationMotion &BezierOrientationMotion::operator=(const BezierOrientationMotion &other)
+{
+    this->qA = other.qA;
+    this->qB = other.qB;
+    this->qC = other.qC;
+    this->qD = other.qD;
+    this->alpha = other.alpha;
+    this->duration = other.duration;
+    this->description = other.description;
+    return *this;
+}
+
+
 const Quaternion BezierOrientationMotion::SQUAD(const double &s)
 {
     Slerp_1.update(qA, qB, s);

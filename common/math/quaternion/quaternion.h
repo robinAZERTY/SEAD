@@ -49,7 +49,7 @@ class Quaternion
         const Quaternion operator^(const double &d)const;
         
 
-        const double* yaw_pitch_roll() const;//return Body 3-2-1 angles (RZ,RY,RX) https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+        double* yaw_pitch_roll() const;//return Body 3-2-1 angles (RZ,RY,RX) https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 
         void set_description(const string& description);
         const string to_str() const;

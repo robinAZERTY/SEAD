@@ -139,7 +139,8 @@ const bool Scenario::add_OrientationMotion(BezierOrientationMotion &new_Orientat
 
 const bool Scenario::add_BezierOrientationMotion(OrientationState finalState, const double &duration)
 {
-    BezierOrientationMotion new_motion(this->final_state.orientationState, finalState, duration);
+    BezierOrientationMotion new_motion;
+    new_motion = BezierOrientationMotion(this->final_state.orientationState, finalState, duration);
     return this->add_OrientationMotion(new_motion);
 }
 
@@ -151,7 +152,8 @@ void Scenario::init()
 {
     update_position_state(position_scenario_duration);
     final_state.positionState = state.positionState;
-    initial_state.positionState = PositionMotion[0].get_state(0);
+    if(n_position_motions > 0)
+        initial_state.positionState = PositionMotion[0].get_state(0);
 
     update_orientation_state(orientation_scenario_duration);
     final_state.orientationState = state.orientationState;

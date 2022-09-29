@@ -25,6 +25,9 @@ public:
     BezierOrientationMotion(const Quaternion q[4], const double &duration);
     BezierOrientationMotion(const OrientationState initialState, const OrientationState finalState, const double &duration);
 
+    //= operator
+    BezierOrientationMotion &operator=(const BezierOrientationMotion &other);
+
     virtual OrientationState get_state(const double &t);
     virtual OrientationState get_initial_state();
     virtual OrientationState get_final_state();

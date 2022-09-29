@@ -39,8 +39,12 @@ public:
     void set_current_frame_data();
     const string get_current_frame_data();
     const string get_data();
+    const Vector get_sensor_data(const unsigned int &sensor_index)const;
+    const State& get_current_scenario_state();
     const unsigned int get_frame_number();
     const unsigned int get_current_frame();
+    const double get_time_step();
+    const double get_time();
     void save_frame_data();
     void write_simulation();
 
