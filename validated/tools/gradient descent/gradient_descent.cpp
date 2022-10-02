@@ -12,14 +12,17 @@ const double *grad(const double (*f)(const double *x), const double *x, const un
     // x is the vector of variable
 
     // we must choose a single espilon which is small enough but not too small to avoid numerical errors (it depends on value of the function at X)
-    const double fx = f(x);
+    /*
+   const double fx = f(x);
     double eps = fx;
     //make it positive
     if (eps < 0)
     {
         eps = -eps;
     }
-    eps = (eps +1)* 1e-6;
+    //eps = (eps +1)* 1e-6;
+    */
+    double eps = 1e-6;
 
     // copy x 2 times
     double *X1 = new double[n];

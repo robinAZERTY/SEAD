@@ -14,7 +14,7 @@ the goal of this program is to find the best A and B from a set of points
 */
 
 #include "../../..\common\math\vector\Vector.cpp"
-#include "..\gradient descent\gradient_descent.cpp"
+#include "../../..\validated\tools\gradient descent\gradient_descent.cpp"
 
 class Ellipsoid
 {
@@ -27,6 +27,7 @@ public:
     inline static Vector B;
     inline static double *points;
     inline static unsigned int n;
+    inline static double minimum_cost;
 
     const double *fit();
 
@@ -46,8 +47,9 @@ Ellipsoid::~Ellipsoid()
 
 const double *Ellipsoid::fit()
 {
-    const double initialparameters[12] = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0};
-    const double *parameters = gradDescent(Ellipsoid::cost_funtion, initialparameters, 12, 1e-10, 0.2);
+    // const double initialparameters[12] = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0};
+    const double initialparameters[12] = {0.77, 0.22, 0, 0.02, 0.94, -0.13, 0.19, 0.31, 1.28, -0.47296, -0.89519, 0.2};
+    const double *parameters = gradDescent(Ellipsoid::cost_funtion, initialparameters, 12, 0.3e-4, 1);
     A.set(0, 0, parameters[0]);
     A.set(0, 1, parameters[1]);
     A.set(0, 2, parameters[2]);
@@ -60,6 +62,7 @@ const double *Ellipsoid::fit()
     B.set(0, parameters[9]);
     B.set(1, parameters[10]);
     B.set(2, parameters[11]);
+    minimum_cost=Ellipsoid::cost_funtion(parameters);
     return parameters;
 }
 
@@ -91,10 +94,9 @@ const double Ellipsoid::cost_funtion(const double parameters[12])
 
         Vector R = A.inverse() * (x - B);
         double norm = R.norm();
-        double error = norm - 1;
-        std::cout << "A : " << A.inverse().to_str() << std::endl;
+        double error = norm - 1; // the distance between the point and the ellipsoid surface
         ret += error * error;
     }
-
-    return ret / n;
+    ret /= n;
+    return ret;
 }

@@ -28,19 +28,18 @@ void visualize()
 // the function must be a function of the structure
 struct my_struct
 {
-    inline static double p[2];
+    inline static double p[1];
 
-    static const double my_function2(const double x[2])
+    static const double my_function2(const double x[1])
     {   
-        return cos(p[0]*x[0]+1) * sin(x[1]+p[1]);
-        // - inf divergent example
-       // return -x[0]*x[0]-x[1]*x[1];
+        //2 local minima 
+        return x[0]*x[0]*x[0]*x[0] - x[0]*x[0] + 0.1*x[0];
     }
 
     void fit()
     {
-        const double *ret = gradDescent(my_function2, p, 2, 1e-10, 0.2);
-        for (unsigned int i = 0; i <= 2; i++)
+        const double *ret = gradDescent(my_function2, p, 1, 1e-10, 0.2);
+        for (unsigned int i = 0; i <= 1; i++)
         {
             std::cout << ret[i] << std::endl;
         }
@@ -51,10 +50,7 @@ struct my_struct
 void visualize2()
 {
     my_struct my_struc;
-    my_struc.p[0] = 1;
-    my_struc.p[1] = 0;
-    const unsigned int n = 2;
-    double x[n] = {0.1, -0.1};
+    my_struc.p[0] = -0.1;
 
     my_struc.fit();
 }
