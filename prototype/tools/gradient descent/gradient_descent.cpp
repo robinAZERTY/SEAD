@@ -4,15 +4,22 @@ version du : 01/10/2022
 
 can be used to minimize a function in a structure
 */
-
-static const double *grad(const double (*f)(const double *x), const double *x, const unsigned int &n)
+const double *grad(const double (*f)(const double *x), const double *x, const unsigned int &n)
 {
     // the gradient of a function f is a vector of partial derivatives
     // f is the function to minimize
     // n is the number of variable (dimension)
     // x is the vector of variable
 
-    const double eps = 1e-6; // precision for derivative calculation
+    // we must choose a single espilon which is small enough but not too small to avoid numerical errors (it depends on value of the function at X)
+    const double fx = f(x);
+    double eps = fx;
+    //make it positive
+    if (eps < 0)
+    {
+        eps = -eps;
+    }
+    eps = (eps +1)* 1e-6;
 
     // copy x 2 times
     double *X1 = new double[n];
@@ -27,25 +34,26 @@ static const double *grad(const double (*f)(const double *x), const double *x, c
     for (unsigned int i = 0; i < n; i++)
     {
         // change the i-th variable
-        X1[i] += eps / 2;
-        X2[i] -= eps / 2;
-        const double f1 = f(X1)/eps;
-        const double f2 = f(X2)/eps;
+        X1[i] += eps / 2.0;
+        X2[i] -= eps / 2.0;
+        const double f1 = f(X1);
+        const double f2 = f(X2);
         // make sure the function is not divergent
-        if (f1 == 1.0 / 0.0 || f1 == -1.0 / 0.0 || f2 == 1.0 / 0.0 || f2 == -1.0 / 0.0)
-            ret[i] = 1.0 / 0.0;
+        const double diff = f1 - f2;
+        if (f1 == 1.0 / 0.0 || f1 == -1.0 / 0.0 || f2 == 1.0 / 0.0 || f2 == -1.0 / 0.0 )
+            ret[i] = 1 / 0.0;
         else
-            ret[i] = (f1 - f2); // calculate the partial derivative as the limit of (f(x-h) - f(x+h))/2h
+            ret[i] = diff / eps; // calculate the partial derivative as the limit of (f(x-h) - f(x+h))/2h
 
-        std::cout<<f1<<"\t"<<f2<<" "<<ret[i]<<"\t";
-        X1[i] -= eps / 2;
-        X2[i] += eps / 2;
+        X1[i] -= eps / 2.0;
+        X2[i] += eps / 2.0;
     }
-    std::cout<<std::endl;
+    delete[] X1;
+    delete[] X2;
     return ret;
 }
 
-static const double *gradDescent(const double (*f)(const double *x), const double *x0, const unsigned int &n, const double &eps, const double &alpha)
+const double *gradDescent(const double (*f)(const double *x), const double *x0, const unsigned int &n, const double &eps, const double &alpha)
 {
     // f is the function to minimize
     // n is the number of variable (dimension)
@@ -78,14 +86,9 @@ static const double *gradDescent(const double (*f)(const double *x), const doubl
                 stop = false;
                 break;
             }
-            else
-            {
-                std::cout << "g[" << i << "] = " << g[i] << std::endl;
-            }
         }
         if (stop)
         {
-            std::cout << "stop" << std::endl;
             break;
         }
 
