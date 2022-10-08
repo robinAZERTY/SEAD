@@ -1,6 +1,6 @@
 /*
 créé par : robinAZERTY
-version du : 18/08/2022 à revoir
+version du : 02/10/2022
 */
 #pragma once
 
@@ -187,24 +187,30 @@ Matrix Matrix::inverse() const
             Matrix minor = Matrix(rows - 1, cols - 1);
             for (int k = 0; k < i; k++)
             {
-                minor.Data[k][0] = Data[k][0];
+                for (int l = 0; l < j; l++)
+                {
+                    minor.Data[k][l] = Data[k][l];
+                }
+                for (int l = j + 1; l < cols; l++)
+                {
+                    minor.Data[k][l - 1] = Data[k][l];
+                }
             }
             for (int k = i + 1; k < rows; k++)
             {
-                minor.Data[k - 1][0] = Data[k][0];
-            }
-            for (int k = 1; k < j; k++)
-            {
-                minor.Data[0][k - 1] = Data[0][k];
-            }
-            for (int k = j + 1; k < cols; k++)
-            {
-                minor.Data[0][k - 1] = Data[0][k];
+                for (int l = 0; l < j; l++)
+                {
+                    minor.Data[k - 1][l] = Data[k][l];
+                }
+                for (int l = j + 1; l < cols; l++)
+                {
+                    minor.Data[k - 1][l - 1] = Data[k][l];
+                }
             }
             ret.Data[i][j] = pow(-1, i + j) * minor.determinant();
         }
     }
-    return ret.transpose() * (1 / determinant());
+    return ret.transpose() * (1.0 / determinant());
 }
 
 void Matrix::set(const unsigned int &row, const unsigned int &col, const double &data)
