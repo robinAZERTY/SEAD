@@ -21,10 +21,9 @@ maxOffset=30;
 P_real=transpose([x y z]);
 
 
-[A,B]=ellipse_rand(radius,maxGainNoise,maxNonOrtho,maxOffset)
+[A,B]=ellipse_rand(radius,maxGainNoise,maxNonOrtho,maxOffset);
 [radius,gains,nonOrtho,offsets] = explicit(A,B);
 P_samples=A*P_real+B;
-transpose(P_samples)
 [radius1,gains1,offsets1]=firstApprox(P_samples);
 
 

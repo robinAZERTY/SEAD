@@ -267,6 +267,22 @@ const Quaternion q_log(const Quaternion &q)
     return ret;
 }
 
+const Matrix Quaternion::rotation_matrix() const
+{
+    Matrix ret(3, 3);
+    ret.set(0, 0, a*a + b*b - c*c - d*d);
+    ret.set(0, 1, 2 * (b*c - a*d));
+    ret.set(0, 2, 2 * (b*d + a*c));
+    ret.set(1, 0, 2 * (b*c + a*d));
+    ret.set(1, 1, a*a - b*b + c*c - d*d);
+    ret.set(1, 2, 2 * (c*d - a*b));
+    ret.set(2, 0, 2 * (b*d - a*c));
+    ret.set(2, 1, 2 * (c*d + a*b));
+    ret.set(2, 2, a*a - b*b - c*c + d*d);
+    
+    return ret;
+}
+
 double *Quaternion::yaw_pitch_roll() const
 {
     const double yaw = atan2(2 * (a * d + b * c), 1 - 2 * (c * c + d * d));

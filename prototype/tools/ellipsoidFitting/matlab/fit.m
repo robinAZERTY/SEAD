@@ -1,6 +1,6 @@
 clc;
 
-n=300; %nombre d'échantillons
+n=3000; %nombre d'échantillons
 global noise;
 global P_real;
 global P_samples;
@@ -11,16 +11,16 @@ global n_learner;
 global alpha;
 
 
-noise=0.01;
+noise=0.05;
 [x,y,z]=cloud_sphere(n,noise);
 P_real=transpose([x y z]);
-radius=4;
-maxGainNoise=0.5;
-maxNonOrtho=0.5;
-maxOffset=50;
-iteration=20;
-alpha=20;
-n_learner=10;
+radius=1;
+maxGainNoise=0.3;
+maxNonOrtho=0.1;
+maxOffset=5;
+iteration=30;
+alpha=0.6;
+n_learner=1;
 [A,B]=ellipse_rand(radius,maxGainNoise,maxNonOrtho,maxOffset)
 
 P_samples=A*P_real+B;
@@ -48,7 +48,7 @@ n=length(P_corrected);
     end
     [A,B]=get_AB(parameters);
     [~,~,nonOrtho,~] = explicit(A,B);
-    rotationcost=(ep(acos(dot(nonOrtho(1,:),[1 0 0]))/(pi/2))+ep(acos(dot(nonOrtho(2,:),[0 1 0]))/(pi/2))+ep(acos(dot(nonOrtho(3,:),[0 0 1]))/(pi/2)))/3;
+    rotationcost=(ep(dot(nonOrtho(1,:),[1 0 0])-1)+ep(dot(nonOrtho(2,:),[0 1 0])-1)+ep(dot(nonOrtho(3,:),[0 0 1])-1))/3;
     
 ret=avr/n;
 ret=ret;
@@ -97,16 +97,13 @@ BB(3,1)=parameters(12);
 end
 
 function [x,y,z]=cloud_sphere(n,noise)
-rvals = 0.5*(rand(n,1)-0.5);
-elevation = asin(rvals);
+rvals = (rand(n,1)-0.5);
+elevation = pi*asin(rvals);
 azimuth = 2*pi*rand(n,1);
 radius= randn(n,1).*noise+1;
 [x,y,z] = sph2cart(azimuth,elevation,radius);
 end
 
-function ave = average(x)
-    ave = sum(x(:))/numel(x); 
-end
 
 function findAlpha(a_min,a_max,a_factor,iteration,n_learner)
 global boundaries;
@@ -154,7 +151,7 @@ for t = 1:iteration
     pause(1/t);
 end
 
-params=params(:,length(params));
+params=params(:,length(params)-1);
 [A_est,B_est]=get_AB(params)
 [radius,gains,nonOrtho,offsets]=explicit(A_est,B_est)
 Error=I^0.5

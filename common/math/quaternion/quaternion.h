@@ -47,6 +47,7 @@ class Quaternion
         const double theta()const;
         const Vector v()const;
         const Quaternion operator^(const double &d)const;
+        const Matrix rotation_matrix()const;
         
 
         double* yaw_pitch_roll() const;//return Body 3-2-1 angles (RZ,RY,RX) https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
