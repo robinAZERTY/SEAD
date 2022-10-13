@@ -25,7 +25,7 @@ public:
     Ellipsoid();
     ~Ellipsoid();
 
-    Matrix A;
+    Matrix A,correctionMatrix;
     Vector B;
 
     // explicites A and B as : [radius,gains,nonOrtho,offsets]
@@ -53,6 +53,7 @@ private:
 Ellipsoid::Ellipsoid()
 {
     A = IdentityMatrix(3);
+    correctionMatrix = IdentityMatrix(3);
     B = Vector(3);
 
     radius = 1;
@@ -84,6 +85,7 @@ void Ellipsoid::explicit_A_B()
     nonOrtho.set(2, 0, A(2, 0) / nz);
     nonOrtho.set(2, 1, A(2, 1) / nz);
     nonOrtho.set(2, 2, A(2, 2) / nz);
+    correctionMatrix=A.inverse()*radius;
 }
 
 void Ellipsoid::set_A_B(const double parameters[12])

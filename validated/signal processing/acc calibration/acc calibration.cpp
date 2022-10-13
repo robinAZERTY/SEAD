@@ -3,7 +3,7 @@ cree par : robinAZERTY
 version du 13/10/2022
 */
 
-#ifndef false // if it is validated
+#ifndef true // if it is validated
 #include "../../..\validated\tools\ellipsoidFitting\ellipsoidFitting.cpp"
 #else
 #include "../..\tools\ellipsoidFitting\ellipsoidFitting.cpp"
