@@ -1,6 +1,6 @@
 /*
 cree par : robinAZERTY
-version du : 30/09/2022
+version du : 13/10/2022
 */
 
 /*
@@ -9,7 +9,7 @@ R=A^-1*(x-B)
 where :
 A is a 3x3 matrix (rotation and scaling) : 9 parameters to find
 B is a 3x1 vector (translation) : 3 parameters to find
-x is a 3x1 vector (point)
+x is a 3x1 vector (point) which is on the unit sphere
 the goal of this program is to find the best A and B from a set of points
 */
 
@@ -25,28 +25,26 @@ public:
     Ellipsoid();
     ~Ellipsoid();
 
-    inline static Matrix A;
-    inline static Vector B;
+    Matrix A;
+    Vector B;
 
     // explicites A and B as : [radius,gains,nonOrtho,offsets]
     inline static double radius;
-    inline static Vector gains;
-    inline static Matrix nonOrtho;
-    inline static Vector offsets;
+    Vector gains;
+    Matrix nonOrtho;
+    Vector offsets;
 
     inline static double *points;
-    inline static unsigned int n;
-    inline static double minimum_cost;
-    inline static double minimum_rotation_cost;
+    inline static unsigned short int n;
+    double minimum_cost;
 
-    const double *fit_grad_descent();
+    const double *fit_grad_descent(const double &eps);
     const double *fit_basic();
     const double *rotation_optimization();
 
 private:
-    static void explicit_A_B();
+    void explicit_A_B();
     static const double cost_funtion(const double parameters[12]);
-    static const double angular_cost_funtion(const double parameters[4]);
 
     void set_A_B(const double parameters[12]);
     void set_A_B(const double radius, const Vector gains, const Matrix nonOrtho, const Vector offsets);
@@ -104,6 +102,7 @@ void Ellipsoid::set_A_B(const double parameters[12])
     Ellipsoid::B.set(1, parameters[10]);
     Ellipsoid::B.set(2, parameters[11]);
 }
+
 
 void Ellipsoid::set_A_B(const double radius, const Vector gains, const Matrix nonOrtho, const Vector offsets)
 {
@@ -177,40 +176,22 @@ const double *Ellipsoid::fit_basic()
     parameters[11] = averageZ;
 
     set_A_B(parameters);
+    explicit_A_B();
 
     return parameters;
 }
 
-const double *Ellipsoid::fit_grad_descent()
+const double *Ellipsoid::fit_grad_descent(const double &eps)
 {
 
     const double *initialparameters = Ellipsoid::fit_basic();
-    const double *parameters = gradDescent(Ellipsoid::cost_funtion, initialparameters, 12, 1e-4, 30);
+    const double initial_cost=Ellipsoid::cost_funtion(initialparameters);
+    const double *parameters = gradDescent(Ellipsoid::cost_funtion, initialparameters, 12, eps, 0.7);
     set_A_B(parameters);
     minimum_cost = Ellipsoid::cost_funtion(parameters);
     return parameters;
 }
 
-const double *Ellipsoid::rotation_optimization()
-{
-    // here, we want to minimize the angles between the axis of the ellipsoid and the world axis
-    // just find the unique quaternion that minimize the sum of the square of the angles
-    // we suppose that the ellipsoid is already fitted
-
-    const double initialparameters[4] = {1, 0, 0, 0}; // identity quaternion
-    const double *parameters = gradDescent(Ellipsoid::angular_cost_funtion, initialparameters, 4, 1e-4, 2);
-    Quaternion q(parameters[0], parameters[1], parameters[2], parameters[3]);
-    q=q.normalize().inverse();
-    //q=Quaternion();
-    Matrix newNonOrtho = q.rotation_matrix().transpose()*Ellipsoid::nonOrtho*q.rotation_matrix();
-    std::cout << "q: " << q.to_str() << std::endl;
-    std::cout << "NonOrtho: " << nonOrtho.to_str() << std::endl;
-    std::cout << "newNonOrtho: " << newNonOrtho.to_str() << std::endl;
-    //Ellipsoid::set_A_B(Ellipsoid::radius, Ellipsoid::gains, newNonOrtho, Ellipsoid::offsets);
-
-    minimum_rotation_cost = Ellipsoid::angular_cost_funtion(parameters);
-    return parameters;
-}
 
 const double Ellipsoid::cost_funtion(const double parameters[12])
 {
@@ -243,66 +224,6 @@ const double Ellipsoid::cost_funtion(const double parameters[12])
         double error = norm - 1; // the distance between the point and the sphere surface
         ret += (error * error) / n;
     }
+    ret*=radius*radius;
     return ret;
-}
-
-const double Ellipsoid::angular_cost_funtion(const double parameters[4])
-{
-    explicit_A_B();
-    Vector axis_X(3);
-    axis_X.set(0, 1);
-    Vector axis_Y(3);
-    axis_Y.set(1, 1);
-    Vector axis_Z(3);
-    axis_Z.set(2, 1);
-
-    Quaternion q;
-    q.a = parameters[0];
-    q.b = parameters[1];
-    q.c = parameters[2];
-    q.d = parameters[3];
-    q = q.normalize();
-
-    Matrix R = q.rotation_matrix();
-    Vector new_axis_X = R * axis_X;
-    Vector new_axis_Y = R * axis_Y;
-    Vector new_axis_Z = R * axis_Z;
-
-    Vector current_axis_X(3);
-    Vector current_axis_Y(3);
-    Vector current_axis_Z(3);
-
-    current_axis_X.set(0, nonOrtho(0, 0));
-    current_axis_X.set(1, nonOrtho(0, 1));
-    current_axis_X.set(2, nonOrtho(0, 2));
-
-    current_axis_Y.set(0, nonOrtho(1, 0));
-    current_axis_Y.set(1, nonOrtho(1, 1));
-    current_axis_Y.set(2, nonOrtho(1, 2));
-
-    current_axis_Z.set(0, nonOrtho(2, 0));
-    current_axis_Z.set(1, nonOrtho(2, 1));
-    current_axis_Z.set(2, nonOrtho(2, 2));
-
-    // the sum of the square of the angles
-    // angle between 2 vectors are : acos((u.v)/(|u||v|))
-    // but |u|=|v|=1
-    // so : theta = acos(u.v)
-    // and acos(u.v)^2 ~= 2 - 2(u.v) at small angle (at (u.v) close to 1)
-
-    double angle_X_s;
-    double angle_Y_s;
-    double angle_Z_s;
-
-    /*
-    angle_X_s = 2 - 2 * (dot(new_axis_X, current_axis_X));
-    angle_Y_s = 2 - 2 * (dot(new_axis_Y, current_axis_Y));
-    angle_Z_s = 2 - 2 * (dot(new_axis_Z, current_axis_Z));
-    */
-   
-    angle_X_s = acos(dot(new_axis_X, current_axis_X)) * acos(dot(new_axis_X, current_axis_X));
-    angle_Y_s = acos(dot(new_axis_Y, current_axis_Y)) * acos(dot(new_axis_Y, current_axis_Y));
-    angle_Z_s = acos(dot(new_axis_Z, current_axis_Z)) * acos(dot(new_axis_Z, current_axis_Z));
-
-    return (angle_X_s + angle_Y_s + angle_Z_s) / 3.0;
 }

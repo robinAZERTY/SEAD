@@ -11,15 +11,15 @@ global n_learner;
 global alpha;
 
 
-noise=0.05;
+noise=0.01;
 [x,y,z]=cloud_sphere(n,noise);
 P_real=transpose([x y z]);
 radius=1;
-maxGainNoise=0.3;
-maxNonOrtho=0.1;
+maxGainNoise=0.6;
+maxNonOrtho=0.4;
 maxOffset=5;
-iteration=30;
-alpha=0.6;
+iteration=300;
+alpha=0.1;
 n_learner=1;
 [A,B]=ellipse_rand(radius,maxGainNoise,maxNonOrtho,maxOffset)
 
@@ -51,7 +51,7 @@ n=length(P_corrected);
     rotationcost=(ep(dot(nonOrtho(1,:),[1 0 0])-1)+ep(dot(nonOrtho(2,:),[0 1 0])-1)+ep(dot(nonOrtho(3,:),[0 0 1])-1))/3;
     
 ret=avr/n;
-ret=ret;
+ret=ret+rotationcost;
 end
 
 function ret = ep(x)
@@ -96,9 +96,9 @@ BB(2,1)=parameters(11);
 BB(3,1)=parameters(12);
 end
 
-function [x,y,z]=cloud_sphere(n,noise)
-rvals = (rand(n,1)-0.5);
-elevation = pi*asin(rvals);
+function [x,y,z]=cloud_sphere(n,noise)%generation de points bruités distribuées homogènement sur une sphere unitaire
+rvals = 2*(rand(n,1)-0.5);
+elevation = asin(rvals);
 azimuth = 2*pi*rand(n,1);
 radius= randn(n,1).*noise+1;
 [x,y,z] = sph2cart(azimuth,elevation,radius);
@@ -148,7 +148,7 @@ for t = 1:iteration
     legend("Calibrated at i = "+string(t),"Perfect");
     refreshdata
     drawnow
-    pause(1/t);
+    %pause(1/t);
 end
 
 params=params(:,length(params)-1);
