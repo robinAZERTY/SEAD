@@ -9,6 +9,8 @@ global iteration;
 global P_correct;
 global n_learner;
 global alpha;
+global P_perfect;
+global n;
 
 global radius1;
 
@@ -17,11 +19,11 @@ global radius1;
 %##############################
 
 %##generation d'échantiollon###
-n=200; %nombre d'échantillons
+n=300; %nombre d'échantillons
 noise=0.05;%bruit relatif (sur la sphere unitaire)
-radius=43.56;
+radius=1;
 maxGainNoise=0.35;
-maxNonOrtho=0.25;
+maxNonOrtho=0.35;
 maxOffset=radius*1.5;
 
 
@@ -47,7 +49,7 @@ P_real=transpose([x y z]);%in the unit sphere
 [radius,gains,nonOrtho,offsets] = explicit(A,B);
 min_rot_cost=rotation_cost(get_parameters(A,B));
 P_samples=A*P_real+B;
-transpose(P_samples)
+transpose(P_samples);
 [radius1,gains1,offsets1]=firstApprox(P_samples);
 
 %first approximation
@@ -70,7 +72,24 @@ P_correctU=correct(P_samples,params(:,iteration));
 %correct the raw data to the good radius
 P_correct=P_correctU.*radius1;
 
+%correct the raw data to the good radius
+P_perfect=P_real.*radius1;
 
+%pre calibrated
+P_pre=pre_calibration.*radius1;
+
+%avr error distance between current calibrated and perfectly calibrated
+%points
+P_e=avr_distance(params);
+
+
+a=(P_pre(1:3,:)-P_perfect(1:3,:)).^2;
+a=sqrt(a(1,:)+a(2,:)+a(3,:));
+a=sum(a)/n
+
+a=(P_correct(1:3,:)-P_perfect(1:3,:)).^2;
+a=sqrt(a(1,:)+a(2,:)+a(3,:));
+a=sum(a)/n
 
 %plotting
 figure(1);
@@ -79,7 +98,9 @@ hold on;
 view(3);
 plot3(P_samples(1,:),P_samples(2,:),P_samples(3,:),'.');
 plot3(P_correct(1,:),P_correct(2,:),P_correct(3,:),'.');
-legend("raw","calibrated");
+plot3(P_perfect(1,:),P_perfect(2,:),P_perfect(3,:),'.');
+plot3(P_pre(1,:),P_pre(2,:),P_pre(3,:),'.');
+legend("raw","calibrated","perfectly calibrated","pre calibration");
 title("Raw vs calibrated samples");
 axis equal;
 
@@ -93,7 +114,13 @@ legend("perfectly calibrated","pre-calibration","calibration at i= "+string(iter
 title("calibration to the unit sphere");
 axis equal;
 
-subplot(2,2,3);
+
+subplot(2,3,4);
+plot(P_e);
+title("convergeance of the error")
+legend("average error");
+
+subplot(2,3,5);
 hold on;
 plot(I.^0.5);
 plot(ones([1 iteration]).*noise*radius);
@@ -101,7 +128,8 @@ title("convergeance of the cost function")
 legend("average distance","noise");
 
 
-subplot(2,2,4);
+
+subplot(2,3,6);
 hold on;
 plot(get_rotation_costs(params));
 plot(ones([1 iteration]).*min_rot_cost);
@@ -196,6 +224,27 @@ J=J.^0.5;
 figure(2);
 loglog(learning_rate,J,".");
 legend("error(alpha)");
+end
+
+function ret=avr_distance(parameters)
+global P_perfect;
+global P_samples;
+global n;
+
+s = size(parameters,2);
+ret=zeros([1 s]);
+
+for i=1:s
+    [AA,BB]=get_AB(parameters(:,i));
+    [radius,~,~,~] = explicit(AA,BB);
+    co=correct(P_samples,parameters(:,i)).*radius;
+    a=(co-P_perfect).^2;
+    a=sqrt(a(1,:)+a(2,:)+a(3,:));
+    a=sum(a)/n;
+    avr=a;
+    ret(1,i)=avr;
+end
+
 end
 
 %##############################
