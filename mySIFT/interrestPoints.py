@@ -10,6 +10,7 @@
     gradient(img) : return the gradient of a picture
 """
 from math import *
+import re
 from turtle import shape
 
 from numpy import Inf,shape
@@ -74,7 +75,7 @@ def gaussianMask(tau,size=(0,0),nTau=2,digit=None):
     
     if size==(0,0):
         #the size of the convolution array is 2*nTau*tau+1
-        n=ceil(2*nTau*tau+1)
+        n=ceil(2*nTau*tau)+1
         m=n
     else:
         #n and m must be odd
@@ -286,4 +287,59 @@ def get_frame():
     if(mode=="gray"):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     return frame
+
+import numpy as np
+
+def integrate(img):
+    
+    
+
+    choosenType=np.int32
+
+    ret=np.zeros(img.shape,dtype=choosenType)
+    for y in range(len(img)):
+        for x in range(len(img[0])):
+            if y==0 and x==0:
+                ret[y][x]=img[y][x]
+            elif y==0:
+                ret[y][x]=ret[y][x-1]+img[y][x]
+            elif x==0:
+                ret[y][x]=ret[y-1][x]+img[y][x]
+            else:
+                ret[y][x]=ret[y-1][x]+ret[y][x-1]-ret[y-1][x-1]+img[y][x]
+    return ret
+
+def derive(img_inte):
+    
+    ret=np.zeros(img_inte.shape,dtype=np.int32)
+    
+    for y in range(len(img_inte)):
+        for x in range(len(img_inte[0])):
+            if y==0 and x==0:
+                ret[y][x]=img_inte[y][x]
+            elif y==0:
+                ret[y][x]=img_inte[y][x]-img_inte[y][x-1]
+            elif x==0:
+                ret[y][x]=img_inte[y][x]-img_inte[y-1][x]
+            else:
+                ret[y][x]=img_inte[y][x]-img_inte[y-1][x]-img_inte[y][x-1]+img_inte[y-1][x-1]
+    return ret
+
+def avrBlur(itegrateIMG,winSize):
+    #winSize must be odd
+    if winSize%2==0 or winSize<3:
+        raise "error : winSize must be odd and superior to 2"
+    ret=np.zeros(itegrateIMG.shape,dtype=np.int32)
+    
+    #compute a average blur from an integrate image
+    #ignore the border
+    border=(winSize-1)//2
+    print(border)
+    for y in range(border,len(itegrateIMG)-border):
+        for x in range(border,len(itegrateIMG[0])-border):
+            ret[y][x]=itegrateIMG[y+border][x+border]-itegrateIMG[y+border][x-border-1]-itegrateIMG[y-border-1][x+border]+itegrateIMG[y-border-1][x-border-1]
+            ret[y][x]=ret[y][x]//(winSize**2)
+
+                
+    return ret
 
