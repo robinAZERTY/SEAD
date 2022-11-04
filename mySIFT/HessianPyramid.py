@@ -1,5 +1,8 @@
+from sklearn.metrics import homogeneity_score
+from sklearn.preprocessing import scale
 import IntegralImage as ii
 import numpy as np
+import cv2
 
 class HessianPyramid(object):
     def __init__(self, original):
@@ -7,6 +10,7 @@ class HessianPyramid(object):
         original list[list]: 2d array containing original table data
         '''
         self.II = ii.IntegralImage(original)
+        self.complexity = 0
     
     def __repr__(self):
         return '\n'.join([''.join(['{:4}'.format(item) for item in row]) for row in self.pyramid])
@@ -17,8 +21,118 @@ class HessianPyramid(object):
         #x et y sont les coordonnées du centre de la fenetre
         pass
 
+    def interpolation(self,x,y,s):
+        #interpolation de la matrice hessienne pour trouver le maximum local 
+        #étape 1 : choisir les 8 points autour du maximum local sans dépasser les bords de l'image
+        #étape 2 : calculer la matrice A composé des x*x, y*y s*s x*y x y s 1 et Y composé des valeurs des points
+        #étape 3 : X=A^-1*Y
+        #étape 4 : résoudre le système
+        
+        
+        #avec bordure
+        xm=False
+        xp=False
+        ym=False
+        yp=False
+        if x-1<self.border[s]:
+            xm=True
+        if x+1>=self.II.width-self.border[s]:
+            xp=True
+        if y-1<self.border[s]:
+            ym=True
+        if y+1>=self.II.height-self.border[s]:
+            yp=True
+        
+        if not(xm) and not(ym) and not(xp) and not(yp):
+            XY=[[0,-1],[1,0],[1,1],[-1,1],[-1,0],[0,0]]
+        elif xm and not(ym) and not(xp) and not(yp):
+            XY=[[0,-1],[1 -1],[1,0],[1,1],[0,1],[0,0]]
+        elif not(xm) and xp and not(ym) and not(yp):
+            XY=[[-1,-1],[0,-1],[0,0],[0,1],[-1,1],[-1,0]]
+        elif not(xm) and not(xp) and ym and not(yp):
+            XY=[[-1,0],[-1,1],[0,1],[1,1],[1,0],[0,0]]
+        elif not(xm) and not(xp) and not(ym) and yp:
+            XY=[[-1,-1],[-1,0],[0,0],[1,0],[1,-1],[0,-1]]
+        elif not(xm) and xp and not(ym) and yp:
+            XY=[[-2,0],[-1,0],[0,0],[-1,-1],[0,-1],[0,-2]]
+        elif xm and not(ym) and not(xp) and yp:
+            XY=[[0,0],[1,0],[2,0],[1,-1],[0,-1],[0,-2]]
+        elif xm and not(xp) and ym and not(yp):
+            XY=[[0,0],[0,1],[0,2],[1,1],[1,0],[2,0]]
+        elif not(xm) and xp and ym and not(yp):
+            XY=[[-2,0],[-1,0],[0,0],[-1,1],[0,1],[0,2]]
+        else:
+            return "space bordure error"
+        
+        p=np.zeros((8,4))
+        for i in range(len(XY)):
+            p[i]=[XY[i][0],XY[i][1],self.blobSize[s],self.scaleSpace[s][y+XY[i][1]][x+XY[i][0]]]
+        
+        bsm=(s-1<0)
+        bsp=(s+1>=len(self.scaleSpace))
+        
+
+        if not(bsm) and not(bsp):
+            p[6]=[0,0,self.blobSize[s-1],self.scaleSpace[s-1][y][x]]
+            p[7]=[0,0,self.blobSize[s+1],self.scaleSpace[s+1][y][x]]
+        elif bsm and not(bsp):
+            p[6]=[0,0,self.blobSize[s+1],self.scaleSpace[s+1][y][x]]
+            p[7]=[0,0,self.blobSize[s+2],self.scaleSpace[s+2][y][x]]
+        elif not(bsm) and bsp:
+            p[6]=[0,0,self.blobSize[s-2],self.scaleSpace[s-2][y][x]]
+            p[7]=[0,0,self.blobSize[s-1],self.scaleSpace[s-1][y][x]]
+        else:
+            return "scale bordure error"
+            
+
+        
+        A=np.zeros((8,8))
+        Y=np.zeros((8,1)) 
+        for i in range(8):
+            A[i]=[p[i][0]**2,p[i][1]**2,p[i][2]**2,p[i][0]*p[i][1],p[i][0],p[i][1],p[i][2],1]
+            Y[i]=p[i][3]
+            
+        try:
+            X=np.linalg.inv(A).dot(Y)
+        except:
+            return "error inversion"
+        #as a list
+
+        
+        tmp1=np.sqrt(X[0]**2 - 2*X[0]*X[1] + X[1]**2 + X[3]**2)
+        tmp2=-X[3]**2 + 4*X[0]*X[1]
+        
+        a=X[0]/2+X[1]/2+tmp1/2
+        b=X[0]/2+X[1]/2-tmp1/2
+        c=X[2]
+        x0=-(2*X[1]*X[4] - X[3]*X[5])/tmp2
+        y0=-(2*X[0]*X[5] - X[3]*X[4])/tmp2
+        
+        if (a>=0 or b>=0 or c>=0):
+            return "pas de maximum local"
+        if(abs(x0)>1 or abs(y0)>1):
+            return "maxima trop loin"
+        
+        tau0=-X[6]/(2*X[2])
+        if (abs(X[3])>1e-6):
+            theta=np.arctan((X[1]-X[0]+tmp1)/X[3])
+        else:
+            theta=0
+        
+        ct=np.cos(theta)
+        st=np.sin(theta)
+        z0=p[0][3]-a*(ct*(p[0][0] - x0) + st*(p[0][1] - y0))**2 - b*(ct*(p[0][1] - y0) - st*(p[0][0] - x0))**2 - c*(p[0][3] - tau0)**2
+        
+
+        
+        homogeneity=max(abs(a/b),abs(b/a))
+        space_stability=min(abs(a),abs(b))#closer to 0, less stable
+        scale_stability=c#closer to 0, less stable
+        
+        return ([x+x0,y+y0,tau0,z0],[theta,homogeneity,space_stability,scale_stability,a,b])
+        
     
-    def interrestPoint(self, det_threshold=0, edge_threshold=0):
+    def interrestPoint(self, det_threshold=-1, edge_threshold=-1, space_stability_threshold=-1, scale_stability_threshold=0, homogeneity_threshold=0):
         #detection des points d'interret
         #approximation du Dog par la difference de flou de moyenne (permet l'utilisation de filtre boite avec l'image integrale)
         #selection des points d'interret : 
@@ -42,17 +156,17 @@ class HessianPyramid(object):
         self.blobSize=[(self.tau[i+1]+self.tau[i])//2 for i in range(S-1)]
         
         #on ne peut pas calculer le flou partout sans sortir de l'image
-        border=[(self.tau[i]-1)//2 for i in range(S)]
+        self.border=[(self.tau[i]-1)//2 for i in range(S)]
         
-        self.scaleSpace=[[[0 for _ in range(self.II.width)] for _ in range(self.II.height)] for _ in range(S-1)]
-        
+        self.scaleSpace=np.zeros((S,self.II.height,self.II.width))
+        """
         print("calcul des flous")
         print("taille de l'image : ",self.II.width,"x",self.II.height)
         print("nombre de niveau de flou : ",S)
         print("tailles des flous : ",self.tau)
         print("tailles des blobs : ",self.blobSize)
-        print("bordure : ",border)
-        
+        print("bordure : ",self.border)
+        """
         extremum=[]
         self.maxe=0
         avr=0
@@ -68,9 +182,9 @@ class HessianPyramid(object):
                     extremum_=(0,0,0,0)
                     for x in range(x0,x0+grid_size):
                         for y in range(y0,y0+grid_size):
-                            
+                            self.complexity+=1
                             #on verifie qu'on ne va pas sortir de l'image
-                            if x<border[s+1] or y<border[s+1] or x>=self.II.width-border[s+1] or y>=self.II.height-border[s+1]:
+                            if x<self.border[s+1] or y<self.border[s+1] or x>=self.II.width-self.border[s+1] or y>=self.II.height-self.border[s+1]:
                                 continue
                             
 
@@ -89,62 +203,35 @@ class HessianPyramid(object):
         avr/=len(extremum)
         #on ne garde que les points d'interret tres differents de la moyenne
         for e in extremum:
+            self.complexity+=1
             if e[3]>avr*det_threshold:
+                inter=self.interpolation(e[0],e[1],e[2])
+                if(type(inter)==str):
+                    #print(inter)
+                    continue
                 
-                try:
-                    if edge_threshold>0:
-                        #sur une arête, la dérivée seconde dominante est vraiment plus grande que dans la direction perpendiculaire
-                        h=(self.tau[e[2]+1]-self.tau[e[2]])//4+1
-                        ddx=self.scaleSpace[e[2]][e[1]][e[0]+h]-2*self.scaleSpace[e[2]][e[1]][e[0]]+self.scaleSpace[e[2]][e[1]][e[0]-h]
-                        ddy=self.scaleSpace[e[2]][e[1]+h][e[0]]-2*self.scaleSpace[e[2]][e[1]][e[0]]+self.scaleSpace[e[2]][e[1]-h][e[0]]
-                        
-                        dx=self.scaleSpace[e[2]][e[1]][e[0]+1]-self.scaleSpace[e[2]][e[1]][e[0]-1]
-                        dy=self.scaleSpace[e[2]][e[1]+1][e[0]]-self.scaleSpace[e[2]][e[1]-1][e[0]]
-                        
-                        #dans la direction perpendiculaire
-                        x1=-ddy
-                        y1=ddx
-                        norm=np.sqrt(x1**2+y1**2)
-                        x1*=h/norm
-                        y1*=h/norm
-                        x1=round(x1)
-                        y1=round(y1)
-                        dd=self.scaleSpace[e[2]][e[1]+y1][e[0]+x1]-2*self.scaleSpace[e[2]][e[1]][e[0]]+self.scaleSpace[e[2]][e[1]-y1][e[0]-x1]
-                        #print("extremum : ",e[0],e[1],e[2],e[3],ddx,ddy,dd)
-                        #input()
-                        normal=ddx**2+ddy**2
-                        tangent=dd**2
-                        if abs((tangent-normal)/normal)<edge_threshold and dx**2+dy**2<2:
-                            new_ip=(e[0],e[1],e[2],e[3])
-                            self.interrestPoint.append(new_ip)
-                    else:
-                        self.interrestPoint.append(e)
-                except:
-                    print("erreur : ",e[0],e[1],e[2],e[3])
-        
-        new_interrestPoint=[]        
-        for ip in self.interrestPoint:
-            #interpolation pour trouver la taille du blob
-            if ip[2]>0 and ip[2]<S-2:
-                x1,x2,x3=self.blobSize[ip[2]-1],self.blobSize[ip[2]],self.blobSize[ip[2]+1]
-                y1,y2,y3=self.scaleSpace[ip[2]-1][ip[1]][ip[0]],self.scaleSpace[ip[2]][ip[1]][ip[0]],self.scaleSpace[ip[2]+1][ip[1]][ip[0]]
-            elif ip[2]==0:
-                x1,x2,x3=self.blobSize[0],self.blobSize[1],self.blobSize[2]
-                y1,y2,y3=self.scaleSpace[0][ip[1]][ip[0]],self.scaleSpace[1][ip[1]][ip[0]],self.scaleSpace[2][ip[1]][ip[0]]
-            else:
-                x1,x2,x3=self.blobSize[S-3],self.blobSize[S-2],self.blobSize[S-1]
-                y1,y2,y3=self.scaleSpace[S-3][ip[1]][ip[0]],self.scaleSpace[S-2][ip[1]][ip[0]],self.scaleSpace[S-1][ip[1]][ip[0]]
-            #find a,b,c such that y=ax^2+bx+c with X=A^-1Y
-            A=np.array([[x1**2,x1,1],[x2**2,x2,1],[x3**2,x3,1]])
-            Y=np.array([y1,y2,y3])
-            X=np.linalg.inv(A)@Y
-            a,b,c=X
-            
-            #find the extremum of the parabola
-            x=-b/(2*a)
-            y=a*x**2+b*x+c
-            
-            new_interrestPoint.append((ip[0],ip[1],x,y))
-        
-        self.interrestPoint=new_interrestPoint
-        
+                point,info=inter
+                if (info[1]<edge_threshold or edge_threshold==-1) and 1/info[2]<space_stability_threshold*point[2] :
+                    self.interrestPoint.append(inter)
+                    #draw the ellipse in the picture
+                    try:
+                        x=point[0][0]
+                        y=point[1][0]
+                        theta=info[0][0]
+                        a=abs(1/info[4][0])
+                        b=abs(1/info[5][0])
+                    except:
+                        x=point[0]
+                        y=point[1]
+                        theta=info[0]
+                        a=abs(1/info[4])
+                        b=abs(1/info[5])
+                    #index of the nearest size of the blob
+                    s=e[2]
+                    #print("a : ",a," b : ",b," theta : ",theta," x : ",x," y : ",y," blobSize : ",self.blobSize[s])
+                    #cv2.ellipse(self.scaleSpace[S], (int(x),int(y)), (int(a),int(b)), theta, 0, 360, 0, 1)
+                    #draw the point in the picture
+                    
+                    cv2.ellipse(self.scaleSpace[s], (int(x),int(y)),(int(a),int(b)), theta/(np.pi)*180, 0, 360, 0, 1)
+                    
+                
