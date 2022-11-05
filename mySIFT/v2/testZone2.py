@@ -12,8 +12,8 @@ import HessianPyramid as hp
 from numpy import Inf,shape,size
 
 
-#filename="D:\\documents\\github\\SEAD\\SEAD\\mySIFT\\IMG_20220824_204247.jpg"
-filename="D:\documents\github\SEAD\SEAD\mySIFT\IMG_20200725_162220.jpg"
+filename="C:\\Users\\robin\\Desktop\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
+#filename="D:\documents\github\SEAD\SEAD\mySIFT\IMG_20200725_162220.jpg"
 
 #img  = Image.open(path)     
 # On successful execution of this statement,
@@ -24,6 +24,9 @@ try:
     img  = Image.open(filename) 
     #convert the image to grayscale
     img = img.convert('L')
+    #resize the image
+    img = img.resize((200,200))
+    img = np.array(img)
     print("Image opened successfully")
 except IOError:
     print("Error in opening the image file")
@@ -58,9 +61,9 @@ import time
 
 start_time = time.time()
 
-img=get_frame()
+#img=get_frame()
 H=hp.HessianPyramid(img,9,1.4)
-
+"""
 while True:
     img=get_frame()
 
@@ -74,13 +77,14 @@ while True:
     
     img=cv2.putText(img, str(int(frameRate)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
     cv.imshow("img",cv2.resize(img,(720,480),interpolation=cv2.INTER_AREA))
-    """
+    
     plt.figure(1)
     plt.clf()
     for i in range(len(H.pyramid)):
         plt.subplot(3,3,i+1)
         plt.imshow(H.pyramid[i],cmap='gray',vmin=H.minValue,vmax=H.maxValue)
     plt.pause(0.01)
-    """
+    
     if cv.waitKey(1) == ord('q'):
         break
+"""

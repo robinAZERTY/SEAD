@@ -1,5 +1,4 @@
-from sklearn.metrics import homogeneity_score
-from sklearn.preprocessing import scale
+
 import IntegralImage as ii
 import numpy as np
 import cv2
@@ -45,8 +44,29 @@ class HessianPyramid(object):
         #2) on reduit la resolution pour gagner du temps de calcul, on peut se le permettre car les blobs sont plus gros
         
         for shape in self.stageShape:
-            self.pyramid.append(np.zeros((shape[1],shape[0])))   
+            self.pyramid.append(np.zeros((shape[1],shape[0])))
             
+        #pour chaque niveau, on va séparer le calcul en plusieurs sections afin d'y extraire leur extrema, qui seront des candidats pour les points d'interret   
+        #les grilles on une taille de stageShapeAccurate pixels
+        grid=[] #[[[[x1,x2],[x3,x4],...],[[y1,y2],[y3,y4],...]],...]
+        for shape in self.stageShape:
+            stageGridX=[]
+            stageGridY=[]
+            for i in range(shape[0]//stageShapeAccurate+1):
+                stageGridX.append([i*stageShapeAccurate,(i+1)*stageShapeAccurate-1])
+            
+            stageGridX[-1][-1]=shape[0]
+            
+            for i in range(shape[1]//stageShapeAccurate+1):
+                stageGridY.append([i*stageShapeAccurate,(i+1)*stageShapeAccurate-1])
+            
+            stageGridY[-1][-1]=shape[1]
+            stageGrid=[stageGridX,stageGridY]
+            grid.append(stageGrid)
+                
+               
+                
+        
         print("calcul des flous de moyenne")
         print("taille de l'image : ",self.II.width,"x",self.II.height)
         print("nombre de niveaux de flou : ",S)
@@ -54,6 +74,7 @@ class HessianPyramid(object):
         print("taille des blobs : ",self.blobSize)
         print("taille des bords : ",self.border)
         print("taille des étages précis : ",self.stageShape)
+        print("taille des grilles : ",grid)
 
         
     
@@ -195,7 +216,8 @@ class HessianPyramid(object):
                     #calcul du pixel correspondant sur l'image originale
                     x0=int(x/self.stageShape[s][0]*(self.II.width-self.border[s+1]*2)+self.border[s+1])
                     y0=int(y/self.stageShape[s][1]*(self.II.height-self.border[s+1]*2)+self.border[s+1])
-                    self.pyramid[s][y][x]=self.II.avrBlur(x0,y0,self.tau[s+1])/(self.II.avrBlur(x0,y0,self.tau[s])+1)
+                    
+                    self.pyramid[s][y][x]=self.II.avrBlur(x0,y0,self.tau[s+1])-(self.II.avrBlur(x0,y0,self.tau[s]))
                     if self.pyramid[s][y][x]>self.maxValue:
                         self.maxValue=self.pyramid[s][y][x]
                     if self.pyramid[s][y][x]<self.minValue:
