@@ -37,8 +37,8 @@ def get_frame():
     return frame
 
 
-#filename="C:\\Users\\robin\\Desktop\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
-filename="D:\documents\github\SEAD\SEAD\mySIFT\\v2\IMG_20200725_162220.jpg"
+filename="C:\\Users\\robin\\Desktop\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
+#filename="D:\documents\github\SEAD\SEAD\mySIFT\\v2\IMG_20200725_162220.jpg"
 
 #img  = Image.open(path)     
 # On successful execution of this statement,
@@ -49,8 +49,11 @@ try:
     img  = Image.open(filename) 
     #convert the image to grayscale
     img = img.convert('L')
-    #resize the image
-    img = img.resize((240,240))
+    #resize the image by a factor
+    originalSize=img.size
+    ratioShape=originalSize[0]/originalSize[1]
+    factor=0.05
+    img = img.resize((int(img.size[0]*factor),int(img.size[1]*factor)))
     img = np.array(img)
     print("Image opened successfully")
 except IOError:
@@ -64,31 +67,41 @@ except IOError:
 start_time = time.time()
 
 #img=get_frame()
-H=hp.HessianPyramid(img,9,1.4)
+H=hp.HessianPyramid(img,tau0=9,ratio=1.4,stageShapeAccurate=3)
 H.interrestPoint()
-H.select_interespoints(0)
+H.select_interespoints(0.1,1,0.1)
+newSize=720
+cv.imshow("img",cv2.resize(img,(round(newSize*ratioShape),newSize),interpolation=cv2.INTER_NEAREST))
 """
+plt.figure(1)
+for i in range(len(H.pyramid)):
+    plt.subplot(3,3,i+1)
+    plt.imshow(H.pyramid[i],cmap='gray',vmin=H.minval,vmax=H.maxval)
+plt.show() 
+"""
+originalIMG=img
 while True:
-    img=get_frame()
-
-    
-    
+    #img=get_frame()
+    img=originalIMG.copy()
     H.update(img)
-    H.interrestPoint(1.5)
+    H.interrestPoint()
+    H.select_interespoints(0.5,1,0.2)
+    H.draw_interespoints(img)
     dt = time.time() - start_time
     start_time = time.time()
     frameRate = 1/dt
     
     img=cv2.putText(img, str(int(frameRate)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-    cv.imshow("img",cv2.resize(img,(720,480),interpolation=cv2.INTER_AREA))
-    
+    newSize=720
+    cv.imshow("img",cv2.resize(img,(round(newSize*ratioShape),newSize),interpolation=cv2.INTER_NEAREST))
+    """
     plt.figure(1)
     plt.clf()
     for i in range(len(H.pyramid)):
         plt.subplot(3,3,i+1)
         plt.imshow(H.pyramid[i],cmap='gray',vmin=H.minValue,vmax=H.maxValue)
     plt.pause(0.01)
-    
+    """
     if cv.waitKey(1) == ord('q'):
         break
-"""
+    

@@ -91,7 +91,7 @@ class HessianPyramid(object):
             stageGrid=[stageGridX,stageGridY]
             self.grid.append(stageGrid)
                 
-               
+            self.scaleFactor=[[(self.II.width-2*self.border[s+1])/self.stageShape[s][0],(self.II.height-2*self.border[s+1])/self.stageShape[s][1]] for s in range(S-1)]
                 
         print('HessianPyramid init time :',round(time.time()-strart,4),'s')
         print("calcul des flous de moyenne")
@@ -229,7 +229,191 @@ class HessianPyramid(object):
         
         return ([x+x0,y+y0,tau0,z0],[theta,homogeneity,space_stability,scale_stability,a,b])
 
+    def space_interpolation(self,x,y,s):
+        #interpolation de la matrice hessienne pour trouver le maximum local 
+        #étape 1 : choisir les 6 points autour du maximum local sans dépasser les bords de l'image
+        #étape 2 : calculer la matrice A composé des x*x, y*y, x*y, x, y, 1 et Y composé des valeurs des points
+        #étape 3 : X=A^-1*Y
+        #étape 4 : résoudre le système
+        xm=False
+        xp=False
+        ym=False
+        yp=False
+        if x-1<0:
+            xm=True
+        if x+1>=self.stageShape[s][0]:
+            xp=True
+        if y-1<0:
+            ym=True
+        if y+1>=self.stageShape[s][1]:
+            yp=True
+        
+        if not(xm) and not(ym) and not(xp) and not(yp):
+            XY=[[0,-1],[1,0],[1,1],[-1,1],[-1,0],[0,0]]
+        elif xm and not(ym) and not(xp) and not(yp):
+            XY=[[0,-1],[1,-1],[1,0],[1,1],[0,1],[0,0]]
+        elif not(xm) and xp and not(ym) and not(yp):
+            XY=[[-1,-1],[0,-1],[0,0],[0,1],[-1,1],[-1,0]]
+        elif not(xm) and not(xp) and ym and not(yp):
+            XY=[[-1,0],[-1,1],[0,1],[1,1],[1,0],[0,0]]
+        elif not(xm) and not(xp) and not(ym) and yp:
+            XY=[[-1,-1],[-1,0],[0,0],[1,0],[1,-1],[0,-1]]
+        elif not(xm) and xp and not(ym) and yp:
+            XY=[[-2,0],[-1,0],[0,0],[-1,-1],[0,-1],[0,-2]]
+        elif xm and not(ym) and not(xp) and yp:
+            XY=[[0,0],[1,0],[2,0],[1,-1],[0,-1],[0,-2]]
+        elif xm and not(xp) and ym and not(yp):
+            XY=[[0,0],[0,1],[0,2],[1,1],[1,0],[2,0]]
+        elif not(xm) and xp and ym and not(yp):
+            XY=[[-2,0],[-1,0],[0,0],[-1,1],[0,1],[0,2]]
+        else:
+            return "space bordure error"
 
+        p=np.zeros((6,3))
+        for i in range(len(XY)):
+            p[i]=[XY[i][0],XY[i][1],self.pyramid[s][y+XY[i][1]][x+XY[i][0]]]
+
+        A=np.zeros((6,6))
+        Y=np.zeros((6,1)) 
+        for i in range(6):
+            A[i]=[XY[i][0]**2,XY[i][1]**2,XY[i][0]*XY[i][1],XY[i][0],XY[i][1],1]
+            Y[i]=self.pyramid[s][y+XY[i][1]][x+XY[i][0]]
+            
+        try:
+            X=np.linalg.inv(A).dot(Y)
+        except:
+            return "error inversion"
+        
+        tmp1=np.sqrt(X[0]**2 - 2*X[0]*X[1] + X[1]**2 + X[3]**2)
+        tmp2=-X[2]**2 + 4*X[0]*X[1]
+        
+        a=float((X[0]+X[1]+tmp1)/2)
+        b=float((X[0]+X[1]-tmp1)/2)
+        x0=float((X[2]*X[4]-2*X[1]*X[3])/tmp2)
+        y0=float((X[2]*X[3]-2*X[0]*X[4])/tmp2)
+        
+
+        if(abs(x0)>1 or abs(y0)>1):
+            #sommet trop loin
+            #return self.space_interpolation(round(x+x0),round(y+y0),s)
+            return "maxima trop loin"
+        
+        
+        if (abs(X[3])>1e-6):
+            theta=float(np.arctan((X[1]-X[0]+tmp1)/X[2]))
+        else:
+            theta=0
+        
+        ct=float(np.cos(theta))
+        st=float(np.sin(theta))
+        z0=self.pyramid[s][y][x]-a*(ct*x0 + st*y0)**2 - b*(st*x0 - ct*y0)**2
+        
+        return [[x+x0,y+y0,s],[z0,theta,a,b]]
+    
+    def size_interpolation(self,extremum):
+        x,y,s=extremum
+        xx=round(x)
+        yy=round(y)
+        #on trouve les coordonnées dans l'image originale
+        originalX,originalY=self.get_original_coordonate(x,y,s)
+        
+        #z=a*(x-x0)**2+c=(a)*x**2 + (-2*x0*a)*x + (x0**2*a+c) = A*x**2 + B*x + C
+        
+        """
+        A=a
+        B=-2*x0*a
+        C=x0**2*a+c
+        
+        x0=-B/(2*a)
+        c=C-x0**2*a
+        """
+        
+        Y=np.zeros((3,1))
+        A=np.zeros((3,3))
+        p=np.zeros((3,2))
+        #on test aussi ses 2 voisins au dessus et en dessous s'ils existent
+        
+        
+        if s>0 and s<len(self.pyramid)-1:
+            #coordonnées du pixel au dessus
+            xm,ym=self.get_pyramid_coordonate(originalX,originalY,s-1)
+            xm=round(xm)
+            ym=round(ym)
+            p[0]=[self.blobSize[s-1],self.pyramid[s-1][ym][xm]]
+            p[1]=[self.blobSize[s],self.pyramid[s][yy][xx]]
+            xm,ym=self.get_pyramid_coordonate(originalX,originalY,s+1)
+            xm=round(xm)
+            ym=round(ym)
+            if xm<0 or xm>=self.stageShape[s+1][0] or ym<0 or ym>=self.stageShape[s+1][1]:
+                return "erreur coordonnées"
+            p[2]=[self.blobSize[s+1],self.pyramid[s+1][ym][xm]]
+        elif s==0 and s+2<len(self.pyramid):
+            p[0]=[self.blobSize[0],self.pyramid[0][yy][xx]]
+            xm,ym=self.get_pyramid_coordonate(originalX,originalY,1)          
+            xm=round(xm)
+            ym=round(ym)
+            #toujours dans l'image ?
+            if xm<0 or xm>=self.stageShape[1][0] or ym<0 or ym>=self.stageShape[1][1]:
+                return "erreur coordonnées"
+            p[1]=[self.blobSize[1],self.pyramid[1][ym][xm]]
+            xm,ym=self.get_pyramid_coordonate(originalX,originalY,2)
+            xm=round(xm)
+            ym=round(ym)
+            if xm<0 or xm>=self.stageShape[2][0] or ym<0 or ym>=self.stageShape[2][1]:
+                return "erreur coordonnées"
+            p[2]=[self.blobSize[2],self.pyramid[2][ym][xm]]
+        elif s==len(self.pyramif)-1 and s-2>=0:
+            p[2]=[self.blobSize[s],self.pyramid[s][yy][xx]]
+            xm,ym=self.get_pyramid_coordonate(originalX,originalY,s-1)
+            xm=round(xm)
+            ym=round(ym)
+            p[1]=[self.blobSize[s-1],self.pyramid[s-1][ym][xm]]
+            xm,ym=self.get_pyramid_coordonate(originalX,originalY,s-2)
+            xm=round(xm)
+            ym=round(ym)
+            p[0]=[self.blobSize[s-2],self.pyramid[s-2][ym][xm]]
+        else:
+            return "error size interpolation"
+        
+        for i in range(3):
+            A[i]=[p[i][0]**2,p[i][0],1]
+            Y[i]=p[i][1]
+        
+        try :
+            X=np.linalg.inv(A).dot(Y)
+        except:
+            return "error inversion"
+        
+        a=X[0]
+        x0=-X[1]/(2*a)
+        c=X[2]-x0**2*a
+        
+        return [[originalX,originalY,float(x0)],[float(c),float(a)]]  
+
+        
+        
+        
+        
+    def get_original_coordonate(self,x,y,s):
+        #but : convertir les coordonnées du point dans le repère de la pyramide vers le repère de l'image d'origine
+        #entrée : x,y,s coordonnées du point dans le repère de la pyramide
+        #sortie : x,y coordonnées du point dans le repère de l'image d'origine
+        
+
+        originalX=x*self.scaleFactor[s][0]+self.border[s+1]
+        originalY=y*self.scaleFactor[s][1]+self.border[s+1]
+        return (originalX,originalY)
+
+    
+    def get_pyramid_coordonate(self,x,y,s):
+        #but : convertir les coordonnées du point dans le repère de l'image d'origine vers le repère de la pyramide
+        #entrée : x,y,s coordonnées du point dans le repère de l'image d'origine
+        #sortie : x,y coordonnées du point dans le repère de la pyramide
+        
+
+        pyramidX=(x-self.border[s+1])/self.scaleFactor[s][0]
+        pyramidY=(y-self.border[s+1])/self.scaleFactor[s][1]
+        return (pyramidX,pyramidY)
     
     def interrestPoint(self):
         #detection des points d'interret
@@ -256,26 +440,39 @@ class HessianPyramid(object):
                         self.minValue=self.pyramid[s][y][x]
                     self.complxity+=1
         """
-        self.extremum=[]
         self.minimas=[]
         self.maximas=[]
+        self.minValMinima=None
+        self.maxValMinima=None
+        self.minValMaxima=None
+        self.maxValMaxima=None
         self.avrMinimasVal=0
         self.avrMaximasVal=0
+        self.minval=0
+        self.maxval=0
         
         for stage_index in range(len(self.grid)):
             maxima_candidate=[]
             minima_candidate=[]
             for gridX in self.grid[stage_index][0]:
                 for gridY in self.grid[stage_index][1]:
-                    #calcul du premier pixel de la grille
-                    self.pyramid[stage_index][gridY[0]][gridX[0]]=self.II.avrBlur(gridX[0],gridY[0],self.tau[stage_index])-(self.II.avrBlur(gridX[0],gridY[0],self.tau[stage_index+1]))
-                    #qu'on va comparer avec les autres pixels de la grille
-                    maxima_grid_candidate=(gridX[0],gridY[0],stage_index,self.pyramid[stage_index][gridY[0]][gridX[0]])
-                    minima_grid_candidate=(gridX[0],gridY[0],stage_index,self.pyramid[stage_index][gridY[0]][gridX[0]])
-                    
-                    for x in range(gridX[0]+1,gridX[1]):
-                        for y in range(gridY[0]+1,gridY[1]):
-                            self.pyramid[stage_index][y][x]=self.II.avrBlur(x,y,self.tau[stage_index])-(self.II.avrBlur(x,y,self.tau[stage_index+1]))
+                    for x in range(gridX[0],gridX[1]+1):
+                        for y in range(gridY[0],gridY[1]+1):
+                            #calcul du pixel correspondant sur l'image originale
+                            xx,yy=self.get_original_coordonate(x,y,stage_index)
+                            xx=round(xx)
+                            yy=round(yy)
+                            
+                            self.pyramid[stage_index][y][x]=self.II.avrBlur(xx,yy,self.tau[stage_index])-(self.II.avrBlur(xx,yy,self.tau[stage_index+1]))
+                            if self.pyramid[stage_index][y][x]>self.maxval:
+                                self.maxval=self.pyramid[stage_index][y][x]
+                            if self.pyramid[stage_index][y][x]<self.minval:
+                                self.minval=self.pyramid[stage_index][y][x]
+                            if x==gridX[0] and y==gridY[0]:
+                                #calcul du premier pixel de la grille
+                                #qu'on va comparer avec les autres pixels de la grille
+                                maxima_grid_candidate=(x,y,stage_index,self.pyramid[stage_index][y][x])
+                                minima_grid_candidate=(x,y,stage_index,self.pyramid[stage_index][y][x])
                             if self.pyramid[stage_index][y][x]>maxima_grid_candidate[3]:
                                 maxima_grid_candidate=(x,y,stage_index,self.pyramid[stage_index][y][x])
                             if self.pyramid[stage_index][y][x]<minima_grid_candidate[3]:
@@ -285,6 +482,8 @@ class HessianPyramid(object):
                     
                     maxima_candidate.append(maxima_grid_candidate)
                     minima_candidate.append(minima_grid_candidate)
+                   
+                    
 
             for maxima in maxima_candidate:
                 #test s'il est plus grand que ses voisins
@@ -299,9 +498,42 @@ class HessianPyramid(object):
                             break
                     if not(isRealMaxima):
                         break
+                #on test aussi ses 2 voisins au dessus et en dessous s'ils existent
+                originalX,originalY=self.get_original_coordonate(maxima[0],maxima[1],stage_index)
+                originalX=round(originalX)
+                originalY=round(originalY)
+                
+                if stage_index>0:
+                    #coordonnées du pixel au dessus
+                    xm,ym=self.get_pyramid_coordonate(originalX,originalY,stage_index-1)
+                    xm=round(xm)
+                    ym=round(ym)
+                    #on test si le pixel existe à cette échelle
+                    if xm>=0 and xm<self.stageShape[stage_index-1][0] and ym>=0 and ym<self.stageShape[stage_index-1][1]:
+                        if self.pyramid[stage_index-1][ym][xm]>maxima[3]:
+                            isRealMaxima=False
+                if stage_index<len(self.pyramid)-1:
+                    #coordonnées du pixel en dessous
+                    xm,ym=self.get_pyramid_coordonate(originalX,originalY,stage_index+1)
+                    xm=round(xm)
+                    ym=round(ym)
+                    #on test si le pixel existe à cette échelle
+                    if xm>=0 and xm<self.stageShape[stage_index+1][0] and ym>=0 and ym<self.stageShape[stage_index+1][1]:
+                        if self.pyramid[stage_index+1][ym][xm]>maxima[3]:
+                            isRealMaxima=False
+                    
                 if isRealMaxima:
                     self.avrMaximasVal+=maxima[3]
                     self.maximas.append(maxima)
+                   
+                    if self.minValMaxima==None:
+                        self.minValMaxima=maxima[3]
+                    elif maxima[3]<self.minValMaxima:
+                        self.minValMaxima=maxima[3]
+                    if self.maxValMaxima==None:
+                        self.maxValMaxima=maxima[3]
+                    elif maxima[3]>self.maxValMaxima:
+                        self.maxValMaxima=maxima[3]
                     
              
                                      
@@ -318,45 +550,130 @@ class HessianPyramid(object):
                             break
                     if not(isRealMinima):
                         break
+                
+                #on test aussi ses 2 voisins au dessus et en dessous s'ils existent
+                originalX,originalY=self.get_original_coordonate(maxima[0],maxima[1],stage_index)
+                originalX=round(originalX)
+                originalY=round(originalY)
+                if stage_index>0:
+                    #coordonnées du pixel au dessus
+                    xm,ym=self.get_pyramid_coordonate(originalX,originalY,stage_index-1)
+                    xm=round(xm)
+                    ym=round(ym)
+                    #on test si le pixel existe à cette échelle
+                    if xm>=0 and xm<self.stageShape[stage_index-1][0] and ym>=0 and ym<self.stageShape[stage_index-1][1]:
+                        if self.pyramid[stage_index-1][ym][xm]>maxima[3]:
+                            isRealMaxima=False
+                if stage_index<len(self.pyramid)-1:
+                    #coordonnées du pixel en dessous
+                    xm,ym=self.get_pyramid_coordonate(originalX,originalY,stage_index+1)
+                    xm=round(xm)
+                    ym=round(ym)
+                    #on test si le pixel existe à cette échelle
+                    if xm>=0 and xm<self.stageShape[stage_index+1][0] and ym>=0 and ym<self.stageShape[stage_index+1][1]:
+                        if self.pyramid[stage_index+1][ym][xm]>maxima[3]:
+                            isRealMaxima=False
+                        
                 if isRealMinima:
                     self.avrMinimasVal+=minima[3]
-                    self.minimas.append(minima)  
+                    self.minimas.append(minima)
+                    if self.minValMinima==None:
+                        self.minValMinima=minima[3]
+                    elif minima[3]<self.minValMinima:
+                        self.minValMinima=minima[3]
+                    if self.maxValMinima==None:
+                        self.maxValMinima=minima[3]
+                    elif minima[3]>self.maxValMinima:
+                        self.maxValMinima=minima[3]
+                        
         self.avrMaximasVal/=len(self.maximas)          
         self.avrMinimasVal/=len(self.minimas) 
              
-        print("extrema found in "+str(round(time.time()-start,4))+"s")
-        print("len(self.minimas)="+str(len(self.minimas)))
-        print("len(self.maximas)="+str(len(self.maximas)))                                 
+        #print("extrema found in "+str(round(time.time()-start,4))+"s")
+        #print("len(self.minimas)="+str(len(self.minimas)))
+        #print("len(self.maximas)="+str(len(self.maximas)))                                 
 
                             
-    def select_interespoints(self, val_threshold=None, edge_threshold=-1, space_stability_threshold=-1, scale_stability_threshold=-1, homogeneity_threshold=-1):
+    def select_interespoints(self, val_threshold=None, stability_threshold=None, edge_threshold=None):
         
-        print("selecting interespoints...")
+        #print("selecting interespoints...")
+        start=time.time()
         
         
-        new_minimas=[]
-        new_maximas=[]
         #premiere etape : seuiller les extrema
         if val_threshold!=None:
-            #on ne garde que les extrema dont la valeur est assez eloignee de sa moyenne
+            new_minimas=[]
+            new_maximas=[]
+            #on ne garde que les extrema dont la valeur est comprise dans la bonne tranche
+            minima_threshold=(self.minValMinima-self.maxValMinima)*val_threshold+self.maxValMinima
             for minima in self.minimas:
-                if minima[3]<self.avrMinimasVal-val_threshold:
+                if minima[3]<=minima_threshold:
                     new_minimas.append(minima)
+                    
+            maximas_threshold=(self.maxValMaxima-self.minValMaxima)*val_threshold+self.minValMaxima
             for maxima in self.maximas:
-                if maxima[3]>self.avrMaximasVal+val_threshold:
+                if maxima[3]>=maximas_threshold:
                     new_maximas.append(maxima)
-        else:
-            new_minimas=self.minimas
-            new_maximas=self.maximas
-            
-        #deuxieme etape : interpoler les extrema pour avoir une position plus precise et des informations sur leur stabilité
-        for maxima in new_maximas:
-            if self.stageShape[maxima[2]][0]<3 or self.stageShape[maxima[2]][1]<3:
+            self.maximas=new_maximas
+            self.minimas=new_minimas
+        
+        if stability_threshold!=None and edge_threshold!=None:
+            new_minimas=[]
+            new_maximas=[] 
+            #deuxieme etape : interpoler les extrema pour avoir une position plus precise et des informations sur leur stabilité
+            for maxima in self.maximas:
+                if self.stageShape[maxima[2]][0]<3 or self.stageShape[maxima[2]][1]<3:
+                    continue
+                else:
+                    interp=self.space_interpolation(maxima[0],maxima[1],maxima[2])
+
+                    if type(interp)==str:
+                        continue
+                    
+                    stability=min(abs(interp[1][2]),abs(interp[1][3]))
+                    edge=min(abs(interp[1][2])/abs(interp[1][3]),abs(interp[1][3])/abs(interp[1][2]))
+                    if stability>stability_threshold and edge>edge_threshold:
+                        new_maximas.append(interp[0])
+                        
+            self.maximas=new_maximas
+            for minima in self.minimas:
+                if self.stageShape[minima[2]][0]<3 or self.stageShape[minima[2]][1]<3:
+                    continue
+                else:
+                    interp=self.space_interpolation(minima[0],minima[1],minima[2])
+                    if type(interp)==str:
+                        continue
+                    stability=min(abs(interp[1][2]),abs(interp[1][3]))
+                    edge=min(abs(interp[1][2])/abs(interp[1][3]),abs(interp[1][3])/abs(interp[1][2]))
+                    if stability>stability_threshold and edge>edge_threshold:
+                        new_minimas.append(interp[0])
+        
+            self.minimas=new_minimas
+        
+        self.interespoints=[]
+        for maxima in self.maximas:
+            ip=self.size_interpolation(maxima)
+            if type(ip)==str:
+                #print(maxima,ip)
                 continue
-            else:
-                interp=self.interpolation(maxima[0],maxima[1],maxima[2])
-                
-        print("len(new_minimas)="+str(len(new_minimas)))
-        print("len(new_maximas)="+str(len(new_maximas)))
-        print("maxima : ",new_maximas)
-        print("minima : ",new_minimas)
+            self.interespoints.append(ip[0])
+            #print(maxima,self.blobSize[maxima[2]],"->",ip)
+        for minima in self.minimas:
+            ip=self.size_interpolation(minima)
+            if type(ip)==str:
+                #print(minima,ip)
+                continue
+            self.interespoints.append(ip[0])
+            #print(minima,self.blobSize[minima[2]],"->",ip)
+            
+                          
+        #print("interespoints selected in "+str(round(time.time()-start,4))+"s")      
+        #print("len(new_minimas)="+str(len(new_minimas)))
+        #print("len(new_maximas)="+str(len(new_maximas)))
+        
+    def draw_interespoints(self, image, color=(255,0,0)):
+        for ip in self.interespoints:
+            try:
+                cv2.circle(image,(int(ip[0]),int(ip[1])),int(ip[2]/2),color,1)
+            except:
+                continue
