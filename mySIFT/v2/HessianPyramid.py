@@ -9,6 +9,7 @@ class HessianPyramid(object):
         '''
         original list[list]: 2d array containing original table data
         '''
+        strart = time.time()
         self.II = ii.IntegralImage(original)
         #on ne pourra decrire un blob que s'il est suffisament grand (10*10 pixels)
         #ration entre la deux intensités de flou
@@ -25,7 +26,7 @@ class HessianPyramid(object):
         
         self.stageShapeAccurate=stageShapeAccurate
         #stageShapeAccurate on calcul seulement n pixels sur la taille d'un blob dans son étage précis
-        self.stageShape=[(round((self.II.width-self.border[i+1]*2)/self.tau[i]*stageShapeAccurate),round((self.II.height-self.border[i+1]*2)/self.tau[i]*stageShapeAccurate)) for i in range(S-1)]        
+        self.stageShape=[[round((self.II.width-self.border[i+1]*2)/self.tau[i]*stageShapeAccurate),round((self.II.height-self.border[i+1]*2)/self.tau[i]*stageShapeAccurate)] for i in range(S-1)]        
         #on supprime les niveaux qui ne sont pas assez grands pour contenir des pixels
         for shape in self.stageShape:
             if shape[0]<1 or shape[1]<1:
@@ -48,25 +49,51 @@ class HessianPyramid(object):
             
         #pour chaque niveau, on va séparer le calcul en plusieurs sections afin d'y extraire leur extrema, qui seront des candidats pour les points d'interret   
         #les grilles on une taille de stageShapeAccurate pixels
-        grid=[] #[[[[x1,x2],[x3,x4],...],[[y1,y2],[y3,y4],...]],...]
+        self.grid=[] #[[[[x1,x2],[x3,x4],...],[[y1,y2],[y3,y4],...]],...]
         for shape in self.stageShape:
             stageGridX=[]
             stageGridY=[]
-            for i in range(shape[0]//stageShapeAccurate+1):
-                stageGridX.append([i*stageShapeAccurate,(i+1)*stageShapeAccurate-1])
+            for i in range(shape[0]//stageShapeAccurate):
+                a=i*stageShapeAccurate
+                b=(i+1)*(stageShapeAccurate)-1
+                stageGridX.append([a,b])
+                
+            if len(stageGridX)>0:
+                if stageGridX[-1][1]<shape[0]-1:
+                    stageGridX.append([stageGridX[-1][1]+1,shape[0]-1])
+                elif stageGridX[-1][1]>shape[0]-1 and stageGridX[-1][0]<shape[0]-1:
+                    stageGridX[-1][1]=shape[0]-1
+                elif stageGridX[-1][0]>shape[0]-1 and stageGridX[-1][1]>shape[0]-1:
+                    stageGridX.pop()
+            else:
+                stageGridX.append([0,shape[0]-1])
             
-            stageGridX[-1][-1]=shape[0]
             
-            for i in range(shape[1]//stageShapeAccurate+1):
-                stageGridY.append([i*stageShapeAccurate,(i+1)*stageShapeAccurate-1])
+            for i in range(shape[1]//stageShapeAccurate):
+                a=i*stageShapeAccurate
+                b=(i+1)*(stageShapeAccurate)-1
+                stageGridY.append([a,b])
             
-            stageGridY[-1][-1]=shape[1]
+            
+            if len(stageGridY)>0:
+                if stageGridY[-1][1]<shape[1]-1:
+                    stageGridY.append([stageGridY[-1][1]+1,shape[1]-1])
+                elif stageGridY[-1][1]>shape[1]-1 and stageGridY[-1][0]<shape[1]-1:
+                    stageGridY[-1][1]=shape[1]-1
+                elif stageGridY[-1][0]>shape[1]-1 and stageGridY[-1][1]>shape[1]-1:
+                    stageGridY.pop()
+            else:
+                stageGridY.append([0,shape[1]-1])
+
+
+            
+            
             stageGrid=[stageGridX,stageGridY]
-            grid.append(stageGrid)
+            self.grid.append(stageGrid)
                 
                
                 
-        
+        print('HessianPyramid init time :',round(time.time()-strart,4),'s')
         print("calcul des flous de moyenne")
         print("taille de l'image : ",self.II.width,"x",self.II.height)
         print("nombre de niveaux de flou : ",S)
@@ -74,7 +101,7 @@ class HessianPyramid(object):
         print("taille des blobs : ",self.blobSize)
         print("taille des bords : ",self.border)
         print("taille des étages précis : ",self.stageShape)
-        print("taille des grilles : ",grid)
+        #print("taille des grilles : ",self.grid)
 
         
     
@@ -100,19 +127,19 @@ class HessianPyramid(object):
         xp=False
         ym=False
         yp=False
-        if x-1<self.border[s]:
+        if x-1<0:
             xm=True
-        if x+1>=self.II.width-self.border[s]:
+        if x+1>=self.stageShape[s][0]:
             xp=True
-        if y-1<self.border[s]:
+        if y-1<0:
             ym=True
-        if y+1>=self.II.height-self.border[s]:
+        if y+1>=self.stageShape[s][1]:
             yp=True
         
         if not(xm) and not(ym) and not(xp) and not(yp):
             XY=[[0,-1],[1,0],[1,1],[-1,1],[-1,0],[0,0]]
         elif xm and not(ym) and not(xp) and not(yp):
-            XY=[[0,-1],[1 -1],[1,0],[1,1],[0,1],[0,0]]
+            XY=[[0,-1],[1,-1],[1,0],[1,1],[0,1],[0,0]]
         elif not(xm) and xp and not(ym) and not(yp):
             XY=[[-1,-1],[0,-1],[0,0],[0,1],[-1,1],[-1,0]]
         elif not(xm) and not(xp) and ym and not(yp):
@@ -129,24 +156,28 @@ class HessianPyramid(object):
             XY=[[-2,0],[-1,0],[0,0],[-1,1],[0,1],[0,2]]
         else:
             return "space bordure error"
-        
+
         p=np.zeros((8,4))
         for i in range(len(XY)):
-            p[i]=[XY[i][0],XY[i][1],self.blobSize[s],self.scaleSpace[s][y+XY[i][1]][x+XY[i][0]]]
+            p[i]=[XY[i][0],XY[i][1],self.blobSize[s],self.pyramid[s][y+XY[i][1]][x+XY[i][0]]]
+            
+        print(x,y,s)
         
         bsm=(s-1<0)
-        bsp=(s+1>=len(self.scaleSpace))
+        bsp=(s+1>=len(self.pyramid))
         
 
         if not(bsm) and not(bsp):
-            p[6]=[0,0,self.blobSize[s-1],self.scaleSpace[s-1][y][x]]
-            p[7]=[0,0,self.blobSize[s+1],self.scaleSpace[s+1][y][x]]
+            #wich pixel is the best at the next and previous level
+            pixelSize=self.blobSize[s]/self.stageShapeAccurate #at this stage, the size of one pixel is equivalent to that in the initial image
+            p[6]=[0,0,self.blobSize[s-1],self.pyramid[s-1][y][x]]
+            p[7]=[0,0,self.blobSize[s+1],self.pyramid[s+1][y][x]]
         elif bsm and not(bsp):
-            p[6]=[0,0,self.blobSize[s+1],self.scaleSpace[s+1][y][x]]
-            p[7]=[0,0,self.blobSize[s+2],self.scaleSpace[s+2][y][x]]
+            p[6]=[0,0,self.blobSize[s+1],self.pyramid[s+1][y][x]]
+            p[7]=[0,0,self.blobSize[s+2],self.pyramid[s+2][y][x]]
         elif not(bsm) and bsp:
-            p[6]=[0,0,self.blobSize[s-2],self.scaleSpace[s-2][y][x]]
-            p[7]=[0,0,self.blobSize[s-1],self.scaleSpace[s-1][y][x]]
+            p[6]=[0,0,self.blobSize[s-2],self.pyramid[s-2][y][x]]
+            p[7]=[0,0,self.blobSize[s-1],self.pyramid[s-1][y][x]]
         else:
             return "scale bordure error"
             
@@ -200,7 +231,7 @@ class HessianPyramid(object):
 
 
     
-    def interrestPoint(self, det_threshold=-1, edge_threshold=-1, space_stability_threshold=-1, scale_stability_threshold=0, homogeneity_threshold=0):
+    def interrestPoint(self):
         #detection des points d'interret
         #approximation du Dog par la difference de flou de moyenne (permet l'utilisation de filtre boite avec l'image integrale)
         #selection des points d'interret : 
@@ -210,6 +241,7 @@ class HessianPyramid(object):
         self.complxity=0
         self.maxValue=0
         self.minValue=255
+        """
         for s in range(len(self.pyramid)):
             for y in range(len(self.pyramid[s])):
                 for x in range(len(self.pyramid[s][0])):
@@ -223,3 +255,108 @@ class HessianPyramid(object):
                     if self.pyramid[s][y][x]<self.minValue:
                         self.minValue=self.pyramid[s][y][x]
                     self.complxity+=1
+        """
+        self.extremum=[]
+        self.minimas=[]
+        self.maximas=[]
+        self.avrMinimasVal=0
+        self.avrMaximasVal=0
+        
+        for stage_index in range(len(self.grid)):
+            maxima_candidate=[]
+            minima_candidate=[]
+            for gridX in self.grid[stage_index][0]:
+                for gridY in self.grid[stage_index][1]:
+                    #calcul du premier pixel de la grille
+                    self.pyramid[stage_index][gridY[0]][gridX[0]]=self.II.avrBlur(gridX[0],gridY[0],self.tau[stage_index])-(self.II.avrBlur(gridX[0],gridY[0],self.tau[stage_index+1]))
+                    #qu'on va comparer avec les autres pixels de la grille
+                    maxima_grid_candidate=(gridX[0],gridY[0],stage_index,self.pyramid[stage_index][gridY[0]][gridX[0]])
+                    minima_grid_candidate=(gridX[0],gridY[0],stage_index,self.pyramid[stage_index][gridY[0]][gridX[0]])
+                    
+                    for x in range(gridX[0]+1,gridX[1]):
+                        for y in range(gridY[0]+1,gridY[1]):
+                            self.pyramid[stage_index][y][x]=self.II.avrBlur(x,y,self.tau[stage_index])-(self.II.avrBlur(x,y,self.tau[stage_index+1]))
+                            if self.pyramid[stage_index][y][x]>maxima_grid_candidate[3]:
+                                maxima_grid_candidate=(x,y,stage_index,self.pyramid[stage_index][y][x])
+                            if self.pyramid[stage_index][y][x]<minima_grid_candidate[3]:
+                                minima_grid_candidate=(x,y,stage_index,self.pyramid[stage_index][y][x])
+                           
+        
+                    
+                    maxima_candidate.append(maxima_grid_candidate)
+                    minima_candidate.append(minima_grid_candidate)
+
+            for maxima in maxima_candidate:
+                #test s'il est plus grand que ses voisins
+                isRealMaxima=True
+                for x in range(maxima[0]-1,maxima[0]+2):
+                    for y in range(maxima[1]-1,maxima[1]+2):
+                        #ne pas sortir de l'image
+                        if x<0 or x>=self.stageShape[stage_index][0] or y<0 or y>=self.stageShape[stage_index][1]:
+                            continue
+                        if self.pyramid[stage_index][y][x]>maxima[3]:
+                            isRealMaxima=False
+                            break
+                    if not(isRealMaxima):
+                        break
+                if isRealMaxima:
+                    self.avrMaximasVal+=maxima[3]
+                    self.maximas.append(maxima)
+                    
+             
+                                     
+            for minima in minima_candidate:
+                #test s'il est plus petit que ses voisins
+                isRealMinima=True
+                for x in range(minima[0]-1,minima[0]+2):
+                    for y in range(minima[1]-1,minima[1]+2):
+                        #ne pas sortir de l'image
+                        if x<0 or x>=self.stageShape[stage_index][0] or y<0 or y>=self.stageShape[stage_index][1]:
+                            continue
+                        if self.pyramid[stage_index][y][x]<minima[3]:
+                            isRealMinima=False
+                            break
+                    if not(isRealMinima):
+                        break
+                if isRealMinima:
+                    self.avrMinimasVal+=minima[3]
+                    self.minimas.append(minima)  
+        self.avrMaximasVal/=len(self.maximas)          
+        self.avrMinimasVal/=len(self.minimas) 
+             
+        print("extrema found in "+str(round(time.time()-start,4))+"s")
+        print("len(self.minimas)="+str(len(self.minimas)))
+        print("len(self.maximas)="+str(len(self.maximas)))                                 
+
+                            
+    def select_interespoints(self, val_threshold=None, edge_threshold=-1, space_stability_threshold=-1, scale_stability_threshold=-1, homogeneity_threshold=-1):
+        
+        print("selecting interespoints...")
+        
+        
+        new_minimas=[]
+        new_maximas=[]
+        #premiere etape : seuiller les extrema
+        if val_threshold!=None:
+            #on ne garde que les extrema dont la valeur est assez eloignee de sa moyenne
+            for minima in self.minimas:
+                if minima[3]<self.avrMinimasVal-val_threshold:
+                    new_minimas.append(minima)
+            for maxima in self.maximas:
+                if maxima[3]>self.avrMaximasVal+val_threshold:
+                    new_maximas.append(maxima)
+        else:
+            new_minimas=self.minimas
+            new_maximas=self.maximas
+            
+        #deuxieme etape : interpoler les extrema pour avoir une position plus precise et des informations sur leur stabilité
+        for maxima in new_maximas:
+            if self.stageShape[maxima[2]][0]<3 or self.stageShape[maxima[2]][1]<3:
+                continue
+            else:
+                interp=self.interpolation(maxima[0],maxima[1],maxima[2])
+                
+        print("len(new_minimas)="+str(len(new_minimas)))
+        print("len(new_maximas)="+str(len(new_maximas)))
+        print("maxima : ",new_maximas)
+        print("minima : ",new_minimas)

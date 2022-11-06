@@ -8,30 +8,9 @@ from math import *
 from turtle import shape
 import cv2
 import HessianPyramid as hp
+import time
 
 from numpy import Inf,shape,size
-
-
-filename="C:\\Users\\robin\\Desktop\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
-#filename="D:\documents\github\SEAD\SEAD\mySIFT\IMG_20200725_162220.jpg"
-
-#img  = Image.open(path)     
-# On successful execution of this statement,
-# an object of Image type is returned and stored in img variable)
-
-
-try: 
-    img  = Image.open(filename) 
-    #convert the image to grayscale
-    img = img.convert('L')
-    #resize the image
-    img = img.resize((200,200))
-    img = np.array(img)
-    print("Image opened successfully")
-except IOError:
-    print("Error in opening the image file")
-    exit()
-    
 
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -49,7 +28,7 @@ def get_frame():
     
     
     #resize the image keeping the aspect ratio
-    width=200
+    width=240
     height=int(width*len(frame[0])//len(frame))
     frame = cv2.resize(frame,(height,width))
     #convert the image to a list 
@@ -57,12 +36,37 @@ def get_frame():
     
     return frame
 
-import time
+
+#filename="C:\\Users\\robin\\Desktop\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
+filename="D:\documents\github\SEAD\SEAD\mySIFT\\v2\IMG_20200725_162220.jpg"
+
+#img  = Image.open(path)     
+# On successful execution of this statement,
+# an object of Image type is returned and stored in img variable)
+
+
+try: 
+    img  = Image.open(filename) 
+    #convert the image to grayscale
+    img = img.convert('L')
+    #resize the image
+    img = img.resize((240,240))
+    img = np.array(img)
+    print("Image opened successfully")
+except IOError:
+    print("Error in opening the image file")
+    exit()
+    
+
+
+
 
 start_time = time.time()
 
 #img=get_frame()
 H=hp.HessianPyramid(img,9,1.4)
+H.interrestPoint()
+H.select_interespoints(0)
 """
 while True:
     img=get_frame()
