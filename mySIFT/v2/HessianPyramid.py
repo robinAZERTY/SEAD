@@ -114,7 +114,28 @@ class HessianPyramid(object):
         '''
         self.II.update(original)
 
-    def interpolation(self,x,y,s):
+    def isInPyramid(self,x,y,s):
+        #on verifie que le point est dans la pyramide
+        return (x>=0 and x<=self.stageShape[s][0]-1 and y>=0 and y<=self.stageShape[s][1]-1)
+    
+    def pyramid_Bilineaire_Interpolation(self,x,y,s):
+        #donne la valeur de la pyramide à l'interieur d'un pixel ou même entre quatre pixels par interpolation bilineaire
+        #on assume que (x,y et s) est dans la pyramide
+        a=x%1
+        b=y%1
+        c=1-a
+        d=1-b
+        x1=int(x)
+        x2=x1+1
+        y1=int(y)
+        y2=y1+1
+        #on verifie que les points sont dans la pyramide
+        if self.isInPyramid(x1,y1,s) and self.isInPyramid(x2,y1,s) and self.isInPyramid(x1,y2,s) and self.isInPyramid(x2,y2,s):
+            return c*d*self.pyramid[s][y1][x1]+a*d*self.pyramid[s][y1][x2]+c*b*self.pyramid[s][y2][x1]+a*b*self.pyramid[s][y2][x2]
+        else:
+            return 0
+
+    def space_scale_interpolation(self,x,y,s):
         #interpolation de la matrice hessienne pour trouver le maximum local 
         #étape 1 : choisir les 8 points autour du maximum local sans dépasser les bords de l'image
         #étape 2 : calculer la matrice A composé des x*x, y*y s*s x*y x y s 1 et Y composé des valeurs des points
@@ -161,7 +182,7 @@ class HessianPyramid(object):
         for i in range(len(XY)):
             p[i]=[XY[i][0],XY[i][1],self.blobSize[s],self.pyramid[s][y+XY[i][1]][x+XY[i][0]]]
             
-        print(x,y,s)
+        #print(x,y,s)
         
         bsm=(s-1<0)
         bsp=(s+1>=len(self.pyramid))
@@ -283,9 +304,19 @@ class HessianPyramid(object):
             X=np.linalg.inv(A).dot(Y)
         except:
             return "error inversion"
+    
+        #make shure all the values are numbers
+        for i in range(6):
+            if not(np.isfinite(X[i])):
+                return "error inversion"
         
-        tmp1=np.sqrt(X[0]**2 - 2*X[0]*X[1] + X[1]**2 + X[3]**2)
+        tmp1=X[0]**2 - 2*X[0]*X[1] + X[1]**2 + X[3]**2
+        if (tmp1<0):
+            return "error inversion"
+        tmp1=np.sqrt(tmp1)
         tmp2=-X[2]**2 + 4*X[0]*X[1]
+        if (abs(tmp2)<1e-6 or not(np.isfinite(tmp2))):
+            return "error inversion"
         
         a=float((X[0]+X[1]+tmp1)/2)
         b=float((X[0]+X[1]-tmp1)/2)
@@ -299,7 +330,7 @@ class HessianPyramid(object):
             return "maxima trop loin"
         
         
-        if (abs(X[3])>1e-6):
+        if (abs(X[2])>1e-6):
             theta=float(np.arctan((X[1]-X[0]+tmp1)/X[2]))
         else:
             theta=0
@@ -308,12 +339,12 @@ class HessianPyramid(object):
         st=float(np.sin(theta))
         z0=self.pyramid[s][y][x]-a*(ct*x0 + st*y0)**2 - b*(st*x0 - ct*y0)**2
         
-        return [[x+x0,y+y0,s],[z0,theta,a,b]]
+        return [[x+x0,y+y0,s,z0],[theta,a,b]]
     
     def size_interpolation(self,extremum):
-        x,y,s=extremum
-        xx=round(x)
-        yy=round(y)
+        x,y,s,z=extremum
+        if not(self.isInPyramid(x,y,s)):
+                return "erreur coordonnées"
         #on trouve les coordonnées dans l'image originale
         originalX,originalY=self.get_original_coordonate(x,y,s)
         
@@ -337,58 +368,69 @@ class HessianPyramid(object):
         if s>0 and s<len(self.pyramid)-1:
             #coordonnées du pixel au dessus
             xm,ym=self.get_pyramid_coordonate(originalX,originalY,s-1)
-            xm=round(xm)
-            ym=round(ym)
-            p[0]=[self.blobSize[s-1],self.pyramid[s-1][ym][xm]]
-            p[1]=[self.blobSize[s],self.pyramid[s][yy][xx]]
+            if not(self.isInPyramid(xm,ym,s-1)):
+                return "erreur coordonnées"
+            p[0]=[self.blobSize[s-1],self.pyramid_Bilineaire_Interpolation(xm,ym,s-1)]
+            p[1]=[self.blobSize[s],z]
             xm,ym=self.get_pyramid_coordonate(originalX,originalY,s+1)
-            xm=round(xm)
-            ym=round(ym)
-            if xm<0 or xm>=self.stageShape[s+1][0] or ym<0 or ym>=self.stageShape[s+1][1]:
+
+            if not(self.isInPyramid(xm,ym,s+1)):
                 return "erreur coordonnées"
-            p[2]=[self.blobSize[s+1],self.pyramid[s+1][ym][xm]]
+            p[2]=[self.blobSize[s+1],self.pyramid_Bilineaire_Interpolation(xm,ym,s+1)]
         elif s==0 and s+2<len(self.pyramid):
-            p[0]=[self.blobSize[0],self.pyramid[0][yy][xx]]
+            p[0]=[self.blobSize[0],z]
             xm,ym=self.get_pyramid_coordonate(originalX,originalY,1)          
-            xm=round(xm)
-            ym=round(ym)
             #toujours dans l'image ?
-            if xm<0 or xm>=self.stageShape[1][0] or ym<0 or ym>=self.stageShape[1][1]:
+            if not(self.isInPyramid(xm,ym,1)):
                 return "erreur coordonnées"
-            p[1]=[self.blobSize[1],self.pyramid[1][ym][xm]]
+            p[1]=[self.blobSize[1],self.pyramid_Bilineaire_Interpolation(xm,ym,1)]
             xm,ym=self.get_pyramid_coordonate(originalX,originalY,2)
-            xm=round(xm)
-            ym=round(ym)
-            if xm<0 or xm>=self.stageShape[2][0] or ym<0 or ym>=self.stageShape[2][1]:
+            if not(self.isInPyramid(xm,ym,2)):
                 return "erreur coordonnées"
-            p[2]=[self.blobSize[2],self.pyramid[2][ym][xm]]
-        elif s==len(self.pyramif)-1 and s-2>=0:
-            p[2]=[self.blobSize[s],self.pyramid[s][yy][xx]]
+            p[2]=[self.blobSize[2],self.pyramid_Bilineaire_Interpolation(xm,ym,2)]
+        elif s==len(self.pyramid)-1 and s-2>=0:
+            p[2]=[self.blobSize[s],z]
             xm,ym=self.get_pyramid_coordonate(originalX,originalY,s-1)
-            xm=round(xm)
-            ym=round(ym)
-            p[1]=[self.blobSize[s-1],self.pyramid[s-1][ym][xm]]
+            if not(self.isInPyramid(xm,ym,s-1)):
+                return "erreur coordonnées"
+            p[1]=[self.blobSize[s-1],self.pyramid_Bilineaire_Interpolation(xm,ym,s-1)]
             xm,ym=self.get_pyramid_coordonate(originalX,originalY,s-2)
-            xm=round(xm)
-            ym=round(ym)
-            p[0]=[self.blobSize[s-2],self.pyramid[s-2][ym][xm]]
+            if not(self.isInPyramid(xm,ym,s-2)):
+                return "erreur coordonnées"
+            p[0]=[self.blobSize[s-2],self.pyramid_Bilineaire_Interpolation(xm,ym,s-2)]
         else:
             return "error size interpolation"
         
         for i in range(3):
             A[i]=[p[i][0]**2,p[i][0],1]
             Y[i]=p[i][1]
+        #print(extremum)
+        #print(p)
+        #input("")
         
         try :
             X=np.linalg.inv(A).dot(Y)
         except:
             return "error inversion"
         
-        a=X[0]
-        x0=-X[1]/(2*a)
-        c=X[2]-x0**2*a
+        a=float(X[0])
+        x0=-float(X[1])/(2*a)
+        c=float(X[2])-a*x0**2
         
-        return [[originalX,originalY,float(x0)],[float(c),float(a)]]  
+        if s>0 and s<len(self.pyramid)-1:
+            if x0<self.blobSize[s-1] or x0>self.blobSize[s+1]:
+                return "maxima trop loin"
+        elif s==0 and s+2<len(self.pyramid):
+            if x0<self.blobSize[0] or x0>self.blobSize[2]:
+                return "maxima trop loin"
+        elif s==len(self.pyramid)-1 and s-2>=0:
+            if x0<self.blobSize[s-2] or x0>self.blobSize[s]:
+                return "maxima trop loin"
+
+            
+
+        
+        return [[originalX,originalY,x0,c],[float(a)]]  
 
         
         
@@ -500,26 +542,20 @@ class HessianPyramid(object):
                         break
                 #on test aussi ses 2 voisins au dessus et en dessous s'ils existent
                 originalX,originalY=self.get_original_coordonate(maxima[0],maxima[1],stage_index)
-                originalX=round(originalX)
-                originalY=round(originalY)
                 
                 if stage_index>0:
                     #coordonnées du pixel au dessus
                     xm,ym=self.get_pyramid_coordonate(originalX,originalY,stage_index-1)
-                    xm=round(xm)
-                    ym=round(ym)
                     #on test si le pixel existe à cette échelle
-                    if xm>=0 and xm<self.stageShape[stage_index-1][0] and ym>=0 and ym<self.stageShape[stage_index-1][1]:
-                        if self.pyramid[stage_index-1][ym][xm]>maxima[3]:
+                    if self.isInPyramid(xm,ym,stage_index-1):
+                        if self.pyramid_Bilineaire_Interpolation(xm,ym,stage_index-1)>maxima[3]:
                             isRealMaxima=False
                 if stage_index<len(self.pyramid)-1:
                     #coordonnées du pixel en dessous
                     xm,ym=self.get_pyramid_coordonate(originalX,originalY,stage_index+1)
-                    xm=round(xm)
-                    ym=round(ym)
                     #on test si le pixel existe à cette échelle
-                    if xm>=0 and xm<self.stageShape[stage_index+1][0] and ym>=0 and ym<self.stageShape[stage_index+1][1]:
-                        if self.pyramid[stage_index+1][ym][xm]>maxima[3]:
+                    if self.isInPyramid(xm,ym,stage_index+1):
+                        if self.pyramid_Bilineaire_Interpolation(xm,ym,stage_index+1)>maxima[3]:
                             isRealMaxima=False
                     
                 if isRealMaxima:
@@ -553,25 +589,19 @@ class HessianPyramid(object):
                 
                 #on test aussi ses 2 voisins au dessus et en dessous s'ils existent
                 originalX,originalY=self.get_original_coordonate(maxima[0],maxima[1],stage_index)
-                originalX=round(originalX)
-                originalY=round(originalY)
                 if stage_index>0:
                     #coordonnées du pixel au dessus
                     xm,ym=self.get_pyramid_coordonate(originalX,originalY,stage_index-1)
-                    xm=round(xm)
-                    ym=round(ym)
                     #on test si le pixel existe à cette échelle
-                    if xm>=0 and xm<self.stageShape[stage_index-1][0] and ym>=0 and ym<self.stageShape[stage_index-1][1]:
-                        if self.pyramid[stage_index-1][ym][xm]>maxima[3]:
+                    if self.isInPyramid(xm,ym,stage_index-1):
+                        if self.pyramid_Bilineaire_Interpolation(xm,ym,stage_index-1)>maxima[3]:
                             isRealMaxima=False
                 if stage_index<len(self.pyramid)-1:
                     #coordonnées du pixel en dessous
                     xm,ym=self.get_pyramid_coordonate(originalX,originalY,stage_index+1)
-                    xm=round(xm)
-                    ym=round(ym)
                     #on test si le pixel existe à cette échelle
-                    if xm>=0 and xm<self.stageShape[stage_index+1][0] and ym>=0 and ym<self.stageShape[stage_index+1][1]:
-                        if self.pyramid[stage_index+1][ym][xm]>maxima[3]:
+                    if self.isInPyramid(xm,ym,stage_index+1):
+                        if self.pyramid_Bilineaire_Interpolation(xm,ym,stage_index+1)>maxima[3]:
                             isRealMaxima=False
                         
                 if isRealMinima:
@@ -630,10 +660,16 @@ class HessianPyramid(object):
                     if type(interp)==str:
                         continue
                     
-                    stability=min(abs(interp[1][2]),abs(interp[1][3]))
-                    edge=min(abs(interp[1][2])/abs(interp[1][3]),abs(interp[1][3])/abs(interp[1][2]))
+                    coord=interp[0]
+                    info=interp[1]
+                    theta,a,b=(info[0],info[1],info[2])
+                    stability=min(abs(a),abs(b))
+                    if abs(a) > 1e-6 and abs(b) > 1e-6:
+                        edge=min(abs(a)/abs(b),abs(b)/abs(a))
+                    else:
+                        edge=0
                     if stability>stability_threshold and edge>edge_threshold:
-                        new_maximas.append(interp[0])
+                        new_maximas.append(coord)
                         
             self.maximas=new_maximas
             for minima in self.minimas:
@@ -643,10 +679,17 @@ class HessianPyramid(object):
                     interp=self.space_interpolation(minima[0],minima[1],minima[2])
                     if type(interp)==str:
                         continue
-                    stability=min(abs(interp[1][2]),abs(interp[1][3]))
-                    edge=min(abs(interp[1][2])/abs(interp[1][3]),abs(interp[1][3])/abs(interp[1][2]))
+                    coord=interp[0]
+                    info=interp[1]
+                    theta,a,b=(info[0],info[1],info[2])
+                    stability=min(abs(a),abs(b))
+                    if abs(a) > 1e-6 and abs(b) > 1e-6:
+                        edge=min(abs(a)/abs(b),abs(b)/abs(a))
+                    else:
+                        edge=0
                     if stability>stability_threshold and edge>edge_threshold:
-                        new_minimas.append(interp[0])
+                        new_minimas.append(coord)
+                        
         
             self.minimas=new_minimas
         
@@ -657,14 +700,14 @@ class HessianPyramid(object):
                 #print(maxima,ip)
                 continue
             self.interespoints.append(ip[0])
-            #print(maxima,self.blobSize[maxima[2]],"->",ip)
+            #print(maxima,self.blobSize[maxima[2]],"->",ip[0])
         for minima in self.minimas:
             ip=self.size_interpolation(minima)
             if type(ip)==str:
                 #print(minima,ip)
                 continue
             self.interespoints.append(ip[0])
-            #print(minima,self.blobSize[minima[2]],"->",ip)
+            #print(minima,self.blobSize[minima[2]],"->",ip[0])
             
                           
         #print("interespoints selected in "+str(round(time.time()-start,4))+"s")      
@@ -672,8 +715,17 @@ class HessianPyramid(object):
         #print("len(new_maximas)="+str(len(new_maximas)))
         
     def draw_interespoints(self, image, color=(255,0,0)):
+        #image can be a resized version of the original image
+        scaleFactorX=len(image[0])/self.II.width
+        scaleFactorY=len(image)/self.II.height
         for ip in self.interespoints:
             try:
-                cv2.circle(image,(int(ip[0]),int(ip[1])),int(ip[2]/2),color,1)
+                x=round(ip[0]*scaleFactorX)
+                y=round(ip[1]*scaleFactorY)
+                l=round(ip[2]/2*scaleFactorX)
+                L=round(ip[2]/2*scaleFactorY)
+                startPoint=(x-l,y-L)
+                endPoint=(x+l,y+L)
+                cv2.rectangle(image,startPoint,endPoint,color,1)
             except:
                 continue

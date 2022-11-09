@@ -1,6 +1,6 @@
 clearvars;
 clc;
-%diary ('myVariable.txt');
+diary ('myVariable.txt');
 syms x y z tau
 syms a b c x0 y0 z0 tau0 theta
 syms xO yO zO tauO xA yA zA tauA xB yB zB tauB xC yC zC tauC xD yD zD tauD xE yE zE tauE xF yF zF tauF xG yG zG tauG

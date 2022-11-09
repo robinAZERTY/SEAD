@@ -28,7 +28,7 @@ def get_frame():
     
     
     #resize the image keeping the aspect ratio
-    width=240
+    width=100
     height=int(width*len(frame[0])//len(frame))
     frame = cv2.resize(frame,(height,width))
     #convert the image to a list 
@@ -37,8 +37,8 @@ def get_frame():
     return frame
 
 
-filename="C:\\Users\\robin\\Desktop\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
-#filename="D:\documents\github\SEAD\SEAD\mySIFT\\v2\IMG_20200725_162220.jpg"
+#filename="C:\\Users\\robin\\Desktop\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
+filename="D:\documents\github\SEAD\SEAD\mySIFT\\v2\IMG_20200725_162220.jpg"
 
 #img  = Image.open(path)     
 # On successful execution of this statement,
@@ -66,12 +66,12 @@ except IOError:
 
 start_time = time.time()
 
-#img=get_frame()
-H=hp.HessianPyramid(img,tau0=9,ratio=1.4,stageShapeAccurate=3)
-H.interrestPoint()
-H.select_interespoints(0.1,1,0.1)
-newSize=720
-cv.imshow("img",cv2.resize(img,(round(newSize*ratioShape),newSize),interpolation=cv2.INTER_NEAREST))
+img=get_frame()
+H=hp.HessianPyramid(img,tau0=9,ratio=1.41,stageShapeAccurate=3)
+#H.interrestPoint()
+#H.select_interespoints(0.1,1,0.1)
+#newSize=720
+#cv.imshow("img",cv2.resize(img,(round(newSize*ratioShape),newSize),interpolation=cv2.INTER_NEAREST))
 """
 plt.figure(1)
 for i in range(len(H.pyramid)):
@@ -81,27 +81,35 @@ plt.show()
 """
 originalIMG=img
 while True:
-    #img=get_frame()
-    img=originalIMG.copy()
+    img=get_frame()
+
     H.update(img)
     H.interrestPoint()
-    H.select_interespoints(0.5,1,0.2)
-    H.draw_interespoints(img)
+    H.select_interespoints(0.8,0.5,0.1)
+   
     dt = time.time() - start_time
     start_time = time.time()
     frameRate = 1/dt
     
     img=cv2.putText(img, str(int(frameRate)), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
     newSize=720
-    cv.imshow("img",cv2.resize(img,(round(newSize*ratioShape),newSize),interpolation=cv2.INTER_NEAREST))
+    img=cv2.resize(img,(720,480),interpolation=cv2.INTER_NEAREST)
+    H.draw_interespoints(img)
+    cv.imshow("img",img)
     """
     plt.figure(1)
     plt.clf()
-    for i in range(len(H.pyramid)):
+    for i in range(min(len(H.pyramid),9)):
         plt.subplot(3,3,i+1)
-        plt.imshow(H.pyramid[i],cmap='gray',vmin=H.minValue,vmax=H.maxValue)
+        plt.imshow(H.pyramid[i],cmap='gray',vmin=H.minval,vmax=H.maxval)
     plt.pause(0.01)
     """
     if cv.waitKey(1) == ord('q'):
         break
-    
+    """
+    write a poem about the nature
+    title: the nature
+    the nature is a beautiful thing
+    it is a thing that is beautiful
+    it is a thing that is beautiful
+    """
