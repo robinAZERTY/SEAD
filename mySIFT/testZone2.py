@@ -13,7 +13,7 @@ from numpy import Inf,shape,size
 
 
 #filename="D:\\documents\\github\\SEAD\\SEAD\\mySIFT\\IMG_20220824_204247.jpg"
-filename="D:\documents\github\SEAD\SEAD\mySIFT\IMG_20200725_162220.jpg"
+filename="C:\Users\\robin\Documents\SEAD\mySIFT\IMG_20220824_204247.jpg"
 
 #img  = Image.open(path)     
 # On successful execution of this statement,

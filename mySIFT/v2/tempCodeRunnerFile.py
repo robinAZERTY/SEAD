@@ -1,1 +1,1 @@
-INTER_AREA
+pyplot

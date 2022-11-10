@@ -1,21 +1,23 @@
 import imageTest
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-import integralImage as ii
 import LaplacianPyramid as lp
+import matplotlib.pyplot as plt
+import numpy as np
 
+img=imageTest.imageTest((400,550))
+img.randomBlob(10,50,40)
 
-img=imageTest.imageTest((200,300))
-"""
-img.randomBlob(3,30,10)
-iiimg=ii.IntegralImage(img.table)
-
-plt.figure(1)
-plt.subplot(1,2,1)
-plt.imshow(img.table)
-plt.subplot(1,2,2)
-plt.imshow(iiimg.table)
-plt.show()
-"""
 LP = lp.LaplacianPyramid(img.table)
+
+LP.buid()
+LP.show()
+print("len(LP.maxima_candidates)=",len(LP.maxima_candidates))
+print("len(LP.minima_candidates)=",len(LP.minima_candidates))
+
+plt.figure()
+plt.subplot(1,2,1)
+plt.imshow(img.table,cmap='gray')
+plt.title("original image")
+plt.subplot(1,2,2)
+plt.imshow(LP.II.table,cmap='gray')
+plt.title("Integral image")
+plt.show()

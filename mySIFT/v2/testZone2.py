@@ -13,7 +13,6 @@ import time
 from numpy import Inf,shape,size
 
 import cv2 as cv
-import matplotlib.pyplot as plt
 
 cap = cv.VideoCapture(0)
 cap.set(3, 720)
@@ -38,7 +37,7 @@ def get_frame():
 
 
 #filename="C:\\Users\\robin\\Desktop\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
-filename="D:\documents\github\SEAD\SEAD\mySIFT\\v2\IMG_20200725_162220.jpg"
+filename="C:\\Users\\robin\\Documents\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
 
 #img  = Image.open(path)     
 # On successful execution of this statement,
