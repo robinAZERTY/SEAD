@@ -36,8 +36,8 @@ def get_frame():
     return frame
 
 
-#filename="C:\\Users\\robin\\Desktop\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
-filename="C:\\Users\\robin\\Documents\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
+filename="C:\\Users\\robin\\Desktop\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
+#filename="C:\\Users\\robin\\Documents\\SEAD\\mySIFT\\v2\\IMG_20200725_162220.jpg"
 
 #img  = Image.open(path)     
 # On successful execution of this statement,
@@ -65,7 +65,7 @@ except IOError:
 
 start_time = time.time()
 
-img=get_frame()
+#img=get_frame()
 H=hp.HessianPyramid(img,tau0=9,ratio=1.41,stageShapeAccurate=3)
 #H.interrestPoint()
 #H.select_interespoints(0.1,1,0.1)
@@ -80,7 +80,7 @@ plt.show()
 """
 originalIMG=img
 while True:
-    img=get_frame()
+    #img=get_frame()
 
     H.update(img)
     H.interrestPoint()
