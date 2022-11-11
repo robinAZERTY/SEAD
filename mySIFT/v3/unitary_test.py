@@ -5,7 +5,7 @@ import numpy as np
 import cv2 as cv
 import time
 
-video_or_image = 0
+video_or_image = 1
 
 cap = cv.VideoCapture(0)
 cap.set(3, 720)
@@ -51,9 +51,9 @@ if video_or_image == 0:
             break
 else:
     img = imageTest.imageTest((300,300))
-    img.randomBlob(10,30,25)
+    img.randomBlob(3,30,25)
     my_d=detector(img.table)
-    my_d.detect(0.5)
+    my_d.detect(0.25)
     draw=my_d.draw()
     
     plt.figure()

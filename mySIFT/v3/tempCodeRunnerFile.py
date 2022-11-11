@@ -1,2 +1,1 @@
-
-my_d=detector(img)
+25

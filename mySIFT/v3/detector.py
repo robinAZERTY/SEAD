@@ -94,7 +94,8 @@ class detector(object):
                 below_neighbour = [x,y,point[2]-1,self.LP.table[point[2]-1][y][x]>point[3]]
             else:
                 below_neighbour = None
-                
+         
+        
         return [below_neighbour,above_neighbour]
         #return [None,None]
     
@@ -164,18 +165,106 @@ class detector(object):
         
         return [preselection_minima,preselection_maxima]
     
+
+    def __second_order_interpolation(self,point):
+        #for test
+        #return self.__first_order_interpolation(point)
         
+        x,y,s,_,_ = point
+        
+        XY=[[0,-1],[1,0],[1,1],[-1,1],[-1,0],[0,0]]
+        
+        p=np.zeros((8,4))
+        for i in range(len(XY)):
+            p[i]=[XY[i][0],XY[i][1],self.LP.levelInfo[s][2],self.LP.table[s][y+XY[i][1]][x+XY[i][0]]]
+            
+        
+        
+
+
+        neighbour=self.__get_below_and_above_neighbour(point)
+        if neighbour[0] is None or neighbour[1] is None:
+            return self.__first_order_interpolation(point)
+        
+        #on projette les coordonnées des voisins en dessous et au dessus sur le niveau de la pyramide actuelle
+        p6x,p6y=self.LP.get_original_coordonate(neighbour[0][0],neighbour[0][1],neighbour[0][2])
+        p6x,p6y=self.LP.get_pyramid_coordonate(p6x,p6y,s)
+        p7x,p7y=self.LP.get_original_coordonate(neighbour[1][0],neighbour[1][1],neighbour[1][2])
+        p7x,p7y=self.LP.get_pyramid_coordonate(p7x,p7y,s)
+        
+        p[6]=[p6x-x,p6y-y,self.LP.levelInfo[s][neighbour[0][2]],neighbour[0][3]]
+        p[7]=[p7x-x,p7y-y,self.LP.levelInfo[s][neighbour[1][2]],neighbour[1][3]]
+        
+        A=np.zeros((8,8))
+        Y=np.zeros((8,1)) 
+        for i in range(8):
+            A[i]=[p[i][0]**2,p[i][1]**2,p[i][2]**2,p[i][0]*p[i][1],p[i][0],p[i][1],p[i][2],1]
+            Y[i]=p[i][3]
+            
+        try:
+            X=np.linalg.inv(A).dot(Y)
+        except:
+            return self.__first_order_interpolation(point)
+        #as a list
+
+        
+        tmp1=np.sqrt(X[0]**2 - 2*X[0]*X[1] + X[1]**2 + X[3]**2)
+        tmp2=-X[3]**2 + 4*X[0]*X[1]
+        
+        a=X[0]/2+X[1]/2+tmp1/2
+        b=X[0]/2+X[1]/2-tmp1/2
+        c=X[2]
+        x0=-(2*X[1]*X[4] - X[3]*X[5])/tmp2
+        y0=-(2*X[0]*X[5] - X[3]*X[4])/tmp2
+        
+        if (a>=0 or b>=0 or c>=0):
+            return self.__first_order_interpolation(point)
+        if(abs(x0)>1 or abs(y0)>1):
+            return self.__first_order_interpolation(point)
+        
+        tau0=-X[6]/(2*X[2])
+        
+        if (abs(X[3])>1e-6):
+            theta=np.arctan((X[1]-X[0]+tmp1)/X[3])
+        else:
+            theta=0
+        
+        ct=np.cos(theta)
+        st=np.sin(theta)
+        z0=p[0][3]-a*(ct*(p[0][0] - x0) + st*(p[0][1] - y0))**2 - b*(ct*(p[0][1] - y0) - st*(p[0][0] - x0))**2 - c*(p[0][3] - tau0)**2
+        
+
+        
+        homogeneity=max(abs(a/b),abs(b/a))
+        space_stability=min(abs(a),abs(b))#closer to 0, less stable
+        scale_stability=c#closer to 0, less stable
+
+        return [float(x+x0),float(y+y0),float(tau0),float(z0)]
+
+          
+        return interpolation
+        
+    def __first_order_interpolation(self,point):
+        x,y,s,val,neighbour_config = point
+        x,y = self.LP.get_original_coordonate(x,y,s)
+        interpolation = [x,y,self.LP.levelInfo[s][2],val]
+        return interpolation
+        
+        
+    def __interpolation(self,point):
+        x,y,s,val,neighbour_config = point
+        bsm=(s<1)
+        bsp=(s>self.LP.NLevel-2)
+        
+        if not(bsm) and not(bsp) and neighbour_config==0:
+            return self.__second_order_interpolation(point)
+        else:
+            return self.__first_order_interpolation(point)
+           
     def detect(self,preselection_treshold=None,stability_treshold=None):
        
        
         self.__extract_extrema()
-        
-        """ 
-        self.minimas=[]
-        self.maximas=[]
-        self.minimas=self.LP.minima_candidates
-        self.maximas=self.LP.maxima_candidates
-        """
         
         if preselection_treshold is None:
             preselection_minima = self.minimas
@@ -185,17 +274,20 @@ class detector(object):
         
         
         self.keypoints=preselection_minima+preselection_maxima
+        
+        for keypoint in self.keypoints:
+            keypoint[0:4]=self.__interpolation(keypoint)
     
     
     
     def draw(self):
-        copy = self.image.copy()
+        copy = np.array(self.image.copy())
 
         for keypoint in self.keypoints:
-            px,py,level = (keypoint[0],keypoint[1],keypoint[2])
-            originalX,originalY = self.LP.get_original_coordonate(px,py,level)
-            originalX,originalY = (round(originalX),round(originalY))
-            size = self.LP.levelInfo[level][2]
-            cv2.rectangle(copy,(round(originalX-size//2),round(originalY-size//2)),(round(originalX+size//2),round(originalY+size//2)),255,1)
 
-        return copy
+            X,Y,size,power = (keypoint[0],keypoint[1],keypoint[2],keypoint[3])
+            X,Y = (round(X),round(Y))
+
+            cv2.rectangle(copy,(round(X-size//2),round(Y-size//2)),(round(X+size//2),round(Y+size//2)),255,1)
+
+        return list(copy)
