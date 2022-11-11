@@ -52,7 +52,6 @@ class LaplacianPyramid(object):
         #initail blur
         if boxSize>maxBoxSize:
             return
-        self.Nlevel=1
         self.blurInfo.append([boxSize,boxSize//2])
         
         boxSize*=boxSizeRatio
@@ -93,7 +92,6 @@ class LaplacianPyramid(object):
             self.table.append([[0 for i in range(xdim)] for j in range(ydim)])
             boxSize*=boxSizeRatio
             
-
 
         """print("Number of levels: ",self.NLevel)
         print("Blur info (boxSize,boundary): ",self.blurInfo)
@@ -153,21 +151,28 @@ class LaplacianPyramid(object):
     def __compute_filter_and_find_extrema(self,s,x,y,potentialMinima,potentialMaxima):
         self.__compute_filter(s,x,y)
         if(self.table[s][y][x]>potentialMaxima[3]):
-            potentialMaxima=[x,y,s,self.table[s][y][x]]
+            potentialMaxima[0]=x
+            potentialMaxima[1]=y
+            potentialMaxima[2]=s
+            potentialMaxima[3]=self.table[s][y][x]
         elif(self.table[s][y][x]<potentialMinima[3]):
-            potentialMinima=[x,y,s,self.table[s][y][x]]
+            potentialMinima[0]=x
+            potentialMinima[1]=y
+            potentialMinima[2]=s
+            potentialMinima[3]=self.table[s][y][x]
     
     def __compute_filter_in_range(self,s,xmin,xmax,ymin,ymax):
 
         self.__compute_filter(s,xmin,ymin)
         potentialMinima=[xmin,ymin,s,self.table[s][ymin][xmin]]
-        potentialMaxima=potentialMinima
+        potentialMaxima=potentialMinima.copy()
         for x in range(xmin+1,xmax):
             for y in range(ymin,ymax):
                 self.__compute_filter_and_find_extrema(s,x,y,potentialMinima,potentialMaxima)
         
         for y in range(ymin+1,ymax):
             self.__compute_filter_and_find_extrema(s,xmin,y,potentialMinima,potentialMaxima)
+
         
         self.update_extrem_value(potentialMaxima[3],self.dynamic)
         self.update_extrem_value(potentialMinima[3],self.dynamic)
@@ -183,9 +188,10 @@ class LaplacianPyramid(object):
         self.maxima_candidates=[]
         self.minima_candidates=[]
         
-        self.__compute_filter(0,0,0)
-        self.maxima_dynamic=[self.table[0][0][0],self.table[0][0][0]]
-        self.minima_dynamic=[self.table[0][0][0],self.table[0][0][0]]
+        beginWithLvl=self.NLevel-1
+        self.__compute_filter(beginWithLvl,0,0)
+        self.maxima_dynamic=[self.table[beginWithLvl][0][0],self.table[beginWithLvl][0][0]]
+        self.minima_dynamic=[self.table[beginWithLvl][0][0],self.table[beginWithLvl][0][0]]
         
         for s in range(self.NLevel-1,-1,-1):
             X0=0

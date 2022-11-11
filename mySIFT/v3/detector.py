@@ -96,6 +96,7 @@ class detector(object):
                 below_neighbour = None
                 
         return [below_neighbour,above_neighbour]
+        #return [None,None]
     
     def __extract_maxima(self):
         self.maximas=[]
@@ -169,6 +170,13 @@ class detector(object):
        
         self.__extract_extrema()
         
+        """ 
+        self.minimas=[]
+        self.maximas=[]
+        self.minimas=self.LP.minima_candidates
+        self.maximas=self.LP.maxima_candidates
+        """
+        
         if preselection_treshold is None:
             preselection_minima = self.minimas
             preselection_maxima = self.maximas
@@ -182,10 +190,12 @@ class detector(object):
     
     def draw(self):
         copy = self.image.copy()
+
         for keypoint in self.keypoints:
-            px,py,level,value,neighbour_config = keypoint
+            px,py,level = (keypoint[0],keypoint[1],keypoint[2])
             originalX,originalY = self.LP.get_original_coordonate(px,py,level)
+            originalX,originalY = (round(originalX),round(originalY))
             size = self.LP.levelInfo[level][2]
             cv2.rectangle(copy,(round(originalX-size//2),round(originalY-size//2)),(round(originalX+size//2),round(originalY+size//2)),255,1)
-            #cv2.circle(copy,(round(originalX),round(originalY)),round(size),255,1)
-        return np.array(copy)
+
+        return copy
