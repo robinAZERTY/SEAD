@@ -249,7 +249,65 @@ class detector(object):
         return [X,Y,float(tau0),float(z0)]
 
           
-        return interpolation
+    def space_interpolation(self,point):
+        #for test
+        #return self.__first_order_interpolation(point)
+        
+        x,y,s,_,_ = point
+        
+        XY=[[0,-1],[1,0],[1,1],[-1,1],[-1,0],[0,0]]
+
+        p=np.zeros((6,3))
+        for i in range(len(XY)):
+            p[i]=[XY[i][0],XY[i][1],self.LP.table[s][y+XY[i][1]][x+XY[i][0]]]
+
+        A=np.zeros((6,6))
+        Y=np.zeros((6,1)) 
+        for i in range(6):
+            A[i]=[p[i][0]**2,p[i][1]**2,p[i][0]*p[i][1],p[i][0],p[i][1],1]
+            Y[i]=p[i][2]
+            
+        try:
+            X=np.linalg.inv(A).dot(Y)
+        except:
+            return self.__first_order_interpolation(point)
+    
+        #make shure all the values are numbers
+        for i in range(6):
+            if not(np.isfinite(X[i])):
+                return self.__first_order_interpolation(point)
+        
+        tmp1=X[0]**2 - 2*X[0]*X[1] + X[1]**2 + X[3]**2
+        if (tmp1<0):
+            return self.__first_order_interpolation(point)
+        tmp1=np.sqrt(tmp1)
+        tmp2=-X[2]**2 + 4*X[0]*X[1]
+        if (abs(tmp2)<1e-6 or not(np.isfinite(tmp2))):
+            return self.__first_order_interpolation(point)
+        
+        a=float((X[0]+X[1]+tmp1)/2)
+        b=float((X[0]+X[1]-tmp1)/2)
+        x0=float((X[2]*X[4]-2*X[1]*X[3])/tmp2)
+        y0=float((X[2]*X[3]-2*X[0]*X[4])/tmp2)
+        
+
+        if(abs(x0)>1 or abs(y0)>1):
+            #sommet trop loin
+            #return self.space_interpolation(round(x+x0),round(y+y0),s)
+            return self.__first_order_interpolation(point)
+        
+        
+        if (abs(X[2])>1e-6):
+            theta=float(np.arctan((X[1]-X[0]+tmp1)/X[2]))
+        else:
+            theta=0
+        
+        ct=float(np.cos(theta))
+        st=float(np.sin(theta))
+        z0=self.LP.table[s][y][x]-a*(ct*x0 + st*y0)**2 - b*(st*x0 - ct*y0)**2
+        
+        X,Y=self.LP.get_original_coordonate(x+x0,y+y0,s)
+        return [X,Y,self.LP.levelInfo[s][2],z0]
         
     def __first_order_interpolation(self,point):
         x,y,s,val,neighbour_config = point
@@ -264,7 +322,7 @@ class detector(object):
         bsp=(s>self.LP.NLevel-2)
         
         if not(bsm) and not(bsp) and neighbour_config==0:
-            return self.__second_order_interpolation(point)
+            return self.space_interpolation(point)
         else:
             return self.__first_order_interpolation(point)
            
