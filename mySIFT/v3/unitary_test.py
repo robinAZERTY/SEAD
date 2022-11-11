@@ -5,7 +5,7 @@ import numpy as np
 import cv2 as cv
 import time
 
-video_or_image = 1
+video_or_image = 0
 
 cap = cv.VideoCapture(0)
 cap.set(3, 720)
@@ -33,18 +33,20 @@ prev_fps = 20
 if video_or_image == 0:
     my_d=detector(get_frame())
     print("img dim : ",my_d.LP.II.width,my_d.LP.II.height)
-    print("level info: ",my_d.LP.levelInfo)
+
     
     while True:
         t0=time.time()
-        my_d.update(get_frame())
-        my_d.detect(0.25)
+        frame=get_frame()
+        my_d.update(frame)
+        my_d.detect(0.5)
         t1=time.time()
         dt=t1-t0
         fps=prev_fps*0.98+1/dt*0.02
         prev_fps=fps
-        draw=my_d.draw()
-        draw=cv.resize(draw,(720,480),interpolation=cv.INTER_NEAREST)
+        
+        frame=cv.resize(frame,(720,480),interpolation=cv.INTER_NEAREST)
+        draw=my_d.draw_on(frame)
         cv.putText(draw, "FPS: "+str(round(fps)), (50, 100), cv.FONT_HERSHEY_SIMPLEX, 3, 0, 5)
         cv.imshow('frame',draw)
         if cv.waitKey(1) == ord('q'):

@@ -37,7 +37,7 @@ class LaplacianPyramid(object):
         #initializing variables
         self.blurInfo=[]
         self.levelInfo=[]
-        self.dynamic=[0,0]
+        self.dynamic=[None,None]
         self.maxima_candidates=[]
         self.minima_candidates=[]
         self.maxima_dynamic=[None,None]
@@ -192,7 +192,7 @@ class LaplacianPyramid(object):
         self.__compute_filter(beginWithLvl,0,0)
         self.maxima_dynamic=[self.table[beginWithLvl][0][0],self.table[beginWithLvl][0][0]]
         self.minima_dynamic=[self.table[beginWithLvl][0][0],self.table[beginWithLvl][0][0]]
-        
+        self.dynamic=[self.table[beginWithLvl][0][0],self.table[beginWithLvl][0][0]]
         for s in range(self.NLevel-1,-1,-1):
             X0=0
             Y0=0
@@ -202,7 +202,7 @@ class LaplacianPyramid(object):
                     Y0=y0*3
                     self.__compute_filter_in_range(s,X0,X0+3,Y0,Y0+3)
 
-            X0+=3
+            """X0+=3
             Y0+=3
             X0=min(X0,self.levelInfo[s][0]-1)
             Y0=min(Y0,self.levelInfo[s][1]-1)
@@ -215,7 +215,7 @@ class LaplacianPyramid(object):
                 Y00=Y0
                 self.__compute_filter_in_range(s,X00,X00+3,Y00,Y00+self.levelInfo[s][8])
             
-            self.__compute_filter_in_range(s,X0,X0+self.levelInfo[s][7],Y0,Y0+self.levelInfo[s][8])
+            self.__compute_filter_in_range(s,X0,X0+self.levelInfo[s][7],Y0,Y0+self.levelInfo[s][8])"""
                         
     def show(self):
         plt.figure()
