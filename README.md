@@ -11,5 +11,5 @@ There are two main parts of the simulation:
 
 You choose the movments of the system and your sensors. The code will simulate the sensor readings.
 Now, usables sensors are:
-accelerometer and gyroscope.
-But i hope to add more sensors in the future like magnetometer, barometer, gps, etc.
+accelerometer, gyroscope and magnetometer.
+But i hope to add more sensors in the future like barometer, gps, etc.
