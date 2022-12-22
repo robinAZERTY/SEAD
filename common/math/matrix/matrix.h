@@ -8,7 +8,8 @@ l'inverse, multiplication par un scalaire, addition, soustraction, multiplicatio
 
 /*
 créé par : robinAZERTY
-version du : 18/08/2022
+version du : 22/12/2022
+add : abs() function
 */
 
 #pragma once
@@ -79,4 +80,5 @@ protected:
     double **Data;// donc 4294967295² = 18 446 744 065 119 617 025 au max
 };
 
+Matrix abs(const Matrix &m);
 Matrix operator*(const double &d, Matrix const &m) { return m * d; }; // la multiplication par un scalaire est symétrique

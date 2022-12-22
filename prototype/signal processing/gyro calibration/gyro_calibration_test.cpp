@@ -14,7 +14,7 @@ void visu()
     trueBias.set(0,0.1);
     trueBias.set(1,0.2);
     trueBias.set(2,0.3);
-    const double noise = 0.05;
+    const double noise = 0.1;
     const unsigned int nbSamples = 100;
     Vector samples = Vector(3);
     for(unsigned int i=0;i<nbSamples;i++)
@@ -27,6 +27,7 @@ void visu()
     }
     std::cout<<"true bias : "<<trueBias.to_str()<<std::endl;
     std::cout<<"estimated bias : "<<gyroCalibration.bias.to_str()<<std::endl;
+    std::cout<<"estimated standard deviation : "<<gyroCalibration.stdDev.to_str()<<std::endl;
 
 }
 int main()

@@ -18,7 +18,6 @@ So error will accumulate.
 #include "../../..\common\exchange data\state\State.cpp"
 #else
 #include "../../..\common\exchange data\state\State.cpp"
-
 #endif
 
 class gyr2orient

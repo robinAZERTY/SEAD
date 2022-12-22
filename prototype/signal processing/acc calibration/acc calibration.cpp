@@ -3,10 +3,10 @@ cree par : robinAZERTY
 version du 13/10/2022
 */
 
-#ifndef false // if it is validated
-#include "../../..\validated\tools\ellipsoidFitting\ellipsoidFitting.cpp"
-#else
+#if false // if it is validated
 #include "../..\tools\ellipsoidFitting\ellipsoidFitting.cpp"
+#else
+#include "../../..\validated\tools\ellipsoidFitting\ellipsoidFitting.cpp"
 #endif
 
 class AccCalibration

@@ -316,6 +316,20 @@ Matrix Matrix::operator/(const double &other) const
     return ret;
 }
 
+// pas encore testé 
+Matrix abs(const Matrix &m)
+{
+    Matrix ret(m.get_nb_rows(), m.get_nb_cols());
+    for (int i = 0; i < m.get_nb_rows(); i++)
+    {
+        for (int j = 0; j < m.get_nb_cols(); j++)
+        {   
+            ret.set(i,j,m(i,j) > 0 ? m(i,j) : -m(i,j));
+        }
+    }
+    return ret;
+}
+
 Matrix Matrix::operator+=(const Matrix &other)
 {
     *this = *this + other;

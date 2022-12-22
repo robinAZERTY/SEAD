@@ -31,7 +31,7 @@ void visualize()
 
     // create an accelerometer
     accelerometer my_acc;
-    const double acc_noise = 0.01;
+    const double acc_noise = 0.1;
     const double acc_noise_t[] = {acc_noise, acc_noise, acc_noise};
     my_acc.set_std_noise(acc_noise_t);
     my_simulation.add_sensor(my_acc);
