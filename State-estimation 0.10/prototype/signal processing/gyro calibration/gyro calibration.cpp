@@ -4,9 +4,9 @@ version du 22/12/2022
 */
 
 #if false //if it is validated
-#include "..\tools\ellipsoidFitting\ellipsoidFitting.cpp"
+#include "..\../tools/ellipsoidFitting/ellipsoidFitting.cpp"
 #else
-#include "../../..\validated\tools\ellipsoidFitting\ellipsoidFitting.cpp"
+#include "..\..\../validated/tools/ellipsoidFitting/ellipsoidFitting.cpp"
 #endif
 
 //the goal of this program is to find the best bias from a set of gyroscope MEMS data

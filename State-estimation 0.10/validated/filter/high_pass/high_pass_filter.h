@@ -4,9 +4,8 @@ version du : 18/09/2022
 */
 
 #pragma once
-#define IS_VALIDATED true
 
-#if IS_VALIDATED
+#if true//true if the code is validated
 #include "../digital_filter/digital_filter.cpp"
 #else
 #include "..\..\../validated/filter/digital_filter/digital_filter.cpp"

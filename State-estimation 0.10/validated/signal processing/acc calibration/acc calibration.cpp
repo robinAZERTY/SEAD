@@ -4,9 +4,9 @@ version du 13/10/2022
 */
 
 #if true // if it is validated
-#include "../..\tools\ellipsoidFitting\ellipsoidFitting.cpp"
+#include "..\../tools/ellipsoidFitting/ellipsoidFitting.cpp"
 #else
-#include "../../..\validated\tools\ellipsoidFitting\ellipsoidFitting.cpp"
+#include "..\..\../validated/tools/ellipsoidFitting/ellipsoidFitting.cpp"
 #endif
 
 class AccCalibration

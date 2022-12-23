@@ -4,7 +4,7 @@ version du 29/09/2022
 */
 
 #include "mag2orient.cpp"
-#include "../../..\Simulation-dev 0.11/lib_validated\simulation\simulation.cpp"
+#include "..\..\..\../Simulation-dev 0.12/lib_validated/simulation/simulation.cpp"
 #include <iostream>
 using namespace std;
 
@@ -12,7 +12,7 @@ using namespace std;
 #define DEG_TO_RAD 0.01745329251994329576923690768489
 
 // magnetometer object (as sensor) must be added to the simulation
-/*
+
 void visualize()
 {
     // create a simulation
@@ -76,4 +76,3 @@ int main()
     cout << "end" << endl;
     return 0;
 }
-*/

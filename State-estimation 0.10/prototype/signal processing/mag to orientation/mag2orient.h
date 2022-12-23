@@ -5,8 +5,7 @@ version du 22/12/2022
 The magnometer is used to determine the orientation in yaw axe. 
 */
 
-#include "../../..\common\exchange data\state\State.cpp"
-
+#include "..\..\..\../common/exchange data/state/State.cpp"
 
 class mag2orient
 {

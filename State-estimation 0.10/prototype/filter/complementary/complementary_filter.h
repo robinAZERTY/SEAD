@@ -4,9 +4,8 @@ version du : 25/09/2022
 */
 
 #pragma once
-#define IS_VALIDATED false
 
-#if IS_VALIDATED
+#if false // true if the code is validated
 #include "../digital_filter/digital_filter.cpp"
 #include "../high_pass/high_pass_filter.cpp"
 #include "../low_pass/low_pass_filter.cpp"

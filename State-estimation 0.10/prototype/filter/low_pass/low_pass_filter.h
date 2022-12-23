@@ -2,10 +2,10 @@
 cree par : robinAZERTY
 version du : 18/09/2022
 */
-#define IS_VALIDATED false
+
 #pragma once
 
-#if IS_VALIDATED
+#if false//true if the code is validated
 #include "../digital_filter/digital_filter.cpp"
 #else
 #include "..\..\../validated/filter/digital_filter/digital_filter.cpp"

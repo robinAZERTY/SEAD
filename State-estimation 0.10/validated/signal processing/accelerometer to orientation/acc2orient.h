@@ -13,11 +13,7 @@ The orientation is the rotation of the system in the referencial of the earth. (
 
 #pragma once
 
-#if !true// true if IS_VALIDATED | false if IS_PROTOTYPE
-#include "../../..\common\exchange data\state\State.cpp"
-#else
-#include "../../..\common\exchange data\state\State.cpp"
-#endif
+#include "..\..\..\../common/exchange data/state/State.cpp"
 
 class acc2orient
 {

@@ -7,8 +7,11 @@ so we use inheritance of the class AccCalibration
  
 */
 
-
+#if false // if it is validated
 #include "../acc calibration/acc calibration.cpp"
+#else
+#include "..\..\../validated/signal processing/acc calibration/acc calibration.cpp"
+#endif
 
 class MagCalibration : public AccCalibration
 {

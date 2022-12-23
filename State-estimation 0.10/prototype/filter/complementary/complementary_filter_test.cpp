@@ -51,7 +51,7 @@ void visualize()
 
 
     double t = 0.0;
-    while (t < 100.0)
+    while (t < 1.0)
     {
         double acc = acc_angle();
         double gyro = gyro_angle(dt);

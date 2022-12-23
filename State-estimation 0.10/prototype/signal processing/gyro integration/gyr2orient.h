@@ -14,11 +14,7 @@ So error will accumulate.
 
 #pragma once
 
-#if false // true if IS_VALIDATED | false if IS_PROTOTYPE
-#include "../../..\common\exchange data\state\State.cpp"
-#else
-#include "../../..\common\exchange data\state\State.cpp"
-#endif
+#include "..\..\..\../common/exchange data/state/State.cpp"
 
 class gyr2orient
 {

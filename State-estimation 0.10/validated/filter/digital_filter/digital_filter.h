@@ -3,18 +3,17 @@ cree par : robinAZERTY
 version du : 18/09/2022
 */
 #pragma once
-#define is_VALIDATED true
 
 //https://en.wikipedia.org/wiki/Digital_filter
 
 #define doubleORfloat double
 
-#if !is_VALIDATED
-#include "../../..\validated\tools\FIFO\FIFO.cpp"
-
-#else
+#if true // true if the code is validated
 #include "../..\tools\FIFO\FIFO.cpp"
+#else
+#include "../../..\validated\tools\FIFO\FIFO.cpp"
 #endif
+
 
 
 class digital_filter
