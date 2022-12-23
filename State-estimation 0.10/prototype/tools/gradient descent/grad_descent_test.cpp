@@ -39,7 +39,7 @@ struct my_struct
     void fit()
     {
         const double *ret = gradDescent(my_function2, p, 1, 1e-10, 0.2);
-        for (unsigned int i = 0; i <= 1; i++)
+        for (unsigned int i = 0; i <= 2; i++)
         {
             std::cout << ret[i] << std::endl;
         }

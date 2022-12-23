@@ -34,11 +34,11 @@ void visu()
     //add a new element
     cout<<"push a new element"<<endl;
     fifo.push(11);
-    fifo[0] /= 2;
+    //fifo[0] /= 2;
 
     for(unsigned short i = 0; i < 10; i++)
     {
-        cout<<"fifo["<<i<<"]  ="<<fifo[i]<<"\t"<<fifo[-i]<<endl;
+        cout<<"fifo["<<i<<"]  = "<<fifo[i]<<"\t"<<fifo[-i]<<endl;
     }
     
 

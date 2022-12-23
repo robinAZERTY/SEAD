@@ -13,9 +13,9 @@ x is a 3x1 vector (point) which is on the unit sphere
 the goal of this program is to find the best A and B from a set of points
 */
 
-#include "../../..\common\math\vector\Vector.cpp"
-#include "../../..\validated\tools\gradient descent\gradient_descent.cpp"
-#include "../../..\common\math\quaternion\Quaternion.cpp"
+#include "..\..\..\../common/math/vector/Vector.cpp"
+#include "..\..\../validated/tools/gradient descent/gradient_descent.cpp"
+#include "..\..\..\../common/math/quaternion/quaternion.cpp"
 #include <iostream>
 
 class Ellipsoid
