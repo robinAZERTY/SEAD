@@ -83,6 +83,6 @@ void State::set_description(const String &description)
 
 String State::to_str() const
 {
-    //return this->description + " :" + "\n" + this->positionState.to_str() + "\n" + this->orientationState.to_str();
-    return this->description;
+    return this->description + " :" + "\n" + this->positionState.to_str() + "\n" + this->orientationState.to_str();
+    //return this->description;
 }
