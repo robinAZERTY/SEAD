@@ -163,31 +163,68 @@ int MPU9250::begin(){
   return 1;
 }
 
-struct gyr_calib_data {
-    float gxb;
-    float gyb;
-    float gzb;
-    float g_std_dev;
-  };
 
-struct AccCalibrationData 
-  {
-    float A[9];
-    float B[3];
-    float std_dev;
-  };
 
-int MPU9250::readCalibrationFromFlash() {
+int MPU9250::read_from_flash_gyro_cal() {
   gyr_calib_data gyr_readed;
+  Serial.println("read Calibration From Flash");
   EEPROM.get(GYRO_CALIBRATION_ADDRESS, gyr_readed);
-  Serial.print("gyr_readed.gxb =");Serial.println(String(gyr_readed.gxb,5));
-  Serial.print("gyr_readed.gyb =");Serial.println(String(gyr_readed.gyb,5));
-  Serial.print("gyr_readed.gzb =");Serial.println(String(gyr_readed.gzb,5));
-  Serial.print("gyr_readed.g_std_dev =");Serial.println(String(gyr_readed.g_std_dev,5));
-  _gxb = gyr_readed.gxb;
-  _gyb = gyr_readed.gyb;
-  _gzb = gyr_readed.gzb;
-  _g_std_dev = gyr_readed.g_std_dev;
+  //test if the data is valid (not yet implemented)
+  _calData.gyr = gyr_readed;
+  return 1;
+}
+
+int MPU9250::write_to_flash_gyro_cal() {
+  Serial.println("write gyro Calibration To Flash");
+  EEPROM.put(GYRO_CALIBRATION_ADDRESS, _calData.gyr);
+  EEPROM.commit();
+  return 1;
+}
+
+int MPU9250::read_from_flash_accel_cal() {
+  acc_calib_data accel_readed;
+  Serial.println("read accel Calibration From Flash");
+  EEPROM.get(ACC_CALIBRATION_ADDRESS, accel_readed);
+  //test if the data is valid (not yet implemented)
+  _calData.acc = accel_readed;
+  return 1;
+}
+
+int MPU9250::write_to_flash_accel_cal() {
+  Serial.println("write accel Calibration To Flash");
+  EEPROM.put(ACC_CALIBRATION_ADDRESS, _calData.acc);
+  EEPROM.commit();
+  return 1;
+}
+
+int MPU9250::read_from_flash_mag_cal() {
+  mag_calib_data mag_readed;
+  Serial.println("read mag Calibration From Flash");
+  EEPROM.get(MAG_CALIBRATION_ADDRESS, mag_readed);
+  //test if the data is valid (not yet implemented)
+  _calData.mag = mag_readed;
+  return 1;
+}
+
+int MPU9250::write_to_flash_mag_cal() {
+  Serial.println("write mag Calibration To Flash");
+  EEPROM.put(MAG_CALIBRATION_ADDRESS, _calData.mag);
+  EEPROM.commit();
+  return 1;
+}
+
+int MPU9250::read_from_flash_all_cal() {
+  CalibrationData cal_readed;
+  Serial.println("read all Calibration From Flash");
+  EEPROM.get(GYRO_CALIBRATION_ADDRESS, cal_readed);
+  //test if the data is valid (not yet implemented)
+  _calData = cal_readed;
+  return 1;
+}
+
+int MPU9250::write_to_flash_all_cal() {
+  Serial.println("write all Calibration To Flash");
+  EEPROM.put(GYRO_CALIBRATION_ADDRESS, _calData);
   return 1;
 }
 
@@ -484,13 +521,13 @@ int MPU9250::readSensor() {
   _ax = (((float)(tX[0]*_axcounts + tX[1]*_aycounts + tX[2]*_azcounts) * _accelScale) - _axb)*_axs;
   _ay = (((float)(tY[0]*_axcounts + tY[1]*_aycounts + tY[2]*_azcounts) * _accelScale) - _ayb)*_ays;
   _az = (((float)(tZ[0]*_axcounts + tZ[1]*_aycounts + tZ[2]*_azcounts) * _accelScale) - _azb)*_azs;
-  _gx = ((float)(tX[0]*_gxcounts + tX[1]*_gycounts + tX[2]*_gzcounts) * _gyroScale) - _gxb;
-  _gy = ((float)(tY[0]*_gxcounts + tY[1]*_gycounts + tY[2]*_gzcounts) * _gyroScale) - _gyb;
-  _gz = ((float)(tZ[0]*_gxcounts + tZ[1]*_gycounts + tZ[2]*_gzcounts) * _gyroScale) - _gzb;
-  _hx = (((float)(_hxcounts) * _magScaleX) - _hxb)*_hxs;
-  _hy = (((float)(_hycounts) * _magScaleY) - _hyb)*_hys;
-  _hz = (((float)(_hzcounts) * _magScaleZ) - _hzb)*_hzs;
-  _t = ((((float) _tcounts) - _tempOffset)/_tempScale) + _tempOffset;
+  _gx = ((float)(tX[0]*_gxcounts + tX[1]*_gycounts + tX[2]*_gzcounts) * _gyroScale) - _calData.gyr.Bias[0];
+  _gy = ((float)(tY[0]*_gxcounts + tY[1]*_gycounts + tY[2]*_gzcounts) * _gyroScale) - _calData.gyr.Bias[1];
+  _gz = ((float)(tZ[0]*_gxcounts + tZ[1]*_gycounts + tZ[2]*_gzcounts) * _gyroScale) - _calData.gyr.Bias[2];
+  _hx = (((float)(_hxcounts) * _magScaleX) -  _calData.mag.Bias[0])*_calData.mag.RotationMatrix[0][0];
+  _hy = (((float)(_hycounts) * _magScaleY) -  _calData.mag.Bias[1])*_calData.mag.RotationMatrix[1][1];
+  _hz = (((float)(_hzcounts) * _magScaleZ) -  _calData.mag.Bias[2])*_calData.mag.RotationMatrix[2][2];
+  _t = ((((float) _tcounts) - _tempOffset)/_tempScale) + _tempOffset;// _t : temperature in degrees C
   return 1;
 }
 
@@ -580,9 +617,9 @@ int MPU9250FIFO::readFifo() {
       _gycounts = (((int16_t)_buffer[2 + _enFifoAccel*6 + _enFifoTemp*2]) << 8) | _buffer[3 + _enFifoAccel*6 + _enFifoTemp*2];
       _gzcounts = (((int16_t)_buffer[4 + _enFifoAccel*6 + _enFifoTemp*2]) << 8) | _buffer[5 + _enFifoAccel*6 + _enFifoTemp*2];
       // transform and convert to float values
-      _gxFifo[i] = ((float)(tX[0]*_gxcounts + tX[1]*_gycounts + tX[2]*_gzcounts) * _gyroScale) - _gxb;
-      _gyFifo[i] = ((float)(tY[0]*_gxcounts + tY[1]*_gycounts + tY[2]*_gzcounts) * _gyroScale) - _gyb;
-      _gzFifo[i] = ((float)(tZ[0]*_gxcounts + tZ[1]*_gycounts + tZ[2]*_gzcounts) * _gyroScale) - _gzb;
+      _gxFifo[i] = ((float)(tX[0]*_gxcounts + tX[1]*_gycounts + tX[2]*_gzcounts) * _gyroScale) - _calData.gyr.Bias[0];
+      _gyFifo[i] = ((float)(tY[0]*_gxcounts + tY[1]*_gycounts + tY[2]*_gzcounts) * _gyroScale) - _calData.gyr.Bias[1];
+      _gzFifo[i] = ((float)(tZ[0]*_gxcounts + tZ[1]*_gycounts + tZ[2]*_gzcounts) * _gyroScale) - _calData.gyr.Bias[2];
       _gSize = _fifoSize/_fifoFrameSize;
     }
     if (_enFifoMag) {
@@ -591,9 +628,9 @@ int MPU9250FIFO::readFifo() {
       _hycounts = (((int16_t)_buffer[3 + _enFifoAccel*6 + _enFifoTemp*2 + _enFifoGyro*6]) << 8) | _buffer[2 + _enFifoAccel*6 + _enFifoTemp*2 + _enFifoGyro*6];
       _hzcounts = (((int16_t)_buffer[5 + _enFifoAccel*6 + _enFifoTemp*2 + _enFifoGyro*6]) << 8) | _buffer[4 + _enFifoAccel*6 + _enFifoTemp*2 + _enFifoGyro*6];
       // transform and convert to float values
-      _hxFifo[i] = (((float)(_hxcounts) * _magScaleX) - _hxb)*_hxs;
-      _hyFifo[i] = (((float)(_hycounts) * _magScaleY) - _hyb)*_hys;
-      _hzFifo[i] = (((float)(_hzcounts) * _magScaleZ) - _hzb)*_hzs;
+      _hxFifo[i] = (((float)(_hxcounts) * _magScaleX) -  _calData.mag.Bias[0])*_calData.mag.RotationMatrix[0][0];
+      _hyFifo[i] = (((float)(_hycounts) * _magScaleY) -  _calData.mag.Bias[1])*_calData.mag.RotationMatrix[1][1];
+      _hzFifo[i] = (((float)(_hzcounts) * _magScaleZ) -  _calData.mag.Bias[2])*_calData.mag.RotationMatrix[2][2];
       _hSize = _fifoSize/_fifoFrameSize;
     }
   }
@@ -679,14 +716,14 @@ int MPU9250::calibrateGyro() {
   _gzbD = 0;
   for (size_t i=0; i < _numSamples; i++) {
     readSensor();
-    _gxbD += (getGyroX_rads() + _gxb)/((double)_numSamples);
-    _gybD += (getGyroY_rads() + _gyb)/((double)_numSamples);
-    _gzbD += (getGyroZ_rads() + _gzb)/((double)_numSamples);
+    _gxbD += (getGyroX_rads() + _calData.gyr.Bias[0])/((double)_numSamples);
+    _gybD += (getGyroY_rads() + _calData.gyr.Bias[1])/((double)_numSamples);
+    _gzbD += (getGyroZ_rads() + _calData.gyr.Bias[2])/((double)_numSamples);
     delay(20);
   }
-  _gxb = (float)_gxbD;
-  _gyb = (float)_gybD;
-  _gzb = (float)_gzbD;
+  _calData.gyr.Bias[0] = (float)_gxbD;
+  _calData.gyr.Bias[1] = (float)_gybD;
+  _calData.gyr.Bias[2] = (float)_gzbD;
 
   // set the range, bandwidth, and srd back to what they were
   if (setGyroRange(_gyroRange) < 0) {
@@ -715,57 +752,51 @@ int MPU9250::calibrateGyro_advanced(const unsigned int numberOfSamples, const un
     gyroCalibration.process(g);
     delay(dt_ms);
   }
-  _gxb = (float)gyroCalibration.bias(0);
-  _gyb = (float)gyroCalibration.bias(1);
-  _gzb = (float)gyroCalibration.bias(2);
-  _g_std_dev = (float)gyroCalibration.stdDev.norm();
-  Serial.print("_gxb: "); Serial.println(_gxb);
-  Serial.print("_gyb: "); Serial.println(_gyb);
-  Serial.print("_gzb: "); Serial.println(_gzb);
-  Serial.print("_g_std_dev: "); Serial.println(_g_std_dev);
+  _calData.gyr.Bias[0] = (float)gyroCalibration.bias(0);
+  _calData.gyr.Bias[1] = (float)gyroCalibration.bias(1);
+  _calData.gyr.Bias[2] = (float)gyroCalibration.bias(2);
+  _calData.gyr.std_dev = (float)gyroCalibration.stdDev.norm();
+  Serial.print("_gxb: "); Serial.println(_calData.gyr.Bias[0]);
+  Serial.print("_gyb: "); Serial.println(_calData.gyr.Bias[1]);
+  Serial.print("_gzb: "); Serial.println(_calData.gyr.Bias[2]);
+  Serial.print("_g_std_dev: "); Serial.println(_calData.gyr.std_dev);
 
 
-  
-  gyr_calib_data gyr_calib;
-  gyr_calib.gxb = _gxb;
-  gyr_calib.gyb = _gyb;
-  gyr_calib.gzb = _gzb;
-  gyr_calib.g_std_dev = _g_std_dev;
 
   if (write_to_flash) {
-    EEPROM.put(GYRO_CALIBRATION_ADDRESS, gyr_calib);
+    write_to_flash_gyro_cal();
   }
  return 1;
 }
 
 /* returns the gyro bias in the X direction, rad/s */
 float MPU9250::getGyroBiasX_rads() {
-  return _gxb;
+  return _calData.gyr.Bias[0];
 }
 
 /* returns the gyro bias in the Y direction, rad/s */
 float MPU9250::getGyroBiasY_rads() {
-  return _gyb;
+  return _calData.gyr.Bias[1];
 }
 
 /* returns the gyro bias in the Z direction, rad/s */
 float MPU9250::getGyroBiasZ_rads() {
-  return _gzb;
+  return _calData.gyr.Bias[2];
 }
 
 /* sets the gyro bias in the X direction to bias, rad/s */
 void MPU9250::setGyroBiasX_rads(float bias) {
-  _gxb = bias;
+  _calData.gyr.Bias[0] = bias;
 }
 
 /* sets the gyro bias in the Y direction to bias, rad/s */
 void MPU9250::setGyroBiasY_rads(float bias) {
-  _gyb = bias;
+  _calData.gyr.Bias[1] = bias;
 }
 
 /* sets the gyro bias in the Z direction to bias, rad/s */
 void MPU9250::setGyroBiasZ_rads(float bias) {
-  _gzb = bias;
+   _calData.gyr.Bias[2] = bias;
 }
 
 /* finds bias and scale factor calibration for the accelerometer,
@@ -853,6 +884,7 @@ bool MPU9250::is_moving()
 int MPU9250::calibrateAccel_advanced(const unsigned int numberOfSamples, const bool write_to_flash) {
   //collect data
   unsigned int sampleCounter = 0;
+  unsigned long t0 = millis();
   double sample[numberOfSamples*3];
   while (sampleCounter<numberOfSamples) {
     readSensor();
@@ -860,34 +892,45 @@ int MPU9250::calibrateAccel_advanced(const unsigned int numberOfSamples, const b
     {
       double distance = 10;
       if (sampleCounter>0) distance = abs(sample[(sampleCounter-1)*3]-(double)getAccelX_mss())+abs(sample[(sampleCounter-1)*3+1]-(double)getAccelY_mss())+abs(sample[(sampleCounter-1)*3+2]-(double)getAccelZ_mss());
-      if (distance>2)
+      if (distance>2 and millis()-t0>=500)
       {
       sample[sampleCounter*3] = getAccelX_mss();
       sample[sampleCounter*3+1] = getAccelY_mss();
       sample[sampleCounter*3+2] = getAccelZ_mss();
       sampleCounter++;
       Serial.println("waitting for sample "+String(sampleCounter)+"/"+String(numberOfSamples));
+      t0 = millis();
       }
     }
-    delay(2000);
+    else
+    {
+      t0 = millis();
+    }
+    delay(20);
   }
   Serial.println("start computing...");
   accCalibration.calibrate(sample,sampleCounter,0.05);
+  for (int i=0;i<3;i++)
+  {
+    for (int j=0;j<3;j++)
+    {
+      _calData.acc.RotationMatrix[i][j] = (float)accCalibration.ellipsoidFitting.A(i,j);
+    }
+    _calData.acc.Bias[i] = (float)accCalibration.ellipsoidFitting.B(i);
+  }
+  _calData.acc.std_dev = sqrt(accCalibration.ellipsoidFitting.minimum_cost);
+  
+  
   Serial.println(accCalibration.ellipsoidFitting.A.to_str());
   Serial.println(accCalibration.ellipsoidFitting.B.to_str());
   Serial.println(sqrt(accCalibration.ellipsoidFitting.minimum_cost));
 
+
   if (write_to_flash)
   {
-    //write to flash
-    Serial.println("start writing to flash...");
-    AccCalibrationData data;
-    for (int i=0;i<9;i++) data.A[i] = accCalibration.ellipsoidFitting.A(i%3,i/3);
-    for (int i=0;i<3;i++) data.B[i] = accCalibration.ellipsoidFitting.B(i);
-    data.std_dev = sqrt(accCalibration.ellipsoidFitting.minimum_cost);
-    EEPROM.put(ACC_CALIBRATION_ADDRESS,data);
+    write_to_flash_accel_cal();
   }
-  return 0;
+  return 1;
 }
 
 /* returns the accelerometer bias in the X direction, m/s/s */
@@ -961,9 +1004,9 @@ int MPU9250::calibrateMag() {
     _delta = 0.0f;
     _framedelta = 0.0f;
     readSensor();
-    _hxfilt = (_hxfilt*((float)_coeff-1)+(getMagX_uT()/_hxs+_hxb))/((float)_coeff);
-    _hyfilt = (_hyfilt*((float)_coeff-1)+(getMagY_uT()/_hys+_hyb))/((float)_coeff);
-    _hzfilt = (_hzfilt*((float)_coeff-1)+(getMagZ_uT()/_hzs+_hzb))/((float)_coeff);
+    _hxfilt = (_hxfilt*((float)_coeff-1)+(getMagX_uT()/_calData.mag.RotationMatrix[0][0]+ _calData.mag.Bias[0]))/((float)_coeff);
+    _hyfilt = (_hyfilt*((float)_coeff-1)+(getMagY_uT()/_calData.mag.RotationMatrix[1][1]+ _calData.mag.Bias[1]))/((float)_coeff);
+    _hzfilt = (_hzfilt*((float)_coeff-1)+(getMagZ_uT()/_calData.mag.RotationMatrix[2][2]+ _calData.mag.Bias[2]))/((float)_coeff);
     if (_hxfilt > _hxmax) {
       _delta = _hxfilt - _hxmax;
       _hxmax = _hxfilt;
@@ -1015,18 +1058,18 @@ int MPU9250::calibrateMag() {
   }
 
   // find the magnetometer bias
-  _hxb = (_hxmax + _hxmin) / 2.0f;
-  _hyb = (_hymax + _hymin) / 2.0f;
-  _hzb = (_hzmax + _hzmin) / 2.0f;
+  _calData.mag.Bias[0] = (_hxmax + _hxmin) / 2.0f;
+  _calData.mag.Bias[1] = (_hymax + _hymin) / 2.0f;
+  _calData.mag.Bias[2] = (_hzmax + _hzmin) / 2.0f;
 
   // find the magnetometer scale factor
-  _hxs = (_hxmax - _hxmin) / 2.0f;
-  _hys = (_hymax - _hymin) / 2.0f;
-  _hzs = (_hzmax - _hzmin) / 2.0f;
-  _avgs = (_hxs + _hys + _hzs) / 3.0f;
-  _hxs = _avgs/_hxs;
-  _hys = _avgs/_hys;
-  _hzs = _avgs/_hzs;
+  _calData.mag.RotationMatrix[0][0] = (_hxmax - _hxmin) / 2.0f;
+  _calData.mag.RotationMatrix[1][1] = (_hymax - _hymin) / 2.0f;
+  _calData.mag.RotationMatrix[2][2] = (_hzmax - _hzmin) / 2.0f;
+  const float _avgs = (_calData.mag.RotationMatrix[0][0] + _calData.mag.RotationMatrix[1][1] + _calData.mag.RotationMatrix[2][2]) / 3.0f;
+  _calData.mag.RotationMatrix[0][0] = _avgs/_calData.mag.RotationMatrix[0][0];
+  _calData.mag.RotationMatrix[1][1] = _avgs/_calData.mag.RotationMatrix[1][1];
+  _calData.mag.RotationMatrix[2][2] = _avgs/_calData.mag.RotationMatrix[2][2];
 
   // set the srd back to what it was
   if (setSrd(_srd) < 0) {
@@ -1035,52 +1078,95 @@ int MPU9250::calibrateMag() {
   return 1;
 }
 
+int MPU9250::calibrateMag_advanced(const unsigned int numberOfSamples,const bool write_to_flash)
+{
+//collect data
+  unsigned int sampleCounter = 0;
+  double sample[numberOfSamples*3];
+  while (sampleCounter<numberOfSamples) {
+    readSensor();
+    double distance = 10;
+    if (sampleCounter>0) distance = abs(sample[(sampleCounter-1)*3]-(double)getMagX_uT())+abs(sample[(sampleCounter-1)*3+1]-(double)getMagY_uT())+abs(sample[(sampleCounter-1)*3+2]-(double)getMagZ_uT());
+    if (distance>5)
+    {
+    sample[sampleCounter*3] = getMagX_uT();
+    sample[sampleCounter*3+1] = getMagY_uT();
+    sample[sampleCounter*3+2] = getMagZ_uT();
+    sampleCounter++;
+    Serial.println("waitting for sample "+String(sampleCounter)+"/"+String(numberOfSamples));
+    }
+    delay(200);
+  }
+  Serial.println("start computing...");
+  magCalibration.calibrate(sample,sampleCounter,1);
+  for (int i=0;i<3;i++)
+  {
+    for (int j=0;j<3;j++)
+    {
+      _calData.mag.RotationMatrix[i][j] = (float)magCalibration.ellipsoidFitting.A(i,j);
+    }
+    _calData.mag.Bias[i] = (float)magCalibration.ellipsoidFitting.B(i);
+  }
+  _calData.mag.std_dev = sqrt(magCalibration.ellipsoidFitting.minimum_cost);
+  
+  
+  Serial.println(magCalibration.ellipsoidFitting.A.to_str());
+  Serial.println(magCalibration.ellipsoidFitting.B.to_str());
+  Serial.println(sqrt(magCalibration.ellipsoidFitting.minimum_cost));
+
+
+  if (write_to_flash)
+  {
+    write_to_flash_mag_cal();
+  }
+  return 0;
+}
 /* returns the magnetometer bias in the X direction, uT */
 float MPU9250::getMagBiasX_uT() {
-  return _hxb;
+  return  _calData.mag.Bias[0];
 }
 
 /* returns the magnetometer scale factor in the X direction */
 float MPU9250::getMagScaleFactorX() {
-  return _hxs;
+  return _calData.mag.RotationMatrix[0][0];
 }
 
 /* returns the magnetometer bias in the Y direction, uT */
 float MPU9250::getMagBiasY_uT() {
-  return _hyb;
+  return  _calData.mag.Bias[1];
 }
 
 /* returns the magnetometer scale factor in the Y direction */
 float MPU9250::getMagScaleFactorY() {
-  return _hys;
+  return _calData.mag.RotationMatrix[1][1];
 }
 
 /* returns the magnetometer bias in the Z direction, uT */
 float MPU9250::getMagBiasZ_uT() {
-  return _hzb;
+  return  _calData.mag.Bias[2];
 }
 
 /* returns the magnetometer scale factor in the Z direction */
 float MPU9250::getMagScaleFactorZ() {
-  return _hzs;
+  return _calData.mag.RotationMatrix[2][2];
 }
 
 /* sets the magnetometer bias (uT) and scale factor in the X direction */
 void MPU9250::setMagCalX(float bias,float scaleFactor) {
-  _hxb = bias;
-  _hxs = scaleFactor;
+   _calData.mag.Bias[0] = bias;
+  _calData.mag.RotationMatrix[0][0] = scaleFactor;
 }
 
 /* sets the magnetometer bias (uT) and scale factor in the Y direction */
 void MPU9250::setMagCalY(float bias,float scaleFactor) {
-  _hyb = bias;
-  _hys = scaleFactor;
+   _calData.mag.Bias[1] = bias;
+  _calData.mag.RotationMatrix[1][1] = scaleFactor;
 }
 
 /* sets the magnetometer bias (uT) and scale factor in the Z direction */
 void MPU9250::setMagCalZ(float bias,float scaleFactor) {
-  _hzb = bias;
-  _hzs = scaleFactor;
+   _calData.mag.Bias[2] = bias;
+  _calData.mag.RotationMatrix[2][2] = scaleFactor;
 }
 
 /* writes a byte to MPU9250 register given a register address and data */

@@ -28,9 +28,9 @@
 
 
 #include "EEPROM.h"
-#define gyr_calib_size sizeof(float)*4
-#define acc_calib_size sizeof(float)*13
-#define mag_calib_size sizeof(float)*13
+#define gyr_calib_size sizeof(gyr_calib_data)
+#define acc_calib_size sizeof(acc_calib_data)
+#define mag_calib_size sizeof(mag_calib_data)
 
 #define GYRO_CALIBRATION_ADDRESS 0
 #define ACC_CALIBRATION_ADDRESS GYRO_CALIBRATION_ADDRESS+gyr_calib_size
@@ -43,8 +43,34 @@
 #include "../signal processing/scr/acc calibration.cpp"
 #include "../signal processing/scr/mag calibration.cpp"
 
+struct gyr_calib_data {
+    float Bias[3]= {0,0,0};
+    float std_dev= 0;
+  };
+
+struct acc_calib_data 
+  {
+    float RotationMatrix[3][3]= {{1,0,0},{0,1,0},{0,0,1}};
+    float Bias[3]= {0,0,0};
+    float std_dev= 0;
+  };
+
+struct mag_calib_data 
+  {
+    float RotationMatrix[3][3]= {{1,0,0},{0,1,0},{0,0,1}};
+    float Bias[3]= {0,0,0};
+    float std_dev= 0;
+  };
+
+struct CalibrationData 
+  {
+    gyr_calib_data gyr;
+    acc_calib_data acc;
+    mag_calib_data mag;
+  };
 
 class MPU9250{
+
   public:
     enum GyroRange
     {
@@ -105,8 +131,6 @@ class MPU9250{
     float getMagY_uT();
     float getMagZ_uT();
     float getTemperature_C();
-    
-    int readCalibrationFromFlash();
     int calibrateGyro();
     int calibrateGyro_advanced(const unsigned int numberOfSamples, const unsigned int dt_ms, const bool write_to_flash=false);
     float getGyroBiasX_rads();
@@ -127,6 +151,7 @@ class MPU9250{
     void setAccelCalY(float bias,float scaleFactor);
     void setAccelCalZ(float bias,float scaleFactor);
     int calibrateMag();
+    int calibrateMag_advanced(const unsigned int numberOfSamples, const bool write_to_flash=false);
     float getMagBiasX_uT();
     float getMagScaleFactorX();
     float getMagBiasY_uT();
@@ -137,6 +162,18 @@ class MPU9250{
     void setMagCalY(float bias,float scaleFactor);
     void setMagCalZ(float bias,float scaleFactor);
     bool is_moving();
+
+    int read_from_flash_gyro_cal();
+    int read_from_flash_accel_cal();
+    int read_from_flash_mag_cal();
+    int read_from_flash_all_cal();
+
+    int write_to_flash_gyro_cal();
+    int write_to_flash_accel_cal();
+    int write_to_flash_mag_cal();
+    int write_to_flash_all_cal();
+    //calibration Data
+    CalibrationData _calData;
 
   protected:
 
@@ -171,7 +208,7 @@ class MPU9250{
     // wake on motion
     uint8_t _womThreshold;
     // motion detection
-    float gyro_threshold = 0.01f;
+    float gyro_threshold = 0.03f;
     // scale factors
     float _accelScale;
     float _gyroScale;
@@ -186,9 +223,7 @@ class MPU9250{
     // gyro bias estimation
     size_t _numSamples = 100;
     double _gxbD, _gybD, _gzbD;
-    float _gxb, _gyb, _gzb;
     GyroCalibration gyroCalibration;
-    float _g_std_dev;
     // accel bias and scale factor estimation
     double _axbD, _aybD, _azbD;
     float _axmax, _aymax, _azmax;
@@ -207,11 +242,15 @@ class MPU9250{
     float _hxfilt, _hyfilt, _hzfilt;
     float _hxmax, _hymax, _hzmax;
     float _hxmin, _hymin, _hzmin;
-    float _hxb, _hyb, _hzb;
+    //float _hxb, _hyb, _hzb; // bias corrections for mag
+    MagCalibration magCalibration;
+    /*
     float _hxs = 1.0f;
     float _hys = 1.0f;
-    float _hzs = 1.0f;
-    float _avgs;
+    float _hzs = 1.0f; // scale factor corrections for mag
+    float _avgs; // average scale factor for mag
+    */
+    
     // transformation matrix
     /* transform the accel and gyro axes to match the magnetometer axes */
     const int16_t tX[3] = {0,  1,  0}; 
