@@ -5,7 +5,7 @@ import numpy as np
 import cv2 as cv
 import time
 
-video_or_image = 1
+video_or_image = 0
 
 cap = cv.VideoCapture(0)
 cap.set(3, 720)

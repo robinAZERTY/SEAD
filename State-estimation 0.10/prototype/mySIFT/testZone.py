@@ -15,7 +15,7 @@ signal=12*np.sinc(w-w[len(w)//2-1])+255-255*t+20*np.sinc(np.pi*(t*4)**2)*(t+1)**
 signal=(np.sin(3*w)+1j*np.cos(3*w))*(t)
 
 
-FT=FCHPIT.compress(signal,0.02,"polynomial3","Complex")
+FT=FCHPIT.compress(signal,0.01,"polynomial3","Complex")
 print(len(FT[0]))
 XX=FCHPIT.decompress(FT,N,"Complex")
 

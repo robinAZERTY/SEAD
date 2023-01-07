@@ -13,8 +13,8 @@ from numpy import Inf,shape,size
 
 
 #filename="D:\\documents\\github\\SEAD\\SEAD\\mySIFT\\IMG_20220824_204247.jpg"
-filename="C:\Users\\robin\Documents\SEAD\mySIFT\IMG_20220824_204247.jpg"
-
+#filename="C:\Users\\robin\Documents\SEAD\mySIFT\IMG_20220824_204247.jpg"
+filename=r"C:\Users\\robin\\Documents\\SEAD\\State-estimation 0.10\\prototype\\mySIFT\\IMG_20220824_204247.jpg"
 #img  = Image.open(path)     
 # On successful execution of this statement,
 # an object of Image type is returned and stored in img variable)
