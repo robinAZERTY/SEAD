@@ -1,4 +1,4 @@
-/*
+
 #include <Adafruit_BMP085.h>
 #include "MPU9250.h"
 #include <TinyGPSPlus.h>
@@ -9,190 +9,118 @@
 #endif
 
 // an MPU9250 object with the MPU-9250 sensor on I2C bus 0 with address 0x68
-MPU9250 IMU(Wire,0x68);
+MPU9250 IMU(Wire, 0x68);
 Adafruit_BMP085 bmp;
 TinyGPSPlus gps;
-
-
 BluetoothSerial SerialBT;
 
-int MPU_connection_test(bool explicit_print)
+String data_to_print = "acc";
+
+void initialiseSerial()
 {
-  // start communication with IMU 
-  int status;
-  status = IMU.begin();
-  if (status < 0 ) {
-    if (explicit_print)
-    {
-      Serial.println("IMU initialization unsuccessful");
-      Serial.println("Check IMU wiring or try cycling power");
-      Serial.print("Status: ");
-      Serial.println(status);
-    }
-    return 0;
+  if (data_to_print == "gps")
+  {
+    SerialBT.println("lat\tlng\talt");
+  }
+  else if (data_to_print == "acc")
+  {
+    SerialBT.println("accX\taccY\taccZ");
+  }
+  else if (data_to_print == "gyro")
+  {
+    SerialBT.println("gyroX\tgyroY\tgyroZ");
+  }
+  else if (data_to_print == "mag")
+  {
+    SerialBT.println("magX\tmagY\tmagZ");
+  }
+  else if (data_to_print == "temp")
+  {
+    SerialBT.println("tempIMU\ttempBMP");
+  }
+  else if (data_to_print == "press")
+  {
+    SerialBT.println("press");
   }
   else
   {
-    if (explicit_print)
-    {
-      Serial.println("IMU initialization successful!");
-    }
-    return 1;
-  }  
-}
-
-int BMP_connection_test(bool explicit_print)
-{
-  if (!bmp.begin()) {
-    if (explicit_print)
-    {
-      Serial.println("Could not find a valid BMP085 sensor, check wiring!");
-    }
-    return 0;
+    SerialBT.println("error");
   }
-  else
+}
+const String sep = "\t";
+
+void updateSerial()
+{
+
+  // update data_to_print
+
+  if (SerialBT.available())
   {
-    if (explicit_print)
+    data_to_print = SerialBT.readStringUntil('\n');
+    if (data_to_print != "gps" && data_to_print != "acc" && data_to_print != "gyro" && data_to_print != "mag" && data_to_print != "temp" && data_to_print != "press")
     {
-      Serial.println("BMP085 sensor found!");
+      SerialBT.println("you must enter gps, acc, gyro, mag, temp or press");
     }
-    return 1;
+    else
+    {
+      initialiseSerial();
+    }
   }
-}
+String msg = "";
+// read the sensors
+IMU.readSensor();
+// display the data
 
-
-
-int GPS_connection_test(bool explicit_print)
+if (data_to_print == "gps")
 {
- Serial2.begin(9600, SERIAL_8N1, 16, 17);
- while (!Serial2){};
-  return 1;
+  msg += "lat:"+ String(gps.location.lat(), 6) + sep;
+  msg += "lng:"+ String(gps.location.lng(), 6) + sep;
+  msg += "alt:"+ String(gps.altitude.meters());
+}
+else if (data_to_print == "acc")
+{
+  msg += "accX:"+ String(IMU.getAccelX_mss()) + sep;
+  msg += "accY:"+ String(IMU.getAccelY_mss()) + sep;
+  msg += "accZ:"+ String(IMU.getAccelZ_mss());
+}
+else if (data_to_print == "gyro")
+{
+  msg += "gyroX:"+ String(IMU.getGyroX_rads(),4) + sep;
+  msg += "gyroY:"+ String(IMU.getGyroY_rads(),4) + sep;
+  msg += "gyroZ:"+ String(IMU.getGyroZ_rads(),4);
+}
+else if (data_to_print == "mag")
+{
+  msg += "magX:"+ String(IMU.getMagX_uT()) + sep;
+  msg += "magY:"+ String(IMU.getMagY_uT()) + sep;
+  msg += "magZ:"+ String(IMU.getMagZ_uT());
+}
+else if (data_to_print == "temp")
+{
+  msg += "tempIMU:"+ String(IMU.getTemperature_C()) + sep;
+  msg += "tempBMP:"+ String(bmp.readTemperature());
+}
+else if (data_to_print == "press")
+{
+  msg += "press:"+ String(bmp.readPressure());
+}
+SerialBT.println(msg);
 }
 
-void updateSerial(){
-  while (Serial.available()) {
-    SerialBT.write(Serial.read());
-  }
-  while (SerialBT.available()) {
-    Serial.write(SerialBT.read());
-  }
-  while (Serial.available())  {
-    Serial2.write(Serial.read());//Forward what Serial received to Software Serial Port
-  }
-  while (Serial2.available())  {
-    char c = Serial2.read();
-    Serial.write(c);//Forward what Software Serial received to Serial Port
-    SerialBT.write(c);
-  }
-}
-
-void setup() {
+void setup()
+{
   // serial to display data
   Serial.begin(115200);
-  while(!Serial) {}
-  SerialBT.begin("ESP32test"); //Bluetooth device name
-  while(!SerialBT.connected()) {}
-  Serial.println();
-  Serial.println("The device started, now you can pair it with bluetooth!");
-  Serial.println("Starting connection test");
-  Serial.println("Press any key to start");
-  Serial.println("Starting MPU9250 test");
-  MPU_connection_test(true);
-
-  Serial.println("Starting BMP180 test");
-  BMP_connection_test(true);
-  GPS_connection_test(true);
-}
-
-void loop() {
-updateSerial();
-delay(100);
-}
-
-*/
-
-/*
-    Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleServer.cpp
-    Ported to Arduino ESP32 by Evandro Copercini
-    updates by chegewara
-*/
-
-#include <Arduino.h>
-#include <TinyGPSPlus.h>
-/*
-    Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleServer.cpp
-    Ported to Arduino ESP32 by Evandro Copercini
-    updates by chegewara
-*/
-
-#include <BLEDevice.h>
-#include <BLEUtils.h>
-#include <BLEServer.h>
-
-// See the following for generating UUIDs:
-// https://www.uuidgenerator.net/
-
-#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
-#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
-
-
-
-
-TinyGPSPlus gps;
-void setup() {
-  Serial2.begin(9600, SERIAL_8N1, 16, 17);
-  Serial.begin(115200);
-  Serial.println("Starting BLE work!");
-
-  BLEDevice::init("Long name works now");
-  BLEServer *pServer = BLEDevice::createServer();
-  BLEService *pService = pServer->createService(SERVICE_UUID);
-  BLECharacteristic *pCharacteristic = pService->createCharacteristic(
-                                         CHARACTERISTIC_UUID,
-                                         BLECharacteristic::PROPERTY_READ |
-                                       BLECharacteristic::PROPERTY_WRITE
-                                       );
-
-  pCharacteristic->setValue("Hello World says Neil");
-  pService->start();
-  // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
-  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(SERVICE_UUID);
-  pAdvertising->setScanResponse(true);
-  pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
-  pAdvertising->setMinPreferred(0x12);
-  BLEDevice::startAdvertising();
-  Serial.println("Characteristic defined! Now you can read it in your phone!");
-  int count=0;
-  while(true)
+  SerialBT.begin("ESP32test"); // Bluetooth device name
+  while (!SerialBT.connected())
   {
-    if(Serial2.available())//Check if Software Serial received any data
-    {
-    //check if the client has disconnected
-    if (pServer->getConnectedCount() == 0) {
-      Serial.println("Client disconnected");
-      break;
-    }
-    else{
-    String str="";
-    while (Serial2.available())  
-    {
-    str += Serial2.read();
-    }
-    Serial.println(str);//Forward what Software Serial received to Serial Port
-// convert str to char array
-    char char_array[str.length() + 1];
-    strcpy(char_array, str.c_str());
-    pCharacteristic->setValue(count);
-    count++;
-    pCharacteristic->notify();
-    delay(1000);
-  }
-    }
-    }
+  } // wait for connection
+  IMU.begin();
+  bmp.begin();
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void loop()
+{
+  updateSerial();
   delay(2000);
 }

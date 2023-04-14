@@ -152,6 +152,7 @@ class MPU9250{
     void setAccelCalZ(float bias,float scaleFactor);
     int calibrateMag();
     int calibrateMag_advanced(const unsigned int numberOfSamples, const bool write_to_flash=false);
+    String mag_calibration_advanced_step(const unsigned int numberOfSamples, float minimum_distance=5,bool write_to_flash=false);
     float getMagBiasX_uT();
     float getMagScaleFactorX();
     float getMagBiasY_uT();
@@ -233,6 +234,7 @@ class MPU9250{
     float _ays = 1.0f;
     float _azs = 1.0f;
     AccCalibration accCalibration;
+    unsigned int acc_advance_cal_counter = 0;
     // magnetometer bias and scale factor estimation
     uint16_t _maxCounts = 1000;
     float _deltaThresh = 0.3f;
@@ -244,6 +246,8 @@ class MPU9250{
     float _hxmin, _hymin, _hzmin;
     //float _hxb, _hyb, _hzb; // bias corrections for mag
     MagCalibration magCalibration;
+    unsigned int mag_advance_cal_counter = 0;
+    double *_mag_samples;
     /*
     float _hxs = 1.0f;
     float _hys = 1.0f;

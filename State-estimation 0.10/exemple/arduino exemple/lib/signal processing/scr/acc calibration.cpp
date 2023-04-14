@@ -17,6 +17,7 @@ public:
     ~AccCalibration();
 
     void calibrate(const double *samples, unsigned short int nbData, const double &eps);//eps=0.015 is good ?
+    float calibrate(const double *samples, unsigned short int nbData, const double &eps, const double *initialParameters);
     void reset();
 
     const Vector apply(Vector &acc_raw) const;
@@ -36,11 +37,18 @@ AccCalibration::~AccCalibration()
 }
 
 void AccCalibration::calibrate(const double *samples, unsigned short int nbData, const double &eps)
-{
-
+{   
     ellipsoidFitting.points = (double *)samples;
     ellipsoidFitting.n = nbData;
     parameters = (double*)ellipsoidFitting.fit_grad_descent(eps);
+}
+
+float AccCalibration::calibrate(const double *samples, unsigned short int nbData, const double &eps, const double *initialParameters)
+{   
+    ellipsoidFitting.points = (double *)samples;
+    ellipsoidFitting.n = nbData;
+    parameters = (double*)ellipsoidFitting.fit_grad_descent_step(eps,initialParameters);
+    return ellipsoidFitting.convergence_rate;
 }
 
 const Vector AccCalibration::apply(Vector &acc_raw) const

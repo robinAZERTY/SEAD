@@ -38,9 +38,10 @@ public:
 
     inline static double *points;
     inline static unsigned short int n;
-    double minimum_cost;
+    double minimum_cost,convergence_rate;
 
     const double *fit_grad_descent(const double &eps);
+    const double *fit_grad_descent_step(const double &eps, const double *initialParameters);
     const double *fit_basic();
     const double *rotation_optimization();
 
@@ -133,17 +134,12 @@ const double *Ellipsoid::fit_basic()
 
     // here, we suppose that axis are aligned with the world axis (and orthogonal)
     // do the average of the points (to find approx of B)
-    // and the average of gain
-    double averageX = 0;
-    double averageY = 0;
-    double averageZ = 0;
+
     double maxX = -1.7976931348623158e+308, maxY = maxX, maxZ = maxX;
     double minX = 1.7976931348623158e+308, minY = minX, minZ = minX;
     for (unsigned int i = 0; i < n; i++)
     {
-        averageX += points[i * 3];
-        averageY += points[i * 3 + 1];
-        averageZ += points[i * 3 + 2];
+
         if (points[i * 3] > maxX)
             maxX = points[i * 3];
         if (points[i * 3] < minX)
@@ -157,27 +153,20 @@ const double *Ellipsoid::fit_basic()
         if (points[i * 3 + 2] < minZ)
             minZ = points[i * 3 + 2];
     }
-    averageX /= n;
-    averageY /= n;
-    averageZ /= n;
-
-    const double gainX = (maxX - minX) / 2;
-    const double gainY = (maxY - minY) / 2;
-    const double gainZ = (maxZ - minZ) / 2;
 
     double *parameters = new double[12];
-    parameters[0] = gainX;
+    parameters[0] = (maxX - minX) / 2;;
     parameters[1] = 0;
     parameters[2] = 0;
     parameters[3] = 0;
-    parameters[4] = gainY;
+    parameters[4] = (maxY - minY) / 2;
     parameters[5] = 0;
     parameters[6] = 0;
     parameters[7] = 0;
-    parameters[8] = gainZ;
-    parameters[9] = averageX;
-    parameters[10] = averageY;
-    parameters[11] = averageZ;
+    parameters[8] = (maxX - minX) / 2;;
+    parameters[9] = (maxX + minX) / 2;
+    parameters[10] = (maxY + minY) / 2;
+    parameters[11] = (maxZ + minZ) / 2;
 
     set_A_B(parameters);
     explicit_A_B();
@@ -187,8 +176,16 @@ const double *Ellipsoid::fit_basic()
 
 const double *Ellipsoid::fit_grad_descent(const double &eps)
 {
-
     const double *initialparameters = Ellipsoid::fit_basic();
+    const double initial_cost=Ellipsoid::cost_funtion(initialparameters);
+    const double *parameters = gradDescent(Ellipsoid::cost_funtion, initialparameters, 12, eps, 0.7);
+    set_A_B(parameters);
+    minimum_cost = Ellipsoid::cost_funtion(parameters);
+    return parameters;
+}
+
+const double *Ellipsoid::fit_grad_descent_step(const double &eps,const double *initialparameters)
+{
     const double initial_cost=Ellipsoid::cost_funtion(initialparameters);
     const double *parameters = gradDescent(Ellipsoid::cost_funtion, initialparameters, 12, eps, 0.7);
     set_A_B(parameters);
